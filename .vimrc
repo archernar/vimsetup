@@ -408,34 +408,15 @@ func! MenuCBDoNothing(id, result)
     let l:NOTHING=0
 endfunction
 
-func! g:MasterNote(szHelp)
-    call g:MasterCommand('', a:szHelp)
-endfunction
-func! g:MasterNote2(a, b)
-    call g:MasterCommand('', a:a . " - " . a:b)
-endfunction
-
-func! g:GetMasterCommandPrefix(szHelp)
-    let l:ret=""
-    if EndsWith(a:szHelp,"++++")
-        let l:ret = "++++"
+func! g:CommanderText(...)
+    if a:0 == 1
+        call g:Commander('', a:1)
+    else
+        call g:Commander('', a:1 . " - " . a:2)
     endif
-    if EndsWith(a:szHelp,"+++")
-        let l:ret = "+++"
-    endif
-    if EndsWith(a:szHelp,"++")
-        let l:ret = "++"
-    endif
-    if EndsWith(a:szHelp,"+")
-        let l:ret = "+"
-    endif
-    return l:ret
 endfunction
 
-func! g:Commander(a,b)
-    call g:MasterCommand(a:a,a:b)
-endfunction
-func! g:MasterCommand(szCommand, szHelp)
+func! g:Commander(szCommand, szHelp)
     if len(a:szCommand)+len(a:szHelp) == 0
         call add(s:helpdisplaynames, "" )
     else
@@ -1212,17 +1193,17 @@ call g:Commander("", "Help++" )
 call g:Commander("", "Help+++" )
 call g:Commander("", "Help++++" )
 
-call g:MasterCommand("<F1>          :cclose<cr>:bnext<cr>",      " F1 - Next Buffer" )
-call g:MasterCommand("<leader><F1>  <C-w>w",                     "+F1 - Next Split")
-call g:MasterCommand('', '')
-call g:MasterCommand("<F2>          :call VimBufferPopUp()<CR>", " F2 - Vim Buffer PopUp" )
-call g:MasterCommand("<F3>          :call HelpPopUp()<CR>",      " F3 - Help Popup" )
-call g:MasterCommand('', '')
-call g:MasterCommand("<F5>          :call ProgramCompile()<cr>", " F5 - Program Compile")
-call g:MasterCommand("<F6>          :call ProgramRun()<cr>",     " F6 - Program Run")
-call g:MasterCommand("<leader><F6>  :cclose<cr>",                "+F6 - Close QuickFix")
-call g:MasterCommand('', '')
-call g:MasterCommand("<Leader>p     :PluginUpdate<cr>",          "+p  - Plugin Update")
+call g:Commander("<F1>          :cclose<cr>:bnext<cr>",      " F1 - Next Buffer" )
+call g:Commander("<leader><F1>  <C-w>w",                     "+F1 - Next Split")
+call g:Commander('', '')
+call g:Commander("<F2>          :call VimBufferPopUp()<CR>", " F2 - Vim Buffer PopUp" )
+call g:Commander("<F3>          :call HelpPopUp()<CR>",      " F3 - Help Popup" )
+call g:Commander('', '')
+call g:Commander("<F5>          :call ProgramCompile()<cr>", " F5 - Program Compile")
+call g:Commander("<F6>          :call ProgramRun()<cr>",     " F6 - Program Run")
+call g:Commander("<leader><F6>  :cclose<cr>",                "+F6 - Close QuickFix")
+call g:Commander('', '')
+call g:Commander("<Leader>p     :PluginUpdate<cr>",          "+p  - Plugin Update")
 
 " --- Buffer & Tab Navigation ---
 call g:Commander("<leader>b :bnext<CR>",                     "+b  - Next buffer")
@@ -1248,41 +1229,41 @@ call g:Commander("<leader><Down> <C-w>j",  "+<D> - Mv Split-Down+")
 call g:Commander("<leader><Up> <C-w>k",    "+<U> - Mv Split-Up+")
 call g:Commander("<leader><Right> <C-w>l", "+<R> - Mv Split-Right+")
 
-call g:MasterCommand("<leader><Left> <C-w>h",  "+<L>      - Mv Split-Left++")
+call g:Commander("<leader><Left> <C-w>h",  "+<L>      - Mv Split-Left++")
 
-call g:MasterCommand("",                                ":sp  <fn> - edit in split+++" )
-call g:MasterCommand("",                                ":vsp <fn> - edit in vsplit+++" )
-call g:MasterCommand("",                                " gv       - remember last select+++" )
-call g:MasterCommand("",                                "Sgq       - breaks down long line+++" )
-call g:MasterNote(" %        - jumps to the match prn,brckt,brc+++")
-call g:MasterNote(" ci<obj>  - changes inside a text object+++")
-call g:MasterNote("--- Ex Commands++++")
-call g:MasterNote2(":wincmd h","Cursor to window left++++")
-call g:MasterNote2(":wincmd j","Cursor to window below++++")
-call g:MasterNote2(":wincmd k","Cursor to window above++++")
-call g:MasterNote2(":wincmd l","Cursor to window right++++")
-call g:MasterNote2(":wincmd w","Cycle next window++++")
-call g:MasterNote2(":wincmd p","Go to the prev active window++++")
-call g:MasterNote2(":wincmd =","All windows equal size++++")
-call g:MasterNote2(":wincmd _","Max window height++++")
-call g:MasterNote2(":wincmd |","Max window width++++")
-call g:MasterNote2(":wincmd H","Mv window far left++++")
-call g:MasterNote2(":wincmd J","Mv window very bottom++++")
-call g:MasterNote2(":wincmd K","Mv window very top++++")
-call g:MasterNote2(":wincmd L","Mv window far right++++")
-call g:MasterCommand("jj <Esc>",                        " jj - <ESC>+++")
+call g:Commander("",                                ":sp  <fn> - edit in split+++" )
+call g:Commander("",                                ":vsp <fn> - edit in vsplit+++" )
+call g:Commander("",                                " gv       - remember last select+++" )
+call g:Commander("",                                "Sgq       - breaks down long line+++" )
+call g:CommanderText(" %        - jumps to the match prn,brckt,brc+++")
+call g:CommanderText(" ci<obj>  - changes inside a text object+++")
+call g:CommanderText("--- Ex Commands++++")
+call g:CommanderText(":wincmd h","Cursor to window left++++")
+call g:CommanderText(":wincmd j","Cursor to window below++++")
+call g:CommanderText(":wincmd k","Cursor to window above++++")
+call g:CommanderText(":wincmd l","Cursor to window right++++")
+call g:CommanderText(":wincmd w","Cycle next window++++")
+call g:CommanderText(":wincmd p","Go to the prev active window++++")
+call g:CommanderText(":wincmd =","All windows equal size++++")
+call g:CommanderText(":wincmd _","Max window height++++")
+call g:CommanderText(":wincmd |","Max window width++++")
+call g:CommanderText(":wincmd H","Mv window far left++++")
+call g:CommanderText(":wincmd J","Mv window very bottom++++")
+call g:CommanderText(":wincmd K","Mv window very top++++")
+call g:CommanderText(":wincmd L","Mv window far right++++")
+call g:Commander("jj <Esc>",                        " jj - <ESC>+++")
 
-call g:MasterNote("+++")
-call g:MasterNote("--- Scrolling+++")
-call g:MasterNote2("CTRL-F","Scroll forward one full screen+++")
-call g:MasterNote2("CTRL-B","Scroll backward one full screen+++")
-call g:MasterNote2("CTRL-D","Scroll down (forward) half a screen+++")
-call g:MasterNote2("CTRL-U","Scroll up (backward) half a screen+++")
-call g:MasterNote2("CTRL-E","Scroll down one line+++")
-call g:MasterNote2("CTRL-Y","Scroll up one line+++")
-call g:MasterNote2("zz","Center the current line on the screen+++")
-call g:MasterNote2("zt","Move current line to the top of the screen+++")
-call g:MasterNote2("zb","Move current line to the bottom of the screen+++")
+call g:CommanderText("+++")
+call g:CommanderText("--- Scrolling+++")
+call g:CommanderText("CTRL-F","Scroll forward one full screen+++")
+call g:CommanderText("CTRL-B","Scroll backward one full screen+++")
+call g:CommanderText("CTRL-D","Scroll down (forward) half a screen+++")
+call g:CommanderText("CTRL-U","Scroll up (backward) half a screen+++")
+call g:CommanderText("CTRL-E","Scroll down one line+++")
+call g:CommanderText("CTRL-Y","Scroll up one line+++")
+call g:CommanderText("zz","Center the current line on the screen+++")
+call g:CommanderText("zt","Move current line to the top of the screen+++")
+call g:CommanderText("zb","Move current line to the bottom of the screen+++")
 
 "Key Sequence","Description"
 ".","Repeats the last change (insert, delete, change, replace)."
