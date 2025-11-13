@@ -165,6 +165,60 @@ filetype plugin indent on         " required, to ignore plugin indent changes, i
 " *****************************************************************************************************
                 " Functions
                 " *************************************************************************************
+" Function: SplitStringOnce(mainString, delimiter)
+" Description: Splits a string into two pieces based on the first
+"              occurrence of a delimiter string.
+" Arguments:
+"   mainString (String): The string to be split.
+"   delimiter (String):  The string to use as the split point.
+" Returns:
+"   (List): A list containing two strings: [before, after].
+"           If the delimiter is not found or is empty,
+"           returns [mainString, ""].
+function! SplitStringOnce(mainString, delimiter)
+  " If the delimiter is empty, we can't split.
+  " Return the original string as the 'before' part.
+  if empty(a:delimiter)
+    return [a:mainString, ""]
+  endif
+
+  " Find the byte index of the first occurrence of the delimiter.
+  " stridx() is 0-based.
+  let index = stridx(a:mainString, a:delimiter)
+
+  " Check if the delimiter was found.
+  if index == -1
+    " Delimiter not found.
+    return [a:mainString, ""]
+  else
+    " Delimiter was found.
+    " Extract the part before the delimiter.
+    " String slicing [s:e] is inclusive.
+    let l:before = a:mainString[0 : index - 1]
+
+    " Calculate the starting index of the 'after' part.
+    let l:after_start = index + strlen(a:delimiter)
+    
+    " Extract the part after the delimiter to the end of the string.
+    let l:after = a:mainString[l:after_start :]
+
+    return [l:before, l:after]
+  endif
+endfunction
+
+
+
+function! CapitalizeWords(inputString)
+  " Use substitute() to find the beginning of each word ('\<\w')
+  " and replace it with its uppercase version ('\u&').
+  " '\<' matches the beginning of a word.
+  " '\w' matches any word character.
+  " '\u' makes the next character uppercase.
+  " '&' refers to the entire matched text (the single character).
+  " 'g' flag ensures all matches in the line are replaced.
+  let l:arr = SplitStringOnce(a:inputString, " - ")
+  return l:arr[1] == "" ? l:arr[0] : l:arr[0] . " - " . substitute(l:arr[1], '\<\w', '\u&', 'g')
+endfunction
 
                 
 " Function to check if a:haystack ends with a:needle
@@ -215,6 +269,7 @@ function! g:PadStrings(stringList)
   for item in a:stringList
       call add(l:ret, item . repeat(" ", l:tx - len(item)) )
   endfor
+  "call add(l:ret, '' . repeat(" ", l:tx - 0) )
 
   " 3. Return the new list
   return l:ret
@@ -261,6 +316,31 @@ function! ConcatStringLists(list1, list2)
     return result
 endfunction
 
+" Description: A Vimscript function to extract the first 
+"              whitespace-delimited word from a given string.
+
+" Define the function. In Vimscript, functions must start
+" with an uppercase letter if they are global.
+function! GetFirstWord(input_string)
+    " a:input_string refers to the first argument passed to the function.
+    
+    " The split() function, when called with just one argument,
+    " splits the string by whitespace and returns a List of words.
+    " It automatically handles leading/trailing/multiple whitespace.
+    let l:word_list = split(a:input_string)
+    
+    " Check if the list of words is not empty.
+    " If the input string was empty or only contained whitespace,
+    " the list will be empty.
+    if len(l:word_list) > 0
+        " Return the first item from the list (which is at index 0).
+        return l:word_list[0]
+    else
+        " If the list is empty, return an empty string.
+        return ""
+    endif
+endfunction
+
 
 
 
@@ -280,13 +360,45 @@ let s:helpdisplaynames=[]
 let s:helpdisplaynames2=[]
 let s:helpdisplaynames3=[]
 let s:helpdisplaynames4=[]
+let s:helpdisplaynames5=[]
+"for i in range(1, 10)
+"    call add(s:helpdisplaynames3, "|" )
+"endfor
+
+
 function! g:HelpPopUp()
+    "let maxLen = max([len1, len2])
+    let l:maxLen = -100
+    let l:maxLen = max([len(s:helpdisplaynames),  l:maxLen])
+    let l:maxLen = max([len(s:helpdisplaynames2), l:maxLen])
+    let l:maxLen = max([len(s:helpdisplaynames3), l:maxLen])
+    let l:maxLen = max([len(s:helpdisplaynames4), l:maxLen])
+    let l:maxLen = max([len(s:helpdisplaynames5), l:maxLen])
+
+    let l:fullsize = l:maxLen
+    for i in range(1, l:fullsize-len(s:helpdisplaynames))
+        call add(s:helpdisplaynames, "" )
+    endfor
+    for i in range(1, l:fullsize-len(s:helpdisplaynames2))
+        call add(s:helpdisplaynames2, "" )
+    endfor
+    for i in range(1, l:fullsize-len(s:helpdisplaynames3))
+        call add(s:helpdisplaynames3, "" )
+    endfor
+    for i in range(1, l:fullsize-len(s:helpdisplaynames4))
+        call add(s:helpdisplaynames4, "" )
+    endfor
+    for i in range(1, l:fullsize-len(s:helpdisplaynames5))
+        call add(s:helpdisplaynames5, "" )
+    endfor
+
+
     let l:temp1 =  ConcatStringLists(g:PadStrings(s:helpdisplaynames), g:PadStrings(s:helpdisplaynames2))
     let l:temp2 =  ConcatStringLists(l:temp1, g:PadStrings(s:helpdisplaynames3))
-    let l:arr   =  ConcatStringLists(l:temp2, g:PadStrings(s:helpdisplaynames4))
+    let l:temp3 =  ConcatStringLists(l:temp2, g:PadStrings(s:helpdisplaynames4))
+    let l:arr   =  ConcatStringLists(l:temp3, g:PadStrings(s:helpdisplaynames5))
 
-    "call popup_menu(s:helpdisplaynames,
-    "call popup_menu(g:PadStrings(s:helpdisplaynames),
+    call add(l:arr,"=")
     call popup_menu(l:arr,
     \ #{ title: "Help", callback: 'MenuCBDoNothing', line: 25, col: 40, 
     \ highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
@@ -295,31 +407,72 @@ endfunction
 func! MenuCBDoNothing(id, result)
     let l:NOTHING=0
 endfunction
-func! g:MasterCommandSpace()
-    call add(s:helpdisplaynames, "" )
+
+func! g:MasterNote(szHelp)
+    call g:MasterCommand('', a:szHelp)
+endfunction
+func! g:MasterNote2(a, b)
+    call g:MasterCommand('', a:a . " - " . a:b)
+endfunction
+
+func! g:GetMasterCommandPrefix(szHelp)
+    let l:ret=""
+    if EndsWith(a:szHelp,"++++")
+        let l:ret = "++++"
+    endif
+    if EndsWith(a:szHelp,"+++")
+        let l:ret = "+++"
+    endif
+    if EndsWith(a:szHelp,"++")
+        let l:ret = "++"
+    endif
+    if EndsWith(a:szHelp,"+")
+        let l:ret = "+"
+    endif
+    return l:ret
+endfunction
+
+func! g:Commander(a,b)
+    call g:MasterCommand(a:a,a:b)
 endfunction
 func! g:MasterCommand(szCommand, szHelp)
+    if len(a:szCommand)+len(a:szHelp) == 0
+        call add(s:helpdisplaynames, "" )
+    else
+        if len(a:szHelp) > 0
+            let l:szSz = CapitalizeWords(a:szHelp)
 
-    if len(a:szHelp) > 0
-
-        if EndsWith(a:szHelp,"+++")
-            call add(s:helpdisplaynames4, strpart(a:szHelp, 0, len(a:szHelp) - 3) )
-        else
-            if EndsWith(a:szHelp,"++")
-                call add(s:helpdisplaynames3, strpart(a:szHelp, 0, len(a:szHelp) - 2) )
+            if EndsWith(l:szSz,"++++")
+                call add(s:helpdisplaynames5, strpart(l:szSz, 0, len(l:szSz) - 4) )
             else
-                if EndsWith(a:szHelp,"+")
-                    call add(s:helpdisplaynames2, strpart(a:szHelp, 0, len(a:szHelp) - 1) )
+                if EndsWith(l:szSz,"+++")
+                    call add(s:helpdisplaynames4, strpart(l:szSz, 0, len(l:szSz) - 3) )
                 else
-                    call add(s:helpdisplaynames, a:szHelp )
+                    if EndsWith(l:szSz,"++")
+                        call add(s:helpdisplaynames3, strpart(l:szSz, 0, len(l:szSz) - 2) )
+                    else
+                        if EndsWith(l:szSz,"+")
+                            call add(s:helpdisplaynames2, strpart(l:szSz, 0, len(l:szSz) - 1) )
+                        else
+                            call add(s:helpdisplaynames, l:szSz )
+                        endif
+                    endif
                 endif
             endif
+        else
+            call add(s:helpdisplaynames, '' )
+
         endif
 
-    endif
+        if len(a:szCommand) > 0
+            let l:firstword = GetFirstWord(a:szCommand)
+            if l:firstword == 'nnoremap' || l:firstword == 'inoremap'
+                execute a:szCommand
+            else
+                execute 'nnoremap ' . a:szCommand
+            endif
+       endif
 
-    if len(a:szCommand) > 0
-       execute a:szCommand
    endif
 endfunction
 " +++++++++++++++++++++"
@@ -1029,54 +1182,6 @@ function! MoveToFront(list, index)
     return a:list
 endfunction
 
-" --- Example Usage ---
-" To run these examples:
-" 1. Source this file:
-"    :source %
-" 2. Use :echo to see the results
-
-" Example 1: Basic case
-"echo "--- Example 1 ---"
-"let s:my_list = ['apple', 'banana', 'cherry', 'date']
-"echo "Original list:" . string(s:my_list)
-"call MoveToFront(s:my_list, 2)
-"echo "After moving index 2 ('cherry') to front:" . string(s:my_list)
-" Expected: ['cherry', 'apple', 'banana', 'date']
-"echo ""
-
-" Example 2: Move item from the end
-"echo "--- Example 2 ---"
-"let s:my_list = ['one', 'two', 'three', 'four']
-"echo "Original list:" . string(s:my_list)
-"call MoveToFront(s:my_list, 3)
-"echo "After moving index 3 ('four') to front:" . string(s:my_list)
-"Expected: ['four', 'one', 'two', 'three']
-"echo ""
-
-" Example 3: Move item already at the front
-"echo "--- Example 3 ---"
-"let s:my_list = ['alpha', 'beta', 'gamma']
-"echo "Original list:" . string(s:my_list)
-"call MoveToFront(s:my_list, 0)
-"echo "After moving index 0 ('alpha') to front:" . string(s:my_list)
-" Expected: ['alpha', 'beta', 'gamma']
-"echo ""
-
-" Example 4: Out-of-bounds index (will print an error)
-"echo "--- Example 4 ---"
-"let s:my_list = ['foo', 'bar']
-"echo "Original list:" . string(s:my_list)
-"call MoveToFront(s:my_list, 99)
-"echo "After attempting to move index 99:" . string(s:my_list)
-" Expected: Error message, list remains ['foo', 'bar']
-"echo ""
-
-
-" Live substitution preview. This is a game-changer.
-" Requires Vim 8+ or Neovim.
-"set inccommand=split
-"
-
 " ----------------------------------------------------------------------------
 "  Section 6: File Management & Backups
 " ----------------------------------------------------------------------------
@@ -1101,53 +1206,92 @@ silent !mkdir -p ~/.vim/undo
                 " Remaps
                 " *************************************************************************************
 "
-call g:MasterCommand("", "Help" )
-call g:MasterCommand("", "Help+" )
-call g:MasterCommand("", "Help++" )
-call g:MasterCommand("", "Help+++" )
-call g:MasterCommandSpace()
+call g:Commander("", "Help" )
+call g:Commander("", "Help+" )
+call g:Commander("", "Help++" )
+call g:Commander("", "Help+++" )
+call g:Commander("", "Help++++" )
 
-call g:MasterCommand("nnoremap         <F1> :cclose<cr>:bnext<cr>",           " F1 - Next Buffer" )
-call g:MasterCommand("nnoremap <leader><F1> <C-w>w",                          "+F1 - Next split")
-call g:MasterCommand("nnoremap         <F2> :call VimBufferPopUp()<CR>",      " F2 - Vim Buffer PopUp" )
-call g:MasterCommand("nnoremap         <F3> :call HelpPopUp()<CR>",           " F3 - Help Popup" )
-call g:MasterCommand("inoremap         <F5> <esc>:call ProgramCompile()<cr>", " F5 - Program Complile")
-call g:MasterCommand("nnoremap         <F5>      :call ProgramCompile()<cr>", "")
-call g:MasterCommand("nnoremap <leader><F6>      :cclose<cr>",                "+F6 - cclose")
-call g:MasterCommand("inoremap          <F6> <esc>:call ProgramRun()<cr>",    " F6 - Program Run")
-call g:MasterCommand("nnoremap         <F6>      :call ProgramRun()<cr>",     "")
-call g:MasterCommand("nnoremap <Leader>p         :PluginUpdate<cr>",          "+p  - Plugin Update")
-
-call g:MasterCommand("inoremap jj <Esc>"," jj - <ESC>")
+call g:MasterCommand("<F1>          :cclose<cr>:bnext<cr>",      " F1 - Next Buffer" )
+call g:MasterCommand("<leader><F1>  <C-w>w",                     "+F1 - Next Split")
+call g:MasterCommand('', '')
+call g:MasterCommand("<F2>          :call VimBufferPopUp()<CR>", " F2 - Vim Buffer PopUp" )
+call g:MasterCommand("<F3>          :call HelpPopUp()<CR>",      " F3 - Help Popup" )
+call g:MasterCommand('', '')
+call g:MasterCommand("<F5>          :call ProgramCompile()<cr>", " F5 - Program Compile")
+call g:MasterCommand("<F6>          :call ProgramRun()<cr>",     " F6 - Program Run")
+call g:MasterCommand("<leader><F6>  :cclose<cr>",                "+F6 - Close QuickFix")
+call g:MasterCommand('', '')
+call g:MasterCommand("<Leader>p     :PluginUpdate<cr>",          "+p  - Plugin Update")
 
 " --- Buffer & Tab Navigation ---
-call g:MasterCommand("nnoremap <leader>j :bnext<CR>",    "+j - Next buffer")
-call g:MasterCommand("nnoremap <leader>k :bprev<CR>",    "+k - Previous buffer")
-call g:MasterCommand("nnoremap <leader>d :bdelete<CR>",  "+d - Close buffer")
-call g:MasterCommand("nnoremap <leader>t :tabnew<CR>",   "+t - New tab")
+call g:Commander("<leader>b :bnext<CR>",                     "+b  - Next buffer")
+call g:Commander("<leader>k :bprev<CR>",                     "+k  - Previous buffer")
+call g:Commander("<leader>d :bdelete<CR>",                   "+d  - Close buffer")
+call g:Commander("<leader>t :tabnew<CR>",                    "+t  - New tab")
+call g:Commander('', '')
 
 " --- Window (Split) Management ---
-call g:MasterCommandSpace()
-call g:MasterCommand("nnoremap <leader>vs   :call g:HSplit(2)<CR>",  "+vs - Vertical split")
-call g:MasterCommand("nnoremap <leader>hs   :call g:VSplit(2)<CR>",  "+hs - Horizontal split")
-call g:MasterCommand("nnoremap <leader>ss   :call g:VSplit(2)<CR>",  "+ss - Horizontal split")
-call g:MasterCommand("nnoremap <leader>ns   :call g:NoSplits()<CR>", "+ns - Close all splits")
-call g:MasterCommand("nnoremap <leader>as   :call g:SplitBuffers()<CR>", "+ss - All splits")
+call g:Commander("<leader>vs  :call g:HSplit(2)<CR>",  "+vs - Vertical split")
+call g:Commander("<leader>hs  :call g:VSplit(2)<CR>",  "+hs - Horizontal split")
+call g:Commander("<leader>ss  :call g:VSplit(2)<CR>",  "+ss - Horizontal split")
+call g:Commander("<leader>ns  :call g:NoSplits()<CR>", "+ns - Close all splits")
+call g:Commander("<leader>as  :call g:SplitBuffers()<CR>", "+ss - All splits")
 
 " Navigate splits using Ctrl + (h,j,k,l)
-call g:MasterCommandSpace()
-call g:MasterCommand("nnoremap <C-h> <C-w>h",           "^h   - Mv Split-Left+")
-call g:MasterCommand("nnoremap <C-j> <C-w>j",           "^j   - Mv Split-Down+")
-call g:MasterCommand("nnoremap <C-k> <C-w>k",           "^k   - Mv Split-Up+")
-call g:MasterCommand("nnoremap <C-l> <C-w>l",           "^l   - Mv Split-Right+")
-call g:MasterCommand("nnoremap <leader><Right> <C-w>l", "+<R> - Mv Split-Right+")
-call g:MasterCommand("nnoremap <leader><Up> <C-w>k",    "+<U> - Mv Split-Up+")
-call g:MasterCommand("nnoremap <leader><Down> <C-w>j",  "+<D> - Mv Split-Down+")
+call g:Commander("<C-h> <C-w>h",           "^h   - Mv Split-Left+")
+call g:Commander("<C-j> <C-w>j",           "^j   - Mv Split-Down+")
+call g:Commander("<C-k> <C-w>k",           "^k   - Mv Split-Up+")
+call g:Commander("<C-l> <C-w>l",           "^l   - Mv Split-Right+")
+call g:Commander("<leader><Left> <C-w>h",  "+<L> - Mv Split-Left+")
+call g:Commander("<leader><Down> <C-w>j",  "+<D> - Mv Split-Down+")
+call g:Commander("<leader><Up> <C-w>k",    "+<U> - Mv Split-Up+")
+call g:Commander("<leader><Right> <C-w>l", "+<R> - Mv Split-Right+")
 
-call g:MasterCommand("nnoremap <leader><Left> <C-w>h",  "+<L> - Mv Split-Left++")
-call g:MasterCommand("nnoremap <leader><Left> <C-w>h",  "+<L> - Mv Split-Left++")
+call g:MasterCommand("<leader><Left> <C-w>h",  "+<L>      - Mv Split-Left++")
 
-call g:MasterCommand("", ":sp  <fn> - edit in split+++" )
-call g:MasterCommand("", ":vsp <fn> - edit in vsplit+++" )
+call g:MasterCommand("",                                ":sp  <fn> - edit in split+++" )
+call g:MasterCommand("",                                ":vsp <fn> - edit in vsplit+++" )
+call g:MasterCommand("",                                " gv       - remember last select+++" )
+call g:MasterCommand("",                                "Sgq       - breaks down long line+++" )
+call g:MasterNote(" %        - jumps to the match prn,brckt,brc+++")
+call g:MasterNote(" ci<obj>  - changes inside a text object+++")
+call g:MasterNote("--- Ex Commands++++")
+call g:MasterNote2(":wincmd h","Cursor to window left++++")
+call g:MasterNote2(":wincmd j","Cursor to window below++++")
+call g:MasterNote2(":wincmd k","Cursor to window above++++")
+call g:MasterNote2(":wincmd l","Cursor to window right++++")
+call g:MasterNote2(":wincmd w","Cycle next window++++")
+call g:MasterNote2(":wincmd p","Go to the prev active window++++")
+call g:MasterNote2(":wincmd =","All windows equal size++++")
+call g:MasterNote2(":wincmd _","Max window height++++")
+call g:MasterNote2(":wincmd |","Max window width++++")
+call g:MasterNote2(":wincmd H","Mv window far left++++")
+call g:MasterNote2(":wincmd J","Mv window very bottom++++")
+call g:MasterNote2(":wincmd K","Mv window very top++++")
+call g:MasterNote2(":wincmd L","Mv window far right++++")
+call g:MasterCommand("jj <Esc>",                        " jj - <ESC>+++")
 
-call g:MasterCommandSpace()
+call g:MasterNote("+++")
+call g:MasterNote("--- Scrolling+++")
+call g:MasterNote2("CTRL-F","Scroll forward one full screen+++")
+call g:MasterNote2("CTRL-B","Scroll backward one full screen+++")
+call g:MasterNote2("CTRL-D","Scroll down (forward) half a screen+++")
+call g:MasterNote2("CTRL-U","Scroll up (backward) half a screen+++")
+call g:MasterNote2("CTRL-E","Scroll down one line+++")
+call g:MasterNote2("CTRL-Y","Scroll up one line+++")
+call g:MasterNote2("zz","Center the current line on the screen+++")
+call g:MasterNote2("zt","Move current line to the top of the screen+++")
+call g:MasterNote2("zb","Move current line to the bottom of the screen+++")
+
+"Key Sequence","Description"
+".","Repeats the last change (insert, delete, change, replace)."
+"CTRL-A / CTRL-X","In normal mode, increments (CTRL-A) or decrements (CTRL-X) the number under the cursor."
+"CTRL-O / CTRL-I","In normal mode, navigates the jump list backward (CTRL-O) or forward (CTRL-I)."
+"ci<object>","Changes inside a text object (e.g., ci"" changes inside quotes, ci( changes inside parentheses)."
+"gv","In normal mode, re-selects the last visual selection."
+"CTRL-O (in Insert Mode)","Executes a single normal mode command and immediately returns to insert mode."
+"gi","In normal mode, moves the cursor to the last insert position and enters insert mode."
+"* / #","In normal mode, searches forward (*) or backward (#) for the word under the cursor."
+"%","In normal mode, jumps to the matching parenthesis, bracket, or brace."
+":noh","Clears the search highlighting from the last search."
