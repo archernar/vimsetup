@@ -341,3 +341,71 @@ function! QuickfixResize()
   let half_height = total_height / 2
   exe "resize " . half_height
 endfunction
+" *****************************************************************************************************
+                " Utility Popup
+                " *************************************************************************************
+function! g:UtilityPopupCommand(...)
+    call system( a:1 . " > /tmp/out" )
+    call UtilityPopUp("/tmp/out")
+endfunction
+let g:utilityPopupFilename = ""
+function! g:UtilityPopUp(...)
+    if filereadable(a:1)
+        let g:utilityPopupFilename = a:1 
+        call popup_create(readfile(a:1), #{ line: 1, col: 1, border: [], padding: [1,1,1,1] } )
+        let l:id = popup_list()[0]
+        call popup_move(l:id, #{ line: 2, col: 4, 
+                    \ minwidth: &columns -14,
+                    \ maxheight: &lines -8, maxwidth: &columns -8,
+                    \ })
+        hi MyPopupColor ctermbg=black guibg=black
+        call setwinvar(l:id, '&wincolor', 'MyPopupColor')
+        nnoremap <DOWN> :call ScrollPopup(1)<CR>
+        nnoremap <UP>   :call ScrollPopup(-1)<CR>
+        nnoremap <F10>  :call UtilityPopUpClear(g:utilityPopupFilename)<CR>
+    endif
+endfunction
+function! g:UtilityBufferCommand(...)
+    call system( a:1 . " > /tmp/out" )
+    call UtilityBuffer("/tmp/out")
+endfunction
+function! g:UtilityBuffer(...)
+    if filereadable(a:1)
+        execute "edit " . a:1
+    endif
+endfunction
+
+function! g:UtilityPopUpClear(...)
+    call popup_clear(1)
+    nnoremap <DOWN> <down>
+    nnoremap <UP>   <up>
+    nnoremap <F10>  :call UtilityPopUp(g:utilityPopupFilename)<CR>
+endfunction
+
+function! ScrollPopup(nlines)
+    let winids = popup_list()
+    if len(winids) == 0
+        return
+    endif
+
+    " Ignore hidden popups
+    let prop = popup_getpos(winids[0])
+    if prop.visible != 1
+        return
+    endif
+
+    let firstline = prop.firstline + a:nlines
+    let buf_lastline = str2nr(trim(win_execute(winids[0], "echo line('$')")))
+    if firstline < 1
+        let firstline = 1
+    elseif prop.lastline + a:nlines > buf_lastline
+        let firstline = buf_lastline + prop.firstline - prop.lastline
+    endif
+
+    call popup_setoptions(winids[0], {'firstline': firstline})
+endfunction
+function! GetUserInput(prompt)
+  let user_input = input(a:prompt)
+  return user_input
+endfunction
+" let user_string = GetUserInput("Enter your name: ")

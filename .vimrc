@@ -84,7 +84,6 @@ command! -nargs=+ POPGREP call ThisHere(<q-args>)
 command! -nargs=+ PGREP call ThisHere(<q-args>)
 command! -nargs=+ PGrep call ThisHere(<q-args>)
 command! -nargs=+ Pgrep call ThisHere(<q-args>)
-command! SESSION      :call CaptureSession() 
 command! MyLinter :caddexpr system("cat zzzz") | copen
 command! ZZZZ :caddexpr system("cat zzzz") | copen
 map <C-j> :cn<CR>
@@ -265,7 +264,7 @@ func! g:Commander(szCommand, szHelp)
 
         if len(a:szCommand) > 0
             let l:firstword = GetFirstWord(a:szCommand)
-            if l:firstword == 'nnoremap' || l:firstword == 'inoremap'
+            if l:firstword == 'nnoremap' || l:firstword == 'inoremap' || l:firstword == 'command!'
                 execute a:szCommand
             else
                 execute 'nnoremap ' . a:szCommand
@@ -525,74 +524,6 @@ endfunction
 
 
 
-" *****************************************************************************************************
-                " Utility Popup
-                " *************************************************************************************
-function! g:UtilityPopupCommand(...)
-    call system( a:1 . " > /tmp/out" )
-    call UtilityPopUp("/tmp/out")
-endfunction
-let g:utilityPopupFilename = ""
-function! g:UtilityPopUp(...)
-    if filereadable(a:1)
-        let g:utilityPopupFilename = a:1 
-        call popup_create(readfile(a:1), #{ line: 1, col: 1, border: [], padding: [1,1,1,1] } )
-        let l:id = popup_list()[0]
-        call popup_move(l:id, #{ line: 2, col: 4, 
-                    \ minwidth: &columns -14,
-                    \ maxheight: &lines -8, maxwidth: &columns -8,
-                    \ })
-        hi MyPopupColor ctermbg=black guibg=black
-        call setwinvar(l:id, '&wincolor', 'MyPopupColor')
-        nnoremap <DOWN> :call ScrollPopup(1)<CR>
-        nnoremap <UP>   :call ScrollPopup(-1)<CR>
-        nnoremap <F10>  :call UtilityPopUpClear(g:utilityPopupFilename)<CR>
-    endif
-endfunction
-function! g:UtilityBufferCommand(...)
-    call system( a:1 . " > /tmp/out" )
-    call UtilityBuffer("/tmp/out")
-endfunction
-function! g:UtilityBuffer(...)
-    if filereadable(a:1)
-        execute "edit " . a:1
-    endif
-endfunction
-
-function! g:UtilityPopUpClear(...)
-    call popup_clear(1)
-    nnoremap <DOWN> <down>
-    nnoremap <UP>   <up>
-    nnoremap <F10>  :call UtilityPopUp(g:utilityPopupFilename)<CR>
-endfunction
-
-function! ScrollPopup(nlines)
-    let winids = popup_list()
-    if len(winids) == 0
-        return
-    endif
-
-    " Ignore hidden popups
-    let prop = popup_getpos(winids[0])
-    if prop.visible != 1
-        return
-    endif
-
-    let firstline = prop.firstline + a:nlines
-    let buf_lastline = str2nr(trim(win_execute(winids[0], "echo line('$')")))
-    if firstline < 1
-        let firstline = 1
-    elseif prop.lastline + a:nlines > buf_lastline
-        let firstline = buf_lastline + prop.firstline - prop.lastline
-    endif
-
-    call popup_setoptions(winids[0], {'firstline': firstline})
-endfunction
-function! GetUserInput(prompt)
-  let user_input = input(a:prompt)
-  return user_input
-endfunction
-" let user_string = GetUserInput("Enter your name: ")
 "
 " ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 " Gemini AI Interface
@@ -623,9 +554,6 @@ function! InsertSystemOutput(command, query)
   call cursor(current_line + output_lines, current_col)
 endfunction
 
-command! Gemini   :call Gemini() 
-command! Gem      :call Gemini() 
-command! GEM      :call Gemini() 
 function! GetUserInput(prompt)
     " Displays a popup window and prompts the user to enter a string.
     " Compatible with Vim 8.2 (using inputdialog).
@@ -834,14 +762,13 @@ silent !mkdir -p ~/.vim/undo
 " ----------------------------------------------------------------------------
 "  Section 7: Key Mappings (Quality of Life)
 " ----------------------------------------------------------------------------
-" Note: `nnoremap` means "non-recursive normal mode map".
-" It's the safest way to map keys.
 
-" --- Fast Escape ---
-" Use `jj` to exit Insert mode. Much faster than reaching for Esc.
-" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 " *****************************************************************************************************
                 " Remaps
+                " Note: `nnoremap` means "non-recursive normal mode map".
+                " It's the safest way to map keys.
+                " --- Fast Escape ---
+                " Use `jj` to exit Insert mode. Much faster than reaching for Esc.
                 " *************************************************************************************
 "
 call g:Commander("", "Help" )
@@ -916,7 +843,13 @@ call g:CommanderText(":wincmd H","Mv wind far left++++")
 call g:CommanderText(":wincmd J","Mv wind very bottom++++")
 call g:CommanderText(":wincmd K","Mv wind very top++++")
 call g:CommanderText(":wincmd L","Mv wind far right++++")
-call g:Commander("jj <Esc>",                        " jj - <ESC>+++")
+call g:Commander("inoremap jj <Esc>",                        " jj - <ESC>+++")
+call g:CommanderText("+++")
+call g:CommanderText("--- Commands+++")
+call g:Commander("command! Gemini   :call Gemini()<cr>",     "Gemini+++")
+call g:Commander("command! Gem      :call Gemini()<cr>",     "Gemini+++")
+call g:Commander("command! GEM      :call Gemini()<cr>",     "Gemini+++")
+call g:Commander("command! SESSION  :call CaptureSession()", "SESSION+++") 
 
 call g:CommanderText("+++")
 call g:CommanderText("--- Sets+++")
