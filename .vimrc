@@ -79,7 +79,7 @@ set notimeout ttimeout ttimeoutlen=200  " Quickly time out on keycodes, but neve
 " *****************************************************************************************************
                 " Commands
                 " *************************************************************************************
-command! -nargs=+ GREP call ThisHere(<q-args>)
+command! -nargs=+ GREP call GrepPopUp(<q-args>)
 command! -nargs=+ POPGREP call ThisHere(<q-args>)
 command! -nargs=+ PGREP call ThisHere(<q-args>)
 command! -nargs=+ PGrep call ThisHere(<q-args>)
@@ -677,33 +677,6 @@ endif
     call popup_menu(g:bufferdisplaynames, 
     \ #{ title: "Vim Buffers", callback: 'MenuCBBuffer', line: 25, col: 40, 
     \ highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
-endfunction
-
-func! ThisHereCallBack(id, result)
-     "echom "XXXX: "
-     echom "XXXX: " . a:id . " " . a:result
-     execute ":" . s:numbers[a:result-1]
-endfunction
-
-function! ThisHere(szIn) 
-    let l:item = ""
-    let s:numbers=[]
-    let l:fullpath = expand('%:p')
-    let l:sz = "grep -n " . a:szIn .  " '" . l:fullpath . "'"
-    let l:out=system(l:sz)
-    let l:lines = split(l:out, "\n")
-
-    for l:item in l:lines
-        call add(s:numbers, "". split(l:item, ':')[0] )
-        "let l:s=split(l:item, ':')
-        "call add(s:numbers, l:s[0])
-    endfor
-
-    call popup_menu(l:lines,
-    \ #{ title: "Command Output", callback: 'ThisHereCallBack', line: 25, col: 40, 
-    \ highlight: 'Question', border: [], close: 'click',  padding: [2,2,0,2]} )
-
-    " highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
 endfunction
 
 
