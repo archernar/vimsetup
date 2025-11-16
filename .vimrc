@@ -79,11 +79,6 @@ set notimeout ttimeout ttimeoutlen=200  " Quickly time out on keycodes, but neve
 " *****************************************************************************************************
                 " Commands
                 " *************************************************************************************
-command! -nargs=+ GREP call GrepPopUp(<q-args>)
-command! -nargs=+ POPGREP call ThisHere(<q-args>)
-command! -nargs=+ PGREP call ThisHere(<q-args>)
-command! -nargs=+ PGrep call ThisHere(<q-args>)
-command! -nargs=+ Pgrep call ThisHere(<q-args>)
 command! MyLinter :caddexpr system("cat zzzz") | copen
 command! ZZZZ :caddexpr system("cat zzzz") | copen
 map <C-j> :cn<CR>
@@ -159,16 +154,10 @@ filetype plugin indent on         " required, to ignore plugin indent changes, i
                                   " filetype plugin on
                                   " Put non-Plugin stuff after this line
 
-
-
 " *****************************************************************************************************
                 " Functions
                 " *************************************************************************************
 source ~/utils.vim
-
-
-
-
 
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 " Help Buffer Popup
@@ -181,7 +170,6 @@ let s:helpdisplaynames5=[]
 "for i in range(1, 10)
 "    call add(s:helpdisplaynames3, "|" )
 "endfor
-
 
 function! g:HelpPopUp()
     "let maxLen = max([len1, len2])
@@ -208,7 +196,6 @@ function! g:HelpPopUp()
     for i in range(1, l:fullsize-len(s:helpdisplaynames5))
         call add(s:helpdisplaynames5, "" )
     endfor
-
 
     let l:temp1 =  ConcatStringLists(g:PadStrings(s:helpdisplaynames), g:PadStrings(s:helpdisplaynames2))
     let l:temp2 =  ConcatStringLists(l:temp1, g:PadStrings(s:helpdisplaynames3))
@@ -349,30 +336,6 @@ endfunction
 " wget -O ~/.vim/vim.txt https://raw.githubusercontent.com/archernar/basics/refs/heads/master/vim.txt
 " nnoremap         <F7> :call g:FlashCard($HOME . "/.vim/1.fc")<cr>
 " nnoremap <leader><F7> :call g:UnFlashCard()<cr>
-"   ***************************************************************************************************
-                " Multi Toggle
-                " *************************************************************************************
-function! g:MultiToggle()
-    let sMt=[]
-    call add(sMt, [0, "Upper Mode",                  ":call ToUpperUnderCursor()<cr>"])
-    call add(sMt, [1, "Lower Mode",                  ":call ToLowerUnderCursor()<cr>"])
-    call add(sMt, [2, "ls",                          ":ls<cr>"])
-    call add(sMt, [3 ,"Edit dots and configs",       ":call EditDotFiles()<cr>"])
-    call add(sMt, [4, "Open Vim Sheatsheet",         ":e ~/.vim/vimbrief.txt<cr>"])
-    call add(sMt, [5, "Reselect Visual Selection",   "gv"])
-    call add(sMt, [6, "Search for Word Under Cursor",":%s/\<<C-r><C-w>\>//gI<Left><Left><Left>"])
-    call add(sMt, [6, "6One", "Two"])
-    call add(sMt, [7, "7One", "Two"])
-    call add(sMt, [8, "8TestMeMe", "silent nnoremap  <F7> :call g:Test()" ])
-    call add(sMt, [9, "9One", "Two"])
-    let g:multi_toggle_state = g:multi_toggle_state  + 1
-    if g:multi_toggle_state == 7
-        let g:multi_toggle_state = 0
-    endif
-    execute "silent nnoremap <F7> " . sMt[g:multi_toggle_state][2]
-    let &statusline = sMt[g:multi_toggle_state][1]
-endfunction
-
 function! g:Test()
     echom "TEST TEST TEST TEST"
 endfunction
@@ -390,9 +353,6 @@ endfunction
 
 let g:multi_toggle_state = -1
 let &statusline = "Void Mode"
-
-
-
 
 " Map a key to call the function.  For example, map <Leader>u to it.
 " You can choose any key combination you prefer.  <Leader> is often \.
@@ -820,9 +780,11 @@ call g:Commander("inoremap jj <Esc>",                        " jj - <ESC>+++")
 call g:CommanderText("+++")
 call g:CommanderText("--- Commands+++")
 call g:Commander("command! Gemini   :call Gemini()<cr>",     "Gemini+++")
-call g:Commander("command! Gem      :call Gemini()<cr>",     "Gemini+++")
-call g:Commander("command! GEM      :call Gemini()<cr>",     "Gemini+++")
+call g:Commander("command! Gem      :call Gemini()<cr>",     "Gem+++")
+call g:Commander("command! GEM      :call Gemini()<cr>",     "GEM+++")
 call g:Commander("command! SESSION  :call CaptureSession()", "SESSION+++") 
+call g:Commander("command! -nargs=+ GREP    call GrepPopUp(<q-args>)<cr>", "GREP+++")
+call g:Commander("command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "POPGREP+++")
 
 call g:CommanderText("+++")
 call g:CommanderText("--- Sets+++")

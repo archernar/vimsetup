@@ -408,6 +408,10 @@ function! GetUserInput(prompt)
   let user_input = input(a:prompt)
   return user_input
 endfunction
+
+
+
+
 " let user_string = GetUserInput("Enter your name: ")
 func! g:GrepPopUpCallBack(id, result)
      "echom "XXXX: "
@@ -434,5 +438,32 @@ function! g:GrepPopUp(szIn)
     \ highlight: 'Question', border: [], close: 'click',  padding: [2,2,0,2]} )
 
     " highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
+endfunction
+
+"   ***************************************************************************************************
+                " Multi Toggle
+                " *************************************************************************************
+function! g:MultiToggle()
+    let sMt=[]
+    call add(sMt, [0, "Toggle Numbering",              ":set nu!<cr>"])
+    call add(sMt, [1, "ls",                            ":ls<cr>"])
+    call add(sMt, [2 ,"Edit dots and configs",         ":call EditDotFiles()<cr>"])
+    call add(sMt, [3, "Open Vim Sheatsheet",           ":e ~/.vim/vimbrief.txt<cr>"])
+    call add(sMt, [4, "Reselect Visual Selection",     "gv"])
+    call add(sMt, [5, "Search for Word Under Cursor",  ":%s/\<<C-r><C-w>\>//gI<Left><Left><Left>"])
+    call add(sMt, [6, "Upper Mode",                    ":call ToUpperUnderCursor()<cr>"])
+    call add(sMt, [7, "Lower Mode",                    ":call ToLowerUnderCursor()<cr>"])
+    call add(sMt, [8, "git status",                    ":!git status<cr>"])
+    call add(sMt, [9, "git status",                    ":!git status<cr>"])
+    let g:multi_toggle_state = g:multi_toggle_state  + 1
+    if g:multi_toggle_state == 10
+        let g:multi_toggle_state = 0
+    endif
+    execute "silent nnoremap <F7> " . sMt[g:multi_toggle_state][2]
+    " >>>>>>>>>>>>>>>>  execute "silent nnoremap <F7> " . sMt[g:multi_toggle_state][2]
+    " let l:szcmd = "nnoremap <F7> " . sMt[g:multi_toggle_state][2]
+    " call g:Commander(l:szcmd,  " F7 - Multi-Toggle")
+
+    let &statusline = sMt[g:multi_toggle_state][1]
 endfunction
 
