@@ -353,7 +353,7 @@ endfunction
 "   ***************************************************************************************************
                 " Multi Toggle
                 " *************************************************************************************
-function! MultiToggle()
+function! g:MultiToggle()
     let sMt=[]
     call add(sMt, [0, "Upper Mode",                  ":call ToUpperUnderCursor()<cr>"])
     call add(sMt, [1, "Lower Mode",                  ":call ToLowerUnderCursor()<cr>"])
@@ -385,15 +385,12 @@ function! EditDotFiles()
         execute  "edit ~/.vim/vimbrief.txt"
         execute  "edit ~/.vim/vim.txt"
 endfunction
-function! MultiToggleVoid()
+function! g:MultiToggleVoid()
         let g:multi_toggle_state = 0
 endfunction
 
 let g:multi_toggle_state = -1
 let &statusline = "Void Mode"
-nnoremap <F7> :call MultiToggleVoid()<CR>
-nnoremap <F8> :call MultiToggle()<CR>
-nnoremap <F10> :call UtilityPopUp("/home/mestes/vim.txt")<CR>
 
 
 
@@ -862,6 +859,9 @@ call g:Commander('', '')
 call g:Commander("<F5>          :call ProgramCompile()<cr>", " F5 - Program Compile")
 call g:Commander("<F6>          :call ProgramRun()<cr>",     " F6 - Program Run")
 call g:Commander("<leader><F6>  :cclose<cr>",                "+F6 - Close QuickFix")
+call g:Commander("<F7> :call g:MultiToggleVoid()<CR>",         " F7 - Multi-Toggle")
+call g:Commander("<F8> :call g:MultiToggle()<CR>",             " F8 - Toggle Multi-Toggle")
+call g:Commander("<F9> :call UtilityPopUp('/home/mestes/vim.txt')<CR>", " F9 - Utility Popup")
 call g:Commander('', '')
 call g:Commander("<Leader>p     :PluginUpdate<cr>",          "+p  - Plugin Update")
 
