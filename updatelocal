@@ -1,0 +1,15 @@
+cp ~/.vimrc .
+cp ~/.macros.vim .
+cp ~/utils.vim .
+
+git add .vimrc
+git add .macros.vim
+git add utils.vim
+git add update
+git add updatelocal
+
+
+git commit -m "Update"
+
+
+

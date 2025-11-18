@@ -467,3 +467,92 @@ function! g:MultiToggle()
     let &statusline = sMt[g:multi_toggle_state][1]
 endfunction
 
+function! g:HelpPopUpPrime()
+    "let maxLen = max([len1, len2])
+    let l:maxLen = -100
+    let l:maxLen = max([len(s:helpdisplaynames),  l:maxLen])
+    let l:maxLen = max([len(s:helpdisplaynames2), l:maxLen])
+    let l:maxLen = max([len(s:helpdisplaynames3), l:maxLen])
+    let l:maxLen = max([len(s:helpdisplaynames4), l:maxLen])
+    let l:maxLen = max([len(s:helpdisplaynames5), l:maxLen])
+
+    let l:fullsize = l:maxLen
+    for i in range(1, l:fullsize-len(s:helpdisplaynames))
+        call add(s:helpdisplaynames, "" )
+    endfor
+    for i in range(1, l:fullsize-len(s:helpdisplaynames2))
+        call add(s:helpdisplaynames2, "" )
+    endfor
+    for i in range(1, l:fullsize-len(s:helpdisplaynames3))
+        call add(s:helpdisplaynames3, "" )
+    endfor
+    for i in range(1, l:fullsize-len(s:helpdisplaynames4))
+        call add(s:helpdisplaynames4, "" )
+    endfor
+    for i in range(1, l:fullsize-len(s:helpdisplaynames5))
+        call add(s:helpdisplaynames5, "" )
+    endfor
+
+    let l:temp1 =  ConcatStringLists(g:PadStrings(s:helpdisplaynames), g:PadStrings(s:helpdisplaynames2))
+    let l:temp2 =  ConcatStringLists(l:temp1, g:PadStrings(s:helpdisplaynames3))
+    let l:temp3 =  ConcatStringLists(l:temp2, g:PadStrings(s:helpdisplaynames4))
+    let l:arr   =  ConcatStringLists(l:temp3, g:PadStrings(s:helpdisplaynames5))
+
+    call add(l:arr,"=")
+    call popup_menu(l:arr,
+    \ #{ title: "Help", callback: 'MenuCBDoNothing', line: 25, col: 40, 
+    \ highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
+endfunction
+
+func! MenuCBDoNothingPrime(id, result)
+    let l:NOTHING=0
+endfunction
+
+func! g:CommanderTextPrime(...)
+    if a:0 == 1
+        call g:Commander('', a:1)
+    else
+        call g:Commander('', a:1 . " - " . a:2)
+    endif
+endfunction
+
+func! g:CommanderPrime(szCommand, szHelp)
+    if len(a:szCommand)+len(a:szHelp) == 0
+        call add(s:helpdisplaynames, "" )
+    else
+        if len(a:szHelp) > 0
+            let l:szSz = CapitalizeWords(a:szHelp)
+
+            if EndsWith(l:szSz,"++++")
+                call add(s:helpdisplaynames5, strpart(l:szSz, 0, len(l:szSz) - 4) )
+            else
+                if EndsWith(l:szSz,"+++")
+                    call add(s:helpdisplaynames4, strpart(l:szSz, 0, len(l:szSz) - 3) )
+                else
+                    if EndsWith(l:szSz,"++")
+                        call add(s:helpdisplaynames3, strpart(l:szSz, 0, len(l:szSz) - 2) )
+                    else
+                        if EndsWith(l:szSz,"+")
+                            call add(s:helpdisplaynames2, strpart(l:szSz, 0, len(l:szSz) - 1) )
+                        else
+                            call add(s:helpdisplaynames, l:szSz )
+                        endif
+                    endif
+                endif
+            endif
+        else
+            call add(s:helpdisplaynames, '' )
+
+        endif
+
+        if len(a:szCommand) > 0
+            let l:firstword = GetFirstWord(a:szCommand)
+            if l:firstword == 'nnoremap' || l:firstword == 'inoremap' || l:firstword == 'command!'
+                execute a:szCommand
+            else
+                execute 'nnoremap ' . a:szCommand
+            endif
+       endif
+
+   endif
+endfunction
