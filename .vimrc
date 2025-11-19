@@ -189,6 +189,7 @@ function! g:NextHelpPage()
         let g:pageno = 1
     endif
     echom "Help Page Number " . g:pageno
+    call HelpPopUp()
 endfunction
 
 " let s:helpPageSets=[]
@@ -210,6 +211,8 @@ let s:helpdisplaynames5=[]
 "    call add(s:helpdisplaynames3, "|" )
 "endfor
 "MODIFY
+"
+let s:pageSetList[3][1] = readfile("zed",'',12)
 function! g:HelpPopUp()
     "let maxLen = max([len1, len2])
     let l:maxLen = -100
@@ -244,8 +247,45 @@ function! g:HelpPopUp()
     call add(l:arr,"=")
     call popup_menu(l:arr,
     \ #{ title: "Help", callback: 'MenuCBDoNothing', line: 25, col: 40, 
-    \ highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
+    \ highlight: 'Question', border: [], close: 'click',  filter: 'MyFilter100', padding: [1,1,0,1]} )
 endfunction
+	func MyFilter100(winid, key)
+        echom a:key
+	  if a:key == "\<F12>"
+        echom "From Filter -- Help Page Number " . g:pageno
+	    call popup_close(a:winid)
+        let g:pageno = g:pageno + 1
+        if g:pageno > 4
+            let g:pageno = 1
+        endif
+        call HelpPopUp()
+	    " do something
+	    return 1
+	  endif
+	  if a:key == 'x'
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+	  if a:key == "<ESC>"
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+
+
+	  if a:key == 'c'
+        echom "From Filter -- Help Page Number " . g:pageno
+	    call popup_close(a:winid)
+        let g:pageno = g:pageno + 1
+        if g:pageno > 4
+            let g:pageno = 1
+        endif
+        call HelpPopUp()
+	    return 1
+	  endif
+
+
+	  return 0
+	endfunc
 
 func! MenuCBDoNothing(id, result)
     let l:NOTHING=0
@@ -762,7 +802,7 @@ call g:Commander("<leader><F6>  :cclose<cr>",                "+F6 - Close QuickF
 call g:Commander("<F7> :call g:MultiToggleVoid()<CR>",         " F7 - Multi-Toggle")
 call g:Commander("<F8> :call g:MultiToggle()<CR>",             " F8 - Toggle Multi-Toggle")
 call g:Commander("<F9> :call UtilityPopUp('/home/mestes/vim.txt')<CR>", " F9 - Utility Popup")
-call g:Commander("<F12> :call g:NextHelpPage()<cr>",           " Set Next Help")
+call g:Commander("<F12> <esc>:call g:NextHelpPage()<cr>",           " Set Next Help")
 call g:Commander('', '')
 call g:Commander("<Leader>p     :PluginUpdate<cr>",          "+p  - Plugin Update")
 
@@ -826,7 +866,7 @@ call g:Commander("command! GEM      :call Gemini()<cr>",     "GEM+++")
 call g:Commander("command! SESSION  :call CaptureSession()", "SESSION+++") 
 call g:Commander("command! -nargs=+ GREP    call GrepPopUp(<q-args>)<cr>", "GREP+++")
 call g:Commander("command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "POPGREP+++")
-
+let g:pageno = 2
 call g:CommanderText("+++")
 call g:CommanderText("--- Sets+++")
 call g:CommanderText("set nu!", "Toggle screen mumbering+++")
@@ -841,6 +881,7 @@ call g:CommanderText("CTRL-Y","Scroll up one line+++")
 call g:CommanderText("zz","Center the current line on screen+++")
 call g:CommanderText("zt","Mv current line to the top of screen+++")
 call g:CommanderText("zb","Mv current line to the bottom of screen+++")
+let g:pageno = 1
 
 "Key Sequence","Description"
 ".","Repeats the last change (insert, delete, change, replace)."
