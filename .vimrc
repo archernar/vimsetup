@@ -251,6 +251,7 @@ function! g:HelpPopUp()
 endfunction
 
 func MyFilter100(winid, key)
+      let l:MAX=3
       if a:key ==# "\<Esc>"
 	    call popup_close(a:winid)
 	    return 1
@@ -265,10 +266,9 @@ func MyFilter100(winid, key)
 	  endif
 
 	  if a:key == "\<F12>"
-        echom "From Filter -- Help Page Number " . g:pageno
 	    call popup_close(a:winid)
         let g:pageno = g:pageno + 1
-        if g:pageno > 4
+        if g:pageno > l:MAX 
             let g:pageno = 1
         endif
         call HelpPopUp()
@@ -277,10 +277,9 @@ func MyFilter100(winid, key)
 	  endif
 
 	  if a:key == 'c'
-        echom "From Filter -- Help Page Number " . g:pageno
 	    call popup_close(a:winid)
         let g:pageno = g:pageno + 1
-        if g:pageno > 4
+        if g:pageno > l:MAX 
             let g:pageno = 1
         endif
         call HelpPopUp()
