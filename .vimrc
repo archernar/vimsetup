@@ -249,8 +249,21 @@ function! g:HelpPopUp()
     \ #{ title: "Help", callback: 'MenuCBDoNothing', line: 25, col: 40, 
     \ highlight: 'Question', border: [], close: 'click',  filter: 'MyFilter100', padding: [1,1,0,1]} )
 endfunction
-	func MyFilter100(winid, key)
-        echom a:key
+
+func MyFilter100(winid, key)
+      if a:key ==# "\<Esc>"
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+      if a:key ==# "\x1b"
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+	  if a:key == 'x'
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+
 	  if a:key == "\<F12>"
         echom "From Filter -- Help Page Number " . g:pageno
 	    call popup_close(a:winid)
@@ -262,15 +275,6 @@ endfunction
 	    " do something
 	    return 1
 	  endif
-	  if a:key == 'x'
-	    call popup_close(a:winid)
-	    return 1
-	  endif
-	  if a:key == "<ESC>"
-	    call popup_close(a:winid)
-	    return 1
-	  endif
-
 
 	  if a:key == 'c'
         echom "From Filter -- Help Page Number " . g:pageno
@@ -283,9 +287,8 @@ endfunction
 	    return 1
 	  endif
 
-
 	  return 0
-	endfunc
+endfunc
 
 func! MenuCBDoNothing(id, result)
     let l:NOTHING=0
