@@ -162,14 +162,6 @@ source ~/utils.vim
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 " Help Buffer Popup
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-let s:helpPageList=[]
-call add(s:helpPageList, [])
-call add(s:helpPageList, [])
-call add(s:helpPageList, [])
-call add(s:helpPageList, [])
-call add(s:helpPageList, [])
-call add(s:helpPageList, [])
-
 let s:pageSetList=[]
 for i in range(1, 10)
     let s:pageSet = []
@@ -181,26 +173,17 @@ for i in range(1, 10)
     call add(s:pageSet, [])
     call add(s:pageSetList, s:pageSet)
 endfor
-let g:pageno = 1
+let s:pageno = 1
 
 function! g:NextHelpPage()
-    let g:pageno = g:pageno + 1
-    if g:pageno > 4
-        let g:pageno = 1
+    let s:pageno = s:pageno + 1
+    if s:pageno > 4
+        let s:pageno = 1
     endif
-    echom "Help Page Number " . g:pageno
+    echom "Help Page Number " . s:pageno
     call HelpPopUp()
 endfunction
 
-" let s:helpPageSets=[]
-" let s:helpPageList=[]
-" call add(s:helpPageList, [])
-" call add(s:helpPageList, [])
-" call add(s:helpPageList, [])
-" call add(s:helpPageList, [])
-" call add(s:helpPageList, [])
-" call add(s:helpPageList, [])
-" call add(s:helpPageList, [])
 
 let s:helpdisplaynames=[]
 let s:helpdisplaynames2=[]
@@ -212,37 +195,37 @@ let s:helpdisplaynames5=[]
 "endfor
 "MODIFY
 "
-let s:pageSetList[3][1] = readfile("zed",'',12)
+"let s:pageSetList[3][1] = readfile("zed",'',12)
 function! g:HelpPopUp()
     "let maxLen = max([len1, len2])
     let l:maxLen = -100
-    let l:maxLen = max([len(s:pageSetList[g:pageno][1]), l:maxLen])
-    let l:maxLen = max([len(s:pageSetList[g:pageno][2]), l:maxLen])
-    let l:maxLen = max([len(s:pageSetList[g:pageno][3]), l:maxLen])
-    let l:maxLen = max([len(s:pageSetList[g:pageno][4]), l:maxLen])
-    let l:maxLen = max([len(s:pageSetList[g:pageno][5]), l:maxLen])
+    let l:maxLen = max([len(s:pageSetList[s:pageno][1]), l:maxLen])
+    let l:maxLen = max([len(s:pageSetList[s:pageno][2]), l:maxLen])
+    let l:maxLen = max([len(s:pageSetList[s:pageno][3]), l:maxLen])
+    let l:maxLen = max([len(s:pageSetList[s:pageno][4]), l:maxLen])
+    let l:maxLen = max([len(s:pageSetList[s:pageno][5]), l:maxLen])
 
     let l:fullsize = l:maxLen
-    for i in range(1, l:fullsize-len(s:pageSetList[g:pageno][1]))
-        call add(s:pageSetList[g:pageno][1], "" )
+    for i in range(1, l:fullsize-len(s:pageSetList[s:pageno][1]))
+        call add(s:pageSetList[s:pageno][1], "" )
     endfor
-    for i in range(1, l:fullsize-len(s:pageSetList[g:pageno][2]))
-        call add(s:pageSetList[g:pageno][2], "" )
+    for i in range(1, l:fullsize-len(s:pageSetList[s:pageno][2]))
+        call add(s:pageSetList[s:pageno][2], "" )
     endfor
-    for i in range(1, l:fullsize-len(s:pageSetList[g:pageno][3]))
-        call add(s:pageSetList[g:pageno][3], "" )
+    for i in range(1, l:fullsize-len(s:pageSetList[s:pageno][3]))
+        call add(s:pageSetList[s:pageno][3], "" )
     endfor
-    for i in range(1, l:fullsize-len(s:pageSetList[g:pageno][4]))
-        call add(s:pageSetList[g:pageno][4], "" )
+    for i in range(1, l:fullsize-len(s:pageSetList[s:pageno][4]))
+        call add(s:pageSetList[s:pageno][4], "" )
     endfor
-    for i in range(1, l:fullsize-len(s:pageSetList[g:pageno][5]))
-        call add(s:pageSetList[g:pageno][5], "" )
+    for i in range(1, l:fullsize-len(s:pageSetList[s:pageno][5]))
+        call add(s:pageSetList[s:pageno][5], "" )
     endfor
 
-    let l:temp1 =  ConcatStringLists(g:PadStrings(s:pageSetList[g:pageno][1]), g:PadStrings(s:pageSetList[g:pageno][2]))
-    let l:temp2 =  ConcatStringLists(l:temp1, g:PadStrings(s:pageSetList[g:pageno][3]))
-    let l:temp3 =  ConcatStringLists(l:temp2, g:PadStrings(s:pageSetList[g:pageno][4]))
-    let l:arr   =  ConcatStringLists(l:temp3, g:PadStrings(s:pageSetList[g:pageno][5]))
+    let l:temp1 =  ConcatStringLists(g:PadStrings(s:pageSetList[s:pageno][1]), g:PadStrings(s:pageSetList[s:pageno][2]))
+    let l:temp2 =  ConcatStringLists(l:temp1, g:PadStrings(s:pageSetList[s:pageno][3]))
+    let l:temp3 =  ConcatStringLists(l:temp2, g:PadStrings(s:pageSetList[s:pageno][4]))
+    let l:arr   =  ConcatStringLists(l:temp3, g:PadStrings(s:pageSetList[s:pageno][5]))
 
     call add(l:arr,"=")
     call popup_menu(l:arr,
@@ -267,9 +250,9 @@ func MyFilter100(winid, key)
 
 	  if a:key == "\<F12>"
 	    call popup_close(a:winid)
-        let g:pageno = g:pageno + 1
-        if g:pageno > l:MAX 
-            let g:pageno = 1
+        let s:pageno = s:pageno + 1
+        if s:pageno > l:MAX 
+            let s:pageno = 1
         endif
         call HelpPopUp()
 	    " do something
@@ -278,9 +261,9 @@ func MyFilter100(winid, key)
 
 	  if a:key == 'c'
 	    call popup_close(a:winid)
-        let g:pageno = g:pageno + 1
-        if g:pageno > l:MAX 
-            let g:pageno = 1
+        let s:pageno = s:pageno + 1
+        if s:pageno > l:MAX 
+            let s:pageno = 1
         endif
         call HelpPopUp()
 	    return 1
@@ -289,9 +272,6 @@ func MyFilter100(winid, key)
 	  return 0
 endfunc
 
-func! MenuCBDoNothing(id, result)
-    let l:NOTHING=0
-endfunction
 
 func! g:CommanderText(...)
     if a:0 == 1
@@ -309,24 +289,24 @@ func! g:Commander(szCommand, szHelp)
             let l:szSz = CapitalizeWords(a:szHelp)
 
             if EndsWith(l:szSz,"++++")
-                call add(s:pageSetList[g:pageno][5], strpart(l:szSz, 0, len(l:szSz) - 4) )
+                call add(s:pageSetList[s:pageno][5], strpart(l:szSz, 0, len(l:szSz) - 4) )
             else
                 if EndsWith(l:szSz,"+++")
-                    call add(s:pageSetList[g:pageno][4], strpart(l:szSz, 0, len(l:szSz) - 3) )
+                    call add(s:pageSetList[s:pageno][4], strpart(l:szSz, 0, len(l:szSz) - 3) )
                 else
                     if EndsWith(l:szSz,"++")
-                        call add(s:pageSetList[g:pageno][3], strpart(l:szSz, 0, len(l:szSz) - 2) )
+                        call add(s:pageSetList[s:pageno][3], strpart(l:szSz, 0, len(l:szSz) - 2) )
                     else
                         if EndsWith(l:szSz,"+")
-                            call add(s:pageSetList[g:pageno][2], strpart(l:szSz, 0, len(l:szSz) - 1) )
+                            call add(s:pageSetList[s:pageno][2], strpart(l:szSz, 0, len(l:szSz) - 1) )
                         else
-                            call add(s:pageSetList[g:pageno][1], l:szSz )
+                            call add(s:pageSetList[s:pageno][1], l:szSz )
                         endif
                     endif
                 endif
             endif
         else
-            call add(s:pageSetList[g:pageno][1], '' )
+            call add(s:pageSetList[s:pageno][1], '' )
 
         endif
 
@@ -499,69 +479,8 @@ function! g:OpenReadOnlyFile(...)
         exe "set paste"
 endfunction
 
-"https://www.baeldung.com/linux/vim-find-full-path-current-file#:~:text=The%20%25%20Register,%2C%20depending%20on%20the%20context).
-"let l:command = "/usr/bin/git add " . expand('%') . ";git commit -m \"Update\"; git push origin master"
-func! MenuCB(id, result)
-    if ( a:result == 1 )
-        let l:command = "git status > /tmp/out"
-        call system(l:command)
-        call UtilityPopUp("/tmp/out")
-        "execute "new | r ! " . l:command
-        "call g:BufferDelete(0)
-    endif
-    if ( a:result == 2 )
-        let l:command = "/usr/bin/git add " . expand('%')
-        execute "new | r ! " . l:command
-        call g:BufferDelete(0)
-    endif
-    if ( a:result == 3 )
-        let l:command = "git commit -m \"Update\""
-        execute "new | r ! " . l:command
-        call g:BufferDelete(0)
-    endif
-    if ( a:result == 4 )
-        let l:command = "git push origin master"
-        execute "new | r ! " . l:command
-        call g:BufferDelete(0)
-    endif
-    if ( a:result == 5 )
-        let l:command = "/usr/bin/git add " . expand('%') . ";git commit -m \"Update\"; git push origin master"
-        execute "new | r ! " . l:command
-        call g:BufferDelete(0)
-    endif
-    if ( a:result == 6 )
-        let l:command = "./make"
-        execute "new | r ! " . l:command
-        call g:BufferDelete(0)
-    endif
-    if ( a:result == 7 )
-        let l:command = "./deploy"
-        execute "new | r ! " . l:command
-        call g:BufferDelete(0)
-    endif
-    if ( a:result == 8 )
-        call g:UtilityPopupCommand("df -h")
-    endif
-    if ( a:result == 9 )
-        call g:UtilityBufferCommand("cat /usr/share/vim/vim82/doc/*.txt")
-    endif
-    if ( a:result == 10 )
-        call g:UtilityBufferCommand("cat /usr/share/vim/vim82/doc/pop*.txt")
-    endif
-
-endfunc
-
-func! DoNothingCB(id, result)
-    let l:NOTHING=0
-endfunc
 
 
-" https://vi.stackexchange.com/questions/24462/what-are-the-new-popup-windows-in-vim-8-2
-function! g:GitPopUp()
-call popup_menu(['Status', 'add', 'commit', 'push', 'all', 'make', 'deploy','df','vim', 'pop' ], 
-     \ #{ title: "Git", callback: 'MenuCBBuffer', line: 25, col: 40, 
-     \ highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
-endfunction
 
 
 
@@ -630,93 +549,42 @@ endfunction
 let g:buffernames=[]
 let g:bufferdisplaynames=[]
 
-function! g:SplitBuffers()
-    let l:last_bufno = bufnr("$")
-    let l:i = 1
-    let l:filenames = ""
-    let l:filename  = ""
-
-    let g:VimBufferPopUp_Init=1
-    while l:i < l:last_bufno
-        if bufexists(i) && buflisted(i)
-            let fullpath = fnamemodify(bufname(i), ':p')
-            if filereadable(fullpath)
-                if v:version >= 702
-                    let l:filename = fnameescape(fullpath)
-                    let l:filenames = l:filenames . " " . fnameescape(fullpath)
-                else
-                    let l:filename  = fullpath
-                    let l:filenames = l:filenames . " " . fullpath
-                endif
-            endif
-            execute "split"
-            execute "bnext "
-        endif
-        let l:i = l:i + 1
-    endwhile
-    execute "wincmd t"
-    normal! 0
-endfunction
-function! g:VimBufferPopUpLoader()
-    let l:last_bufno = bufnr("$")
-    let l:i = 1
-    let l:filenames = ""
-    let l:filename  = ""
-
-    let g:buffernames=[]
-    let g:bufferdisplaynames=[]
-
-    let g:VimBufferPopUp_Init=1
-    while l:i <= l:last_bufno
-        if bufexists(i) && buflisted(i)
-            let fullpath = fnamemodify(bufname(i), ':p')
-            if filereadable(fullpath)
-                if v:version >= 702
-                    let l:filename = fnameescape(fullpath)
-                    let l:filenames = l:filenames . " " . fnameescape(fullpath)
-                else
-                    let l:filename  = fullpath
-                    let l:filenames = l:filenames . " " . fullpath
-                endif
-            endif
-            call add(g:bufferdisplaynames, fnamemodify(l:filename, ":t") )
-            call add(g:buffernames, l:filename )
-        endif
-        let l:i = l:i + 1
-    endwhile
-endfunction
-
 
 function! g:VimBufferPopUp()
-    let l:last_bufno = bufnr("$")
+    " let l:buffer_list = getbufinfo()
+    " let listed_buffers = getbufinfo({'buflisted': 1})
+    " let l:buffer_names = map(getbufinfo({'buflisted': 1}), 'v:val.name')
+    let l:last_bufno  = bufnr("$")
     let l:i = 1
     let l:filenames = ""
     let l:filename  = ""
-
-if !exists('g:VimBufferPopUp_Init')
-let g:VimBufferPopUp_Init=1
-
+    let l:a1  = [] 
+    let l:a2  = [] 
+    let l:arr  = [] 
+    " Notes
+    " let buffer_list = getbufinfo()
+    " buffer_list is a list of dictionaries.
+    " Example element:
+    " {'bufnr': 1, 'changed': 0, 'filetype': 'vim', 'hidden': 0, 'lnum': 1, 'name': '/path/to/file.vim', 'listed': 1, 'windows': [5001]}
+    " Get info for buffers that are 'listed' (like :ls output)
+    " let listed_buffers = filter(getbufinfo(), 'v:val.listed')
+    " Or, more efficiently in recent Vim versions:
+    " let listed_buffers = getbufinfo({'buflisted': 1})
+    " Get a list of the names of all listed buffers
+    " let buffer_names = map(getbufinfo({'buflisted': 1}), 'v:val.name')
+    " Display the result (for demonstration)
     while l:i <= l:last_bufno
         if bufexists(i) && buflisted(i)
-            let fullpath = fnamemodify(bufname(i), ':p')
-            if filereadable(fullpath)
-                if v:version >= 702
-                    let l:filename = fnameescape(fullpath)
-                    let l:filenames = l:filenames . " " . fnameescape(fullpath)
-                else
-                    let l:filename  = fullpath
-                    let l:filenames = l:filenames . " " . fullpath
-                endif
+            let l:fullpath = fnamemodify(bufname(i), ':p')
+            if filereadable(l:fullpath)
+               call add(l:a1, bufname(i))
+               call add(l:a2, l:fullpath)
             endif
-            call add(g:bufferdisplaynames, fnamemodify(l:filename, ":t") )
-            call add(g:buffernames, l:filename )
         endif
         let l:i = l:i + 1
     endwhile
-
-endif 
-
-    call popup_menu(g:bufferdisplaynames, 
+    let l:arr =  ConcatStringLists(g:PadStrings(l:a1), g:PadStrings(l:a2))
+    call popup_menu(l:arr,
     \ #{ title: "Vim Buffers", callback: 'MenuCBBuffer', line: 25, col: 40, 
     \ highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
 endfunction
@@ -725,7 +593,6 @@ endfunction
 " 1. Define a function to run *when* the list changes.
 "function! s:HandleBufferListChange()
 "    Put your logic here. For demonstration, we'll just echo.
-"   call  g:VimBufferPopUpLoader()
 "   let l:NOTHING=0
 "endfunction
 
@@ -740,12 +607,14 @@ endfunction
 "augroup END
 
 
+func! MenuCBDoNothing(id, result)
+    let l:NOTHING=0
+endfunction
 func! MenuCBBuffer(id, result)
     if ( a:result > -1 ) 
         execute "e " . g:buffernames[a:result-1]
         call MoveToFront(g:buffernames, a:result-1)
         call MoveToFront(g:bufferdisplaynames, a:result-1)
-        "echom "POPEYE" . "  " . a:result
     endif
 endfunction
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -868,7 +737,7 @@ call g:Commander("command! GEM      :call Gemini()<cr>",     "GEM+++")
 call g:Commander("command! SESSION  :call CaptureSession()", "SESSION+++") 
 call g:Commander("command! -nargs=+ GREP    call GrepPopUp(<q-args>)<cr>", "GREP+++")
 call g:Commander("command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "POPGREP+++")
-let g:pageno = 2
+let s:pageno = 2
 call g:CommanderText("+++")
 call g:CommanderText("--- Sets+++")
 call g:CommanderText("set nu!", "Toggle screen mumbering+++")
@@ -883,7 +752,7 @@ call g:CommanderText("CTRL-Y","Scroll up one line+++")
 call g:CommanderText("zz","Center the current line on screen+++")
 call g:CommanderText("zt","Mv current line to the top of screen+++")
 call g:CommanderText("zb","Mv current line to the bottom of screen+++")
-let g:pageno = 1
+let s:pageno = 1
 
 "Key Sequence","Description"
 ".","Repeats the last change (insert, delete, change, replace)."

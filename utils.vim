@@ -287,6 +287,33 @@ function g:NoSplits()
     execute "only"
     normal! 0
 endfunction
+function! g:SplitBuffers()
+    let l:last_bufno = bufnr("$")
+    let l:i = 1
+    let l:filenames = ""
+    let l:filename  = ""
+
+    let g:VimBufferPopUp_Init=1
+    while l:i < l:last_bufno
+        if bufexists(i) && buflisted(i)
+            let fullpath = fnamemodify(bufname(i), ':p')
+            if filereadable(fullpath)
+                if v:version >= 702
+                    let l:filename = fnameescape(fullpath)
+                    let l:filenames = l:filenames . " " . fnameescape(fullpath)
+                else
+                    let l:filename  = fullpath
+                    let l:filenames = l:filenames . " " . fullpath
+                endif
+            endif
+            execute "split"
+            execute "bnext "
+        endif
+        let l:i = l:i + 1
+    endwhile
+    execute "wincmd t"
+    normal! 0
+endfunction
 " Function to reorder a list, moving the element at a:index to the front (index 0).
 "
 " Args:
@@ -556,3 +583,67 @@ func! g:CommanderPrime(szCommand, szHelp)
 
    endif
 endfunction
+
+
+
+" https://vi.stackexchange.com/questions/24462/what-are-the-new-popup-windows-in-vim-8-2
+function! g:GitPopUp()
+call popup_menu(['Status', 'add', 'commit', 'push', 'all', 'make', 'deploy','df','vim', 'pop' ], 
+     \ #{ title: "Git", callback: 'MenuCBBuffer', line: 25, col: 40, 
+     \ highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
+endfunction
+"https://www.baeldung.com/linux/vim-find-full-path-current-file#:~:text=The%20%25%20Register,%2C%20depending%20on%20the%20context).
+"let l:command = "/usr/bin/git add " . expand('%') . ";git commit -m \"Update\"; git push origin master"
+func! MenuCB(id, result)
+    if ( a:result == 1 )
+        let l:command = "git status > /tmp/out"
+        call system(l:command)
+        call UtilityPopUp("/tmp/out")
+        "execute "new | r ! " . l:command
+        "call g:BufferDelete(0)
+    endif
+    if ( a:result == 2 )
+        let l:command = "/usr/bin/git add " . expand('%')
+        execute "new | r ! " . l:command
+        call g:BufferDelete(0)
+    endif
+    if ( a:result == 3 )
+        let l:command = "git commit -m \"Update\""
+        execute "new | r ! " . l:command
+        call g:BufferDelete(0)
+    endif
+    if ( a:result == 4 )
+        let l:command = "git push origin master"
+        execute "new | r ! " . l:command
+        call g:BufferDelete(0)
+    endif
+    if ( a:result == 5 )
+        let l:command = "/usr/bin/git add " . expand('%') . ";git commit -m \"Update\"; git push origin master"
+        execute "new | r ! " . l:command
+        call g:BufferDelete(0)
+    endif
+    if ( a:result == 6 )
+        let l:command = "./make"
+        execute "new | r ! " . l:command
+        call g:BufferDelete(0)
+    endif
+    if ( a:result == 7 )
+        let l:command = "./deploy"
+        execute "new | r ! " . l:command
+        call g:BufferDelete(0)
+    endif
+    if ( a:result == 8 )
+        call g:UtilityPopupCommand("df -h")
+    endif
+    if ( a:result == 9 )
+        call g:UtilityBufferCommand("cat /usr/share/vim/vim82/doc/*.txt")
+    endif
+    if ( a:result == 10 )
+        call g:UtilityBufferCommand("cat /usr/share/vim/vim82/doc/pop*.txt")
+    endif
+
+endfunc
+
+func! DoNothingCB(id, result)
+    let l:NOTHING=0
+endfunc
