@@ -647,3 +647,13 @@ endfunc
 func! DoNothingCB(id, result)
     let l:NOTHING=0
 endfunc
+
+function! g:FilePopUp(...)
+    let l:fn=a:1
+    if l:fn == ""
+        let l:fn=$HOME . "/.vim.vimsession"
+    endif
+    call popup_menu(readfile(l:fn),
+    \ #{ title: "Help", callback: 'MenuCBDoNothing', line: 25, col: 40, 
+    \ highlight: 'Question', border: [], close: 'click',  filter: 'MyFilter100', padding: [1,1,0,1]} )
+endfunction
