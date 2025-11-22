@@ -6,6 +6,7 @@ git add .vimrc
 git add .macros.vim
 git add utils.vim
 git add update
+git add -u 
 
 
 git commit -m "Update"
