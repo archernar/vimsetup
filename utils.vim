@@ -392,6 +392,8 @@ function! g:UtilityPopUp(...)
         nnoremap <F10>  :call UtilityPopUpClear(g:utilityPopupFilename)<CR>
     endif
 endfunction
+
+
 function! g:UtilityBufferCommand(...)
     call system( a:1 . " > /tmp/out" )
     call UtilityBuffer("/tmp/out")

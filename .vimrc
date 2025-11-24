@@ -233,6 +233,14 @@ function! g:HelpPopUp()
     \ highlight: 'Question', border: [], close: 'click',  filter: 'MyFilter100', padding: [1,1,0,1]} )
 endfunction
 
+function! g:FilePopUp(...)
+    if filereadable(a:1)
+        call popup_menu(readfile(a:1),
+        \ #{ title: "File", callback: 'MenuCBDoNothing', line: 25, col: 40, 
+        \ highlight: 'Question', border: [], close: 'click',  filter: 'MyFilter100', padding: [1,1,0,1]} )
+    endif
+endfunction
+
 func MyFilter100(winid, key)
       let l:MAX=3
       if a:key ==# "\<Esc>"
@@ -673,6 +681,8 @@ call g:Commander("<leader><F6>  :cclose<cr>",                "+F6 - Close QuickF
 call g:Commander("<F7> :call g:MultiToggleVoid()<CR>",         " F7 - Multi-Toggle")
 call g:Commander("<F8> :call g:MultiToggle()<CR>",             " F8 - Toggle Multi-Toggle")
 call g:Commander("<F9> :call UtilityPopUp('/home/mestes/vim.txt')<CR>", " F9 - Utility Popup")
+
+
 call g:Commander("<F12> <esc>:call g:NextHelpPage()<cr>",           " Set Next Help")
 call g:Commander('', '')
 call g:Commander("<Leader>p     :PluginUpdate<cr>",          "+p  - Plugin Update")
@@ -737,6 +747,11 @@ call g:Commander("command! GEM      :call Gemini()<cr>",     "GEM+++")
 call g:Commander("command! SESSION  :call CaptureSession()", "SESSION+++") 
 call g:Commander("command! -nargs=+ GREP    call GrepPopUp(<q-args>)<cr>", "GREP+++")
 call g:Commander("command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "POPGREP+++")
+
+" Define the command :RunScript
+" call g:Commander("<F9> :call system('ls -la > /tmp/files.txt')<cr>",           " Test Command")
+"
+call Commander("command! -nargs=1 CLI call system( <q-args> . ' > /tmp/files.txt  ') | call FilePopUp('/tmp/files.txt')", "CLI+++")
 let s:pageno = 2
 call g:CommanderText("+++")
 call g:CommanderText("--- Sets+++")
