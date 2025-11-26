@@ -33,7 +33,7 @@ set background=dark
 set laststatus=2                  " For Status Line
 set t_Co=256                      " For Status Line
 
-" set relativenumber
+ set relativenumber
 " set signcolumn=yes
 " set incsearch
 " set hlsearch incsearch          " Highlight searches (use <C-L> to temporarily turn off highlighting
@@ -160,6 +160,56 @@ filetype plugin indent on         " required, to ignore plugin indent changes, i
 source ~/utils.vim
 
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+" File Pager Popup
+" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+let g:filepageno = 0
+
+func g:CustomFilter(winid, key)
+
+      if g:StandardFilter(a:winid, a:key) > 0
+          return 1
+      endif
+
+	  if a:key == "\<F9>"
+	    call popup_close(a:winid)
+        call g:FilePagerLoad($HOME . '/utility.txt')
+	    return 1
+	  endif
+
+	  return 0
+endfunc
+function! g:FilePagerLoad(...)
+    let s:filePagerList=[]
+    let l:arr = readfile(a:1)
+    let l:v = -1
+    let l:pages = 0 
+    let l:idx = 0
+
+    for i in range(1, 50)
+        call add(s:filePagerList, [])
+    endfor
+
+    for i in range(0, len(l:arr)-1)
+        let l:n = (i/24)+1
+        if l:n != l:v
+            let l:v = l:n
+            let l:pages = l:pages + 1
+        endif
+        call add(s:filePagerList[l:n], ">> " . l:arr[l:idx])
+        let l:idx = l:idx +1
+    endfor
+
+    let g:filepageno = g:filepageno + 1 
+    if g:filepageno > l:pages
+        let g:filepageno = 1
+    endif
+    echom $HOME
+    call g:PopMeUp(s:filePagerList[g:filepageno], "Test", 'g:CustomFilter')
+
+
+endfunction
+
+" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 " Help Buffer Popup
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 let s:pageSetList=[]
@@ -227,17 +277,14 @@ function! g:HelpPopUp()
     let l:temp3 =  ConcatStringLists(l:temp2, g:PadStrings(s:pageSetList[s:pageno][4]))
     let l:arr   =  ConcatStringLists(l:temp3, g:PadStrings(s:pageSetList[s:pageno][5]))
 
-    call add(l:arr,"=")
-    call popup_menu(l:arr,
-    \ #{ title: "Help", callback: 'MenuCBDoNothing', line: 25, col: 40, 
-    \ highlight: 'Question', border: [], close: 'click',  filter: 'MyFilter100', padding: [1,1,0,1]} )
+    call g:PopMeUp(l:arr, "Help")
+
 endfunction
 
 function! g:FilePopUp(...)
     if filereadable(a:1)
-        call popup_menu(readfile(a:1),
-        \ #{ title: "File", callback: 'MenuCBDoNothing', line: 25, col: 40, 
-        \ highlight: 'Question', border: [], close: 'click',  filter: 'MyFilter100', padding: [1,1,0,1]} )
+        let l:arr = readfile(a:1)
+        call g:PopMeUp(l:arr, "File")
     endif
 endfunction
 
@@ -540,7 +587,7 @@ function! Gemini()
     let l:dq="\""
     let l:szIn = GetUserInput("Gemini prompt: ")
     if l:szIn != ""
-      let l:sz = "/home/mestes/scm/private/qg " . l:dq . l:szIn . l:dq . " | fold -sw 80"
+      let l:sz = $HOME . "/scm/private/qg " . l:dq . l:szIn . l:dq . " | fold -sw 80"
       call InsertSystemOutput(l:sz, l:szIn)
     else
       echo "Input cancelled."
@@ -591,10 +638,11 @@ function! g:VimBufferPopUp()
         endif
         let l:i = l:i + 1
     endwhile
+    " #{ title: "Vim Buffers", callback: 'MenuCBBuffer', line: 25, col: 40, 
     let l:arr =  ConcatStringLists(g:PadStrings(l:a1), g:PadStrings(l:a2))
-    call popup_menu(l:arr,
-    \ #{ title: "Vim Buffers", callback: 'MenuCBBuffer', line: 25, col: 40, 
-    \ highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
+
+    call g:PopMeUp(l:arr, "Buffers")
+
 endfunction
 
 
@@ -672,15 +720,18 @@ call g:Commander("", "Help++++" )
 call g:Commander("<F1>          :cclose<cr>:bnext<cr>",      " F1 - Next Buffer" )
 call g:Commander("<leader><F1>  <C-w>w",                     "+F1 - Next Split")
 call g:Commander('', '')
+
 call g:Commander("<F2>          :call VimBufferPopUp()<CR>", " F2 - Vim Buffer PopUp" )
 call g:Commander("<F3>          :call HelpPopUp()<CR>",      " F3 - Help Popup" )
+
 call g:Commander('', '')
 call g:Commander("<F5>          :call ProgramCompile()<cr>", " F5 - Program Compile")
 call g:Commander("<F6>          :call ProgramRun()<cr>",     " F6 - Program Run")
 call g:Commander("<leader><F6>  :cclose<cr>",                "+F6 - Close QuickFix")
 call g:Commander("<F7> :call g:MultiToggleVoid()<CR>",         " F7 - Multi-Toggle")
 call g:Commander("<F8> :call g:MultiToggle()<CR>",             " F8 - Toggle Multi-Toggle")
-call g:Commander("<F9> :call UtilityPopUp('/home/mestes/vim.txt')<CR>", " F9 - Utility Popup")
+"call g:Commander("<F9> :call g:UtilityPopUp($HOME . '/vim.txt')<CR>", " F9 - Utility Popup")
+call g:Commander("<F9> <esc>:call g:FilePagerLoad($HOME . '/utility.txt')<CR>", " F9 - Utility Popup")
 
 
 call g:Commander("<F12> <esc>:call g:NextHelpPage()<cr>",           " Set Next Help")

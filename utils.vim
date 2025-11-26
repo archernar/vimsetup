@@ -376,7 +376,12 @@ function! g:UtilityPopupCommand(...)
     call UtilityPopUp("/tmp/out")
 endfunction
 let g:utilityPopupFilename = ""
+
 function! g:UtilityPopUp(...)
+    call g:PopMeUp(readfile(a:1), "Test")
+endfunction
+
+function! g:XxUtilityPopUp(...)
     if filereadable(a:1)
         let g:utilityPopupFilename = a:1 
         call popup_create(readfile(a:1), #{ line: 1, col: 1, border: [], padding: [1,1,1,1] } )
@@ -659,3 +664,111 @@ function! g:FilePopUp(...)
     \ #{ title: "Help", callback: 'MenuCBDoNothing', line: 25, col: 40, 
     \ highlight: 'Question', border: [], close: 'click',  filter: 'MyFilter100', padding: [1,1,0,1]} )
 endfunction
+
+function! g:PopMeUp(...)
+    " call insert(a:1, "Dictionary Size  = " . len(a:1))
+    "
+    let l:thefilter = 'PopMeUpFilter'
+    if a:0 == 3
+        let l:thefilter = a:3
+    endif
+
+    call popup_menu(a:1,
+    \ #{ title: a:2, callback: 'MenuCBDoNothing', line: 25, col: 40, 
+    \ highlight: 'Question', border: [], maxheight: 10000, filter: l:thefilter, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
+endfunction
+
+func g:StandardFilter(winid, key)
+      if a:key ==# "\<Esc>"
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+      if a:key ==# "\x1b"
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+	  if a:key == 'x'
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+
+	  return 0
+endfunc
+func PopMeUpFilter(winid, key)
+      let l:MAX=3
+      if a:key ==# "\<Esc>"
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+      if a:key ==# "\x1b"
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+	  if a:key == 'x'
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+
+	  if a:key == "\<F9>"
+	    call popup_close(a:winid)
+        let s:pageno = s:pageno + 1
+        if s:pageno > l:MAX 
+            let s:pageno = 1
+        endif
+        call HelpPopUp()
+	    " do something
+	    return 1
+	  endif
+
+
+	  return 0
+endfunc
+
+
+" Function: GetTypeName
+" Description: Returns the string representation of a variable's type.
+" Arguments: var (any) - The variable to check
+" Returns: String (e.g., 'String', 'List', 'Number')
+
+function! GetTypeName(var)
+    " Get the numeric type code from Vim
+    let l:code = type(a:var)
+
+    " Define the mapping list. The index corresponds to the Vim type code.
+    " 0: Number
+    " 1: String
+    " 2: Funcref
+    " 3: List
+    " 4: Dictionary
+    " 5: Float
+    " 6: Boolean (Vim 7.4.1154+)
+    " 7: Null    (Vim 7.4.1154+)
+    " 8: Job     (Vim 8.0+)
+    " 9: Channel (Vim 8.0+)
+    " 10: Blob   (Vim 8.1+)
+    " 11: Class  (Vim 9.0+)
+    " 12: Object (Vim 9.0+)
+    let l:type_names = [
+        \ 'Number',
+        \ 'String',
+        \ 'Funcref',
+        \ 'List',
+        \ 'Dictionary',
+        \ 'Float',
+        \ 'Boolean',
+        \ 'Null',
+        \ 'Job',
+        \ 'Channel',
+        \ 'Blob',
+        \ 'Class',
+        \ 'Object'
+        \ ]
+
+    " Check if the code is within the known range of types
+    if l:code >= 0 && l:code < len(l:type_names)
+        return l:type_names[l:code]
+    endif
+
+    return 'Unknown'
+endfunction
+
