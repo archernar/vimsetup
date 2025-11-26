@@ -1,16 +1,25 @@
 # Vim Essentials Cheatsheet & Guide
 
 ## Changing Vim Modes
-* i       : Enter INSERT mode
-* a       : Enter INSERT mode after the cursor (think: append)
-* A       : Enter INSERT mode at the end of the line (think: Append)
-* o       : Open new line below the cursor and enter INSERT mode
-* O       : Open new line above the cursor and enter INSERT mode
-* v       : Enter VISUAL mode
-* Ctrl-v  : Enter VISUAL-BLOCK mode
-* :       : Enter COMMAND-LINE mode
-* R       : Enter REPLACE mode
-* ESC     : Go back to NORMAL mode from other modes
+i       : Enter INSERT mode
+
+a       : Enter INSERT mode after the cursor (think: append)
+
+A       : Enter INSERT mode at the end of the line (think: Append)
+o       : Open new line below the cursor and enter INSERT mode
+
+O       : Open new line above the cursor and enter INSERT mode
+
+v       : Enter VISUAL mode
+
+Ctrl-v  : Enter VISUAL-BLOCK mode
+
+:       : Enter COMMAND-LINE mode
+
+R       : Enter REPLACE mode
+
+ESC     : Go back to NORMAL mode from other modes
+
 
 ## Exiting
 :w      : Write (save) file without exiting
