@@ -771,4 +771,7 @@ function! GetTypeName(var)
 
     return 'Unknown'
 endfunction
-
+function! g:GUF()
+    let l:arr = readfile($HOME . "/.vim.txt")
+    return l:arr[0]
+endfunction

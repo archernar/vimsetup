@@ -171,7 +171,7 @@ function! g:CustomFilter(winid, key)
 
     if a:key == "\<F9>"
         call popup_close(a:winid)
-        call g:FilePagerLoad($HOME . '/utility.txt')
+        call g:FilePagerLoad(g:GUF())
         return 1
     endif
 
@@ -731,7 +731,8 @@ call g:Commander("<leader><F6>  :cclose<cr>",                "+F6 - Close QuickF
 call g:Commander("<F7> :call g:MultiToggleVoid()<CR>",         " F7 - Multi-Toggle")
 call g:Commander("<F8> :call g:MultiToggle()<CR>",             " F8 - Toggle Multi-Toggle")
 "call g:Commander("<F9> :call g:UtilityPopUp($HOME . '/vim.txt')<CR>", " F9 - Utility Popup")
-call g:Commander("<F9> <esc>:call g:FilePagerLoad($HOME . '/utility.txt')<CR>", " F9 - Utility Popup")
+"call g:Commander("<F9> <esc>:call g:FilePagerLoad($HOME . '/utility.txt')<CR>", " F9 - Utility Popup")
+call g:Commander("<F9> <esc>:call g:FilePagerLoad(g:GUF())<CR>", " F9 - Utility Popup")
 
 
 call g:Commander("<F12> <esc>:call g:NextHelpPage()<cr>",           " Set Next Help")
