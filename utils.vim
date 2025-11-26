@@ -675,7 +675,7 @@ function! g:PopMeUp(...)
 
     call popup_menu(a:1,
     \ #{ title: a:2, callback: 'MenuCBDoNothing', line: 25, col: 40, 
-    \ highlight: 'Question', border: [], maxheight: 10000, filter: l:thefilter, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
+    \ highlight: 'Question', border: [], minwidth: 132, maxheight: 10000, filter: l:thefilter, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
 endfunction
 
 func g:StandardFilter(winid, key)

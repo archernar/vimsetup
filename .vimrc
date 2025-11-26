@@ -164,20 +164,20 @@ source ~/utils.vim
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 let g:filepageno = 0
 
-func g:CustomFilter(winid, key)
+function! g:CustomFilter(winid, key)
+    if g:StandardFilter(a:winid, a:key) > 0
+        return 1
+    endif
 
-      if g:StandardFilter(a:winid, a:key) > 0
-          return 1
-      endif
-
-	  if a:key == "\<F9>"
-	    call popup_close(a:winid)
+    if a:key == "\<F9>"
+        call popup_close(a:winid)
         call g:FilePagerLoad($HOME . '/utility.txt')
-	    return 1
-	  endif
+        return 1
+    endif
 
-	  return 0
+    return 0
 endfunc
+
 function! g:FilePagerLoad(...)
     let s:filePagerList=[]
     let l:arr = readfile(a:1)
@@ -190,7 +190,7 @@ function! g:FilePagerLoad(...)
     endfor
 
     for i in range(0, len(l:arr)-1)
-        let l:n = (i/24)+1
+        let l:n = (i/44)+1
         if l:n != l:v
             let l:v = l:n
             let l:pages = l:pages + 1
