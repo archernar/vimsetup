@@ -1,5 +1,94 @@
 # Vim Essentials Cheatsheet & Guide
 
+### Movements Within A Line
+```
+$       : Move cursor to the end of the line
+0       : Move cursor to the beginning of the line
+^       : Move cursor to first non-blank character in line
+fx      : Find next occurrence of character 'x'
+Fx      : Find previous occurrence of character 'x'
+tx      : Go towards next occurrence of character 'x' (stops right before it)
+Tx      : Go towards previous occurence of character 'x' (stops right before it)
+;       : Repeat previous f, F, t, or T movement forwards
+,       : Repeat previous f, F, t, or T movement backwards
+```
+
+### Word Movements
+```
+w       : Move cursor forwards to start of word (letters, digits, underscores)
+W       : Move cursor forwards to start of WORD (non-blank characters)
+b       : Move cursor backwards to start of word
+B       : Move cursor backwards to start of WORD
+e       : Move cursor forwards to end of word
+E       : Move cursor forwards to end of WORD
+ge      : Move cursor backwards to end of word
+gE      : Move cursor backwards to end of WORD
+```
+
+### Sentence Movements
+```
+)       : Move cursor to next sentence
+(       : Move cursor to previous sentence
+```
+
+### Paragraph Movements
+```
+}       : Move cursor to next paragraph
+{       : Move cursor to previous paragraph
+```
+
+### Moving To Specific Lines
+```
+gg      : Move cursor to first line of document
+G       : Move cursor to last line of document
+{num}G  : Move cursor to line {num}
+{num}j  : Go {num} lines down
+{num}k  : Go {num} lines up
+H       : Move cursor to line at the top of the window
+M       : Move cursor to the line at the middle of the window
+L       : Move cursor to the line at the bottom of the window
+```
+
+### Parenthesis, Bracket, Curly Brace and Method Navigation
+```
+%       : Find next parenthesis/bracket/brace and jump to match
+[(      : Go to previous unmatched (
+[{      : Go to previous unmatched {
+])      : Go to next unmatched )
+]}      : Go to next unmatched }
+]m      : Go to next start of method (Java like languages)
+]M      : Go to next end of method
+[m      : Go to previous start of method
+[M      : Go to previous end of method
+```
+
+### Screen Related Cursor Movements
+```
+Ctrl-F  : Move cursor forwards one full screen
+Ctrl-B  : Move cursor backwards one full screen
+Ctrl-D  : Move cursor down half a screen
+Ctrl-U  : Move cursor up half a screen
+```
+
+### Scrolling While Leaving Cursor In Place
+```
+zz      : Place current cursor line in the middle of the window
+zt      : Place current cursor line at the top of the window
+zb      : Place current cursor line at the bottom of the window
+Ctrl-E  : Scroll down a single line, leaving cursor in place
+Ctrl-Y  : Scroll up a single line, leaving cursor in place
+```
+
+## Search Movements
+```
+/pattern : Search forward for pattern
+?pattern : Search backward for pattern
+* : Search forward for the word under or in front of the cursor
+#        : Search backward for the word under or in front of the cursor
+n        : Repeat last search in same direction
+N        : Repeat last search in opposite direction
+```
+
 ## Changing Vim Modes
 ```
 i       : Enter INSERT mode
@@ -29,77 +118,6 @@ h       : Move cursor left
 j       : Move cursor down
 k       : Move cursor up
 l       : Move cursor right
-
-### Movements Within A Line
-$       : Move cursor to the end of the line
-0       : Move cursor to the beginning of the line
-^       : Move cursor to first non-blank character in line
-fx      : Find next occurrence of character 'x'
-Fx      : Find previous occurrence of character 'x'
-tx      : Go towards next occurrence of character 'x' (stops right before it)
-Tx      : Go towards previous occurence of character 'x' (stops right before it)
-;       : Repeat previous f, F, t, or T movement forwards
-,       : Repeat previous f, F, t, or T movement backwards
-
-### Word Movements
-w       : Move cursor forwards to start of word (letters, digits, underscores)
-W       : Move cursor forwards to start of WORD (non-blank characters)
-b       : Move cursor backwards to start of word
-B       : Move cursor backwards to start of WORD
-e       : Move cursor forwards to end of word
-E       : Move cursor forwards to end of WORD
-ge      : Move cursor backwards to end of word
-gE      : Move cursor backwards to end of WORD
-
-### Sentence Movements
-)       : Move cursor to next sentence
-(       : Move cursor to previous sentence
-
-### Paragraph Movements
-}       : Move cursor to next paragraph
-{       : Move cursor to previous paragraph
-
-### Moving To Specific Lines
-gg      : Move cursor to first line of document
-G       : Move cursor to last line of document
-{num}G  : Move cursor to line {num}
-{num}j  : Go {num} lines down
-{num}k  : Go {num} lines up
-H       : Move cursor to line at the top of the window
-M       : Move cursor to the line at the middle of the window
-L       : Move cursor to the line at the bottom of the window
-
-### Parenthesis, Bracket, Curly Brace and Method Navigation
-%       : Find next parenthesis/bracket/brace and jump to match
-[(      : Go to previous unmatched (
-[{      : Go to previous unmatched {
-])      : Go to next unmatched )
-]}      : Go to next unmatched }
-]m      : Go to next start of method (Java like languages)
-]M      : Go to next end of method
-[m      : Go to previous start of method
-[M      : Go to previous end of method
-
-### Screen Related Cursor Movements
-Ctrl-F  : Move cursor forwards one full screen
-Ctrl-B  : Move cursor backwards one full screen
-Ctrl-D  : Move cursor down half a screen
-Ctrl-U  : Move cursor up half a screen
-
-### Scrolling While Leaving Cursor In Place
-zz      : Place current cursor line in the middle of the window
-zt      : Place current cursor line at the top of the window
-zb      : Place current cursor line at the bottom of the window
-Ctrl-E  : Scroll down a single line, leaving cursor in place
-Ctrl-Y  : Scroll up a single line, leaving cursor in place
-
-## Search Movements
-/pattern : Search forward for pattern
-?pattern : Search backward for pattern
-* : Search forward for the word under or in front of the cursor
-#        : Search backward for the word under or in front of the cursor
-n        : Repeat last search in same direction
-N        : Repeat last search in opposite direction
 
 ## Navigating The Jump List
 Ctrl-O   : Go to the previous cursor position in the jump list
