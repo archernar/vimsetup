@@ -79,7 +79,7 @@ Ctrl-E  : Scroll down a single line, leaving cursor in place
 Ctrl-Y  : Scroll up a single line, leaving cursor in place
 ```
 
-## Search Movements
+### Search Movements
 ```
 /pattern : Search forward for pattern
 ?pattern : Search backward for pattern
@@ -89,7 +89,7 @@ n        : Repeat last search in same direction
 N        : Repeat last search in opposite direction
 ```
 
-## Changing Vim Modes
+### Changing Vim Modes
 ```
 i       : Enter INSERT mode
 a       : Enter INSERT mode after the cursor (think: append)
@@ -104,13 +104,12 @@ ESC     : Go back to NORMAL mode from other modes
 ```
 
 
-## Navigating The Jump List
+### Navigating The Jump List
 ```
 Ctrl-O   : Go to the previous cursor position in the jump list
 Ctrl-I   : Go to the next cursor position in the jump list
 ```
 
-## Editing Text
 
 ### Deletion
 ```
@@ -164,14 +163,14 @@ gU{motion} : Change text that {motion} moves over to uppercase
 gUU        : Make whole current line upper case
 ```
 
-## Search/Replace
+### Search/Replace
 ```
 :%s/old/new/g   : Replace all "old" with "new" in whole file
 :%s/old/new/gc  : Replace all "old" with "new" in whole file, confirm each
 :%s/old/new/gi  : Replace all "old" with "new" in whole file, ignore case
 ```
 
-## Working With Text Objects
+### Working With Text Objects
 ```
 a"       : A double quoted string, including the quotes
 i"       : A double quoted string, excluding the quotes
@@ -193,13 +192,13 @@ ap       : A paragraph including the surrounding whitespace
 ip       : A paragraph excluding the surrounding whitespace
 ```
 
-## Indentation
+### Indentation
 ```
 >{motion}: Indent text that {motion} moves over, to the right
 >>       : Indent whole current line to the right
 ```
 
-## Exiting
+### Exiting
 ```
 :w      : Write (save) file without exiting
 :wa     : Write (save) all open files without exiting
@@ -209,7 +208,6 @@ ip       : A paragraph excluding the surrounding whitespace
 :wqa    : Write and quit on all open files
 ```
 
-## Moving Around Within Vim
 
 ### Arrows
 ```
