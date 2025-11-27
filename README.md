@@ -103,71 +103,76 @@ R       : Enter REPLACE mode
 ESC     : Go back to NORMAL mode from other modes
 ```
 
-## Exiting
-:w      : Write (save) file without exiting
-:wa     : Write (save) all open files without exiting
-:q      : Quit but fail if unsaved changes exist
-:q!     : Quit and discard unsaved changes
-:wq     : Write (save) and quit (or :x)
-:wqa    : Write and quit on all open files
-
-## Moving Around Within Vim
-
-### Arrows
-h       : Move cursor left
-j       : Move cursor down
-k       : Move cursor up
-l       : Move cursor right
 
 ## Navigating The Jump List
+```
 Ctrl-O   : Go to the previous cursor position in the jump list
 Ctrl-I   : Go to the next cursor position in the jump list
+```
 
 ## Editing Text
 
 ### Deletion
+```
 d{motion}: Delete text that {motion} moves over; copy into register.
 dd       : Delete whole current line; copy into register.
 D        : Delete from cursor to end of line; copy into register.
+```
 
 ### Undo & Redo
+```
 u        : Undo last change
 Ctrl-R   : Redo changes that have been undone with u
+```
 
 ### Changing Text
+```
 c{motion}: Delete text {motion} moves over, copy to register, enter insert mode.
 cc       : Delete whole current line, copy to register, enter insert mode.
 C        : Delete from cursor to end of line, copy to register, enter insert mode.
+```
 
 ### Repeating a File Change
+```
 .        : Repeat the last change you made to the file
 
+```
+
 ### Replacing & Deleting Characters
+```
 r{char}  : Replace current character under cursor with {char}
 R        : Enter replace mode; replace characters until ESC is pressed
 x        : Delete current character under cursor; copy into register
+```
 
 ### Yank (Copy) and Paste (Put)
+```
 y{motion}: Yank (copy) text that motion moves over into register
 yy       : Yank (copy) whole current line into register
 Y        : Yank (copy) from cursor to end of line into register
 p        : Put (paste) text in register after cursor
 P        : Put (paste) text in register before cursor
+```
 
 ### Changing Case
+```
 ~          : Switch case of character under cursor and move right
 ~{motion}  : Switch case of text that {motion} moves over
 gu{motion} : Change text that {motion} moves over to lowercase
 guu        : Make whole current line lower case
 gU{motion} : Change text that {motion} moves over to uppercase
 gUU        : Make whole current line upper case
+```
 
 ## Search/Replace
+```
 :%s/old/new/g   : Replace all "old" with "new" in whole file
 :%s/old/new/gc  : Replace all "old" with "new" in whole file, confirm each
 :%s/old/new/gi  : Replace all "old" with "new" in whole file, ignore case
+```
 
 ## Working With Text Objects
+```
 a"       : A double quoted string, including the quotes
 i"       : A double quoted string, excluding the quotes
 a'       : A single quoted string, including the quotes
@@ -186,7 +191,31 @@ aw       : A word including the surrounding whitespace
 iw       : A word excluding the surrounding whitespace
 ap       : A paragraph including the surrounding whitespace
 ip       : A paragraph excluding the surrounding whitespace
+```
 
 ## Indentation
+```
 >{motion}: Indent text that {motion} moves over, to the right
 >>       : Indent whole current line to the right
+```
+
+## Exiting
+```
+:w      : Write (save) file without exiting
+:wa     : Write (save) all open files without exiting
+:q      : Quit but fail if unsaved changes exist
+:q!     : Quit and discard unsaved changes
+:wq     : Write (save) and quit (or :x)
+:wqa    : Write and quit on all open files
+```
+
+## Moving Around Within Vim
+
+### Arrows
+```
+h       : Move cursor left
+j       : Move cursor down
+k       : Move cursor up
+l       : Move cursor right
+```
+
