@@ -5,6 +5,9 @@ cp ~/utils.vim .
 git add .vimrc
 git add .macros.vim
 git add utils.vim
+git add md2txt
+git add README.md
+git add README.txt
 git add update
 git add -u 
 
