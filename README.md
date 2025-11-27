@@ -1,4 +1,4 @@
-# Vim Essentials Cheatsheet & Guide
+## Vim Essentials Cheatsheet & Guide
 
 ### Movements Within A Line
 ```
