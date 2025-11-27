@@ -190,7 +190,7 @@ function! g:FilePagerLoad(...)
     endfor
 
     for i in range(0, len(l:arr)-1)
-        let l:n = (i/44)+1
+        let l:n = (i/24)+1
         if l:n != l:v
             let l:v = l:n
             let l:pages = l:pages + 1
@@ -203,7 +203,6 @@ function! g:FilePagerLoad(...)
     if g:filepageno > l:pages
         let g:filepageno = 1
     endif
-    echom $HOME
     call g:PopMeUp(s:filePagerList[g:filepageno], "Test", 'g:CustomFilter')
 
 

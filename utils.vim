@@ -674,8 +674,8 @@ function! g:PopMeUp(...)
     endif
 
     call popup_menu(a:1,
-    \ #{ title: a:2, callback: 'MenuCBDoNothing', line: 25, col: 40, 
-    \ highlight: 'Question', border: [], minwidth: 132, maxheight: 10000, filter: l:thefilter, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
+    \ #{ title: a:2, callback: 'MenuCBDoNothing', line: 1, col: 1, 
+    \ highlight: 'Question', border: [], minheight: 28, minwidth: 132, maxheight: 10000, filter: l:thefilter, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
 endfunction
 
 func g:StandardFilter(winid, key)
@@ -688,6 +688,10 @@ func g:StandardFilter(winid, key)
 	    return 1
 	  endif
 	  if a:key == 'x'
+	    call popup_close(a:winid)
+	    return 1
+	  endif
+	  if a:key == 'q'
 	    call popup_close(a:winid)
 	    return 1
 	  endif
