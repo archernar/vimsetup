@@ -159,54 +159,6 @@ filetype plugin indent on         " required, to ignore plugin indent changes, i
                 " *************************************************************************************
 source ~/utils.vim
 
-" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-" File Pager Popup
-" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-let g:filepageno = 0
-
-function! g:CustomFilter(winid, key)
-    if g:StandardFilter(a:winid, a:key) > 0
-        return 1
-    endif
-
-    if a:key == "\<F9>"
-        call popup_close(a:winid)
-        call g:FilePagerLoad(g:GUF())
-        return 1
-    endif
-
-    return 0
-endfunc
-
-function! g:FilePagerLoad(...)
-    let s:filePagerList=[]
-    let l:arr = readfile(a:1)
-    let l:v = -1
-    let l:pages = 0 
-    let l:idx = 0
-
-    for i in range(1, 50)
-        call add(s:filePagerList, [])
-    endfor
-
-    for i in range(0, len(l:arr)-1)
-        let l:n = (i/24)+1
-        if l:n != l:v
-            let l:v = l:n
-            let l:pages = l:pages + 1
-        endif
-        call add(s:filePagerList[l:n], ">> " . l:arr[l:idx])
-        let l:idx = l:idx +1
-    endfor
-
-    let g:filepageno = g:filepageno + 1 
-    if g:filepageno > l:pages
-        let g:filepageno = 1
-    endif
-    call g:PopMeUp(s:filePagerList[g:filepageno], "Test", 'g:CustomFilter')
-
-
-endfunction
 
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 " Help Buffer Popup
@@ -278,13 +230,6 @@ function! g:HelpPopUp()
 
     call g:PopMeUp(l:arr, "Help")
 
-endfunction
-
-function! g:FilePopUp(...)
-    if filereadable(a:1)
-        let l:arr = readfile(a:1)
-        call g:PopMeUp(l:arr, "File")
-    endif
 endfunction
 
 func MyFilter100(winid, key)
@@ -729,9 +674,7 @@ call g:Commander("<F6>          :call ProgramRun()<cr>",     " F6 - Program Run"
 call g:Commander("<leader><F6>  :cclose<cr>",                "+F6 - Close QuickFix")
 call g:Commander("<F7> :call g:MultiToggleVoid()<CR>",         " F7 - Multi-Toggle")
 call g:Commander("<F8> :call g:MultiToggle()<CR>",             " F8 - Toggle Multi-Toggle")
-"call g:Commander("<F9> :call g:UtilityPopUp($HOME . '/vim.txt')<CR>", " F9 - Utility Popup")
-"call g:Commander("<F9> <esc>:call g:FilePagerLoad($HOME . '/utility.txt')<CR>", " F9 - Utility Popup")
-call g:Commander("<F9> <esc>:call g:FilePagerLoad(g:GUF())<CR>", " F9 - Utility Popup")
+call g:Commander("<F9> <esc>:call g:FilePopUp(g:GUF())<CR>", " F9 - Utility Popup")
 
 
 call g:Commander("<F12> <esc>:call g:NextHelpPage()<cr>",           " Set Next Help")

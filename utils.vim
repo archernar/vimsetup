@@ -655,27 +655,29 @@ func! DoNothingCB(id, result)
     let l:NOTHING=0
 endfunc
 
-function! g:FilePopUp(...)
-    let l:fn=a:1
-    if l:fn == ""
-        let l:fn=$HOME . "/.vim.vimsession"
-    endif
-    call popup_menu(readfile(l:fn),
-    \ #{ title: "Help", callback: 'MenuCBDoNothing', line: 25, col: 40, 
-    \ highlight: 'Question', border: [], close: 'click',  filter: 'MyFilter100', padding: [1,1,0,1]} )
-endfunction
-
+" *****************************************************************************************************
+                " PopUps
+                " *************************************************************************************
 function! g:PopMeUp(...)
-    " call insert(a:1, "Dictionary Size  = " . len(a:1))
-    "
-    let l:thefilter = 'PopMeUpFilter'
     if a:0 == 3
         let l:thefilter = a:3
+        call popup_menu(a:1,
+        \ #{ title: a:2, callback: 'MenuCBDoNothing', line: 1, col: 1, 
+        \ highlight: 'Question', border: [], minheight: 28, minwidth: 132, maxheight: 10000, filter: l:thefilter, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
+    else
+        if a:0 == 2
+            call popup_menu(a:1,
+            \ #{ title: a:2, callback: 'MenuCBDoNothing', line: 1, col: 1, 
+            \ highlight: 'Question', border: [], minheight: 28, minwidth: 132, maxheight: 10000, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
+        else
+            if a:0 == 1
+                call popup_menu(a:1,
+                \ #{ callback: 'MenuCBDoNothing', line: 1, col: 1, 
+                \ highlight: 'Question', border: [], minheight: 28, minwidth: 132, maxheight: 10000, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
+            endif
+        endif
     endif
 
-    call popup_menu(a:1,
-    \ #{ title: a:2, callback: 'MenuCBDoNothing', line: 1, col: 1, 
-    \ highlight: 'Question', border: [], minheight: 28, minwidth: 132, maxheight: 10000, filter: l:thefilter, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
 endfunction
 
 func g:StandardFilter(winid, key)
@@ -698,35 +700,55 @@ func g:StandardFilter(winid, key)
 
 	  return 0
 endfunc
-func PopMeUpFilter(winid, key)
-      let l:MAX=3
-      if a:key ==# "\<Esc>"
-	    call popup_close(a:winid)
-	    return 1
-	  endif
-      if a:key ==# "\x1b"
-	    call popup_close(a:winid)
-	    return 1
-	  endif
-	  if a:key == 'x'
-	    call popup_close(a:winid)
-	    return 1
-	  endif
 
-	  if a:key == "\<F9>"
-	    call popup_close(a:winid)
-        let s:pageno = s:pageno + 1
-        if s:pageno > l:MAX 
-            let s:pageno = 1
-        endif
-        call HelpPopUp()
-	    " do something
-	    return 1
-	  endif
+" *****************************************************************************************************
+                " FilePopUp
+                " *************************************************************************************
+let g:filepageno = 0
 
+function! FilePopUpCustomFilter(winid, key)
+    if g:StandardFilter(a:winid, a:key) > 0
+        return 1
+    endif
 
-	  return 0
+    if a:key == "\<F9>"
+        call popup_close(a:winid)
+        call g:FilePopUp(g:GUF())
+        return 1
+    endif
+
+    return popup_filter_menu(a:winid, a:key)
 endfunc
+
+function! g:FilePopUp(...)
+    let s:filePagerList=[]
+    let l:arr = readfile(a:1)
+    let l:v = -1
+    let l:pages = 0 
+    let l:idx = 0
+
+    for i in range(1, 50)
+        call add(s:filePagerList, [])
+    endfor
+
+    for i in range(0, len(l:arr)-1)
+        let l:n = (i/24)+1
+        if l:n != l:v
+            let l:v = l:n
+            let l:pages = l:pages + 1
+        endif
+        call add(s:filePagerList[l:n], ">> " . l:arr[l:idx])
+        let l:idx = l:idx +1
+    endfor
+
+    let g:filepageno = g:filepageno + 1 
+    if g:filepageno > l:pages
+        let g:filepageno = 1
+    endif
+    call g:PopMeUp(s:filePagerList[g:filepageno], "Test", 'FilePopUpCustomFilter')
+
+
+endfunction
 
 
 " Function: GetTypeName
