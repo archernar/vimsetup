@@ -1,0 +1,166 @@
+#!/usr/bin/bash
+Tmp=/tmp/$$
+Tmp0=/tmp/$$_$$
+Tmp1=/tmp/$$_$$_$$
+Tmp2=/tmp/$$_$$_$$_$$
+Tmp3=/tmp/$$_$$_$$_$$_$$
+trap 'exit 0' INT HUP QUIT TERM ALRM USR1
+trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
+rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
+#  >/dev/null 2>&1;
+
+# --- Help Function ---
+# Displays the help message for the script
+show_help() {
+  cat << EOF
+Checks if one or more files are tracked by the current Git repository.
+
+Usage: ${0##*/} [options] <file1> [file2] ...
+
+Options:
+  -l       List only the files that ARE tracked by Git.
+  -u       List only the files that are NOT tracked by Git.
+  -p       Plain output. Prints only the filenames (no '✅' or '❌').
+  -m <dir> Displays 'mv <file> <dir>' command for untracked files to be moved.
+  -h       Display this help message and exit.
+
+Examples:
+  # Check status of two files
+  ${0##*/} README.md src/main.js
+
+  # List which of these files are untracked
+  ${0##*/} -u *.html
+
+  # List (in plain format) which files are tracked
+  ${0##*/} -lp *
+EOF
+}
+
+
+MOVE="NO"
+LIST="NO"
+UNTRACKED="NO"
+PLAIN="NO"
+# Added 'h' to getopts string
+while getopts "pm:luh" arg
+do
+    case $arg in
+        p) PLAIN="YES"
+           ;;
+        m) MOVE="YES"
+           ARG=$OPTARG
+           ;;
+        l) LIST="YES"
+           ;;
+        u) UNTRACKED="YES"
+           ;;
+        h) # Added help case
+           show_help
+           exit 0
+           ;;
+        \?) # Handle invalid options
+           show_help
+           exit 1
+           ;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+#
+# This script checks if a given file (or list of files) is tracked by
+# the current Git repository.
+#
+# Usage: ./is_file_tracked.sh <file1> <file2> ...
+#        ./is_file_tracked.sh *.md
+#
+
+# --- Argument Check ---
+# Check if at least one argument was provided.
+# $# holds the count of command-line arguments.
+# Updated to show help if no files are given
+if [ $# -eq 0 ]; then
+  echo "Error: No file(s) specified." >&2
+  echo "" >&2
+  # show_help
+  exit 1
+fi
+
+# FILE_TO_CHECK="$1" <-- This line is removed
+
+# --- Git Check ---
+# We use 'git ls-files --error-unmatch' which is designed for this.
+#
+# How it works:
+# 1. 'git ls-files' lists files that are tracked by Git.
+# 2. '--error-unmatch' tells the command to exit with a non-zero
+#    status (status code 1) if the file is NOT tracked.
+# 3. If the file IS tracked, it prints the filename and exits with
+#    status 0.
+#
+# We redirect all output (stdout and stderr) to /dev/null with
+# '> /dev/null 2>&1' because we only care about the exit code,
+# not the command's output.
+
+# This variable will track the overall status.
+# We'll set it to 1 (failure) if *any* file is not tracked.
+FINAL_EXIT_CODE=0
+
+if [ "$LIST" == "YES" ]; then
+    for FILE_TO_CHECK in "$@"; do
+      if git ls-files --error-unmatch "$FILE_TO_CHECK" > /dev/null 2>&1; then
+        # Exit code 0: Success (file is tracked)
+        if [ "$PLAIN" == "YES" ]; then
+            echo "$FILE_TO_CHECK"
+        else
+            echo "✅ '$FILE_TO_CHECK' is tracked by Git."
+        fi
+      else
+        NOTHING=0
+      fi
+    done
+    exit 0
+fi
+if [ "$UNTRACKED" == "YES" ]; then
+    for FILE_TO_CHECK in "$@"; do
+      if git ls-files --error-unmatch "$FILE_TO_CHECK" > /dev/null 2>&1; then
+        NOTHING=0
+      else
+        # Exit code 1: Failure (file is not tracked)
+        if [ "$PLAIN" == "YES" ]; then
+            echo "$FILE_TO_CHECK"
+        else
+            echo "❌ '$FILE_TO_CHECK' is NOT tracked by Git."
+        fi
+      fi
+    done
+    exit 0
+fi
+
+rm -rf gogo
+
+# Loop over all command-line arguments.
+# "$@" correctly handles arguments with spaces.
+for FILE_TO_CHECK in "$@"; do
+  if [ -f "$FILE_TO_CHECK" ]; then
+      if git ls-files --error-unmatch "$FILE_TO_CHECK" > /dev/null 2>&1; then
+        # Exit code 0: Success (file is tracked)
+        echo "✅ '$FILE_TO_CHECK' is tracked by Git."
+      else
+        # Exit code 1: Failure (file is not tracked)
+        echo "❌ '$FILE_TO_CHECK' is NOT tracked by Git."
+        # Set the final exit code to 1 (failure)
+        FINAL_EXIT_CODE=1
+
+        if [ "$MOVE" == "YES" ]; then
+            echo "mv \"$FILE_TO_CHECK\"   \"$ARG\"" | tee -a gogo
+            chmod +x gogo
+        fi
+
+      fi
+  fi
+done
+
+# Exit with the overall status.
+# 0 if all files were tracked, 1 if at least one was not.
+exit $FINAL_EXIT_CODE
+
