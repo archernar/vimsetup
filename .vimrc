@@ -197,7 +197,18 @@ let s:helpdisplaynames5=[]
 "MODIFY
 "
 "let s:pageSetList[3][1] = readfile("zed",'',12)
+function! g:HelpPopUpInit()
+    let s:pageno = 0
+    call g:HelpPopUp()
+endfunction
+
 function! g:HelpPopUp()
+        let l:MAX = 5
+        let s:pageno = s:pageno + 1
+        if s:pageno > l:MAX 
+            let s:pageno = 1
+        endif
+
     "let maxLen = max([len1, len2])
     let l:maxLen = -100
     let l:maxLen = max([len(s:pageSetList[s:pageno][1]), l:maxLen])
@@ -228,7 +239,8 @@ function! g:HelpPopUp()
     let l:temp3 =  ConcatStringLists(l:temp2, g:PadStrings(s:pageSetList[s:pageno][4]))
     let l:arr   =  ConcatStringLists(l:temp3, g:PadStrings(s:pageSetList[s:pageno][5]))
 
-    call g:PopMeUp(l:arr, "Help")
+    let l:szTitle = " Help " . s:pageno . " "
+    call g:PopMeUp(l:arr, l:szTitle, 'HelpPopUpCustomFilter')
 
 endfunction
 
@@ -666,7 +678,7 @@ call g:Commander("<leader><F1>  <C-w>w",                     "+F1 - Next Split")
 call g:Commander('', '')
 
 call g:Commander("<F2>          :call VimBufferPopUp()<CR>", " F2 - Vim Buffer PopUp" )
-call g:Commander("<F3>          :call HelpPopUp()<CR>",      " F3 - Help Popup" )
+call g:Commander("<F3>          :call HelpPopUpInit()<CR>",      " F3 - Help Popup" )
 
 call g:Commander('', '')
 call g:Commander("<F5>          :call ProgramCompile()<cr>", " F5 - Program Compile")
@@ -745,7 +757,7 @@ call g:Commander("command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "POPG
 " Define the command :RunScript
 " call g:Commander("<F9> :call system('ls -la > /tmp/files.txt')<cr>",           " Test Command")
 "
-call Commander("command! -nargs=1 CLI call system( <q-args> . ' > /tmp/files.txt  ') | call FilePopUp('/tmp/files.txt')", "CLI+++")
+call Commander("command! -nargs=1 CLI call system( <q-args> . ' > /tmp/files.txt  ') | call FilePopUp('/tmp/files.txt', 'System','FilesDotTxtPopUpCustomFilter')", "CLI+++")
 let s:pageno = 2
 call g:CommanderText("+++")
 call g:CommanderText("--- Sets+++")

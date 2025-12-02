@@ -702,6 +702,38 @@ func g:StandardFilter(winid, key)
 endfunc
 
 " *****************************************************************************************************
+                " HelpPopUp
+                " *************************************************************************************
+function! HelpPopUpCustomFilter(winid, key)
+    if g:StandardFilter(a:winid, a:key) > 0
+        return 1
+    endif
+
+    if a:key == "n"
+        call popup_close(a:winid)
+        call HelpPopUp()
+        return 1
+    endif
+
+    return popup_filter_menu(a:winid, a:key)
+endfunc
+" *****************************************************************************************************
+                " FilePopUp
+                " *************************************************************************************
+function! FilesDotTxtPopUpCustomFilter(winid, key)
+    if g:StandardFilter(a:winid, a:key) > 0
+        return 1
+    endif
+
+    if a:key == "\<F9>"
+        call popup_close(a:winid)
+        call g:FilePopUp('/tmp/files.txt')
+        return 1
+    endif
+
+    return popup_filter_menu(a:winid, a:key)
+endfunc
+" *****************************************************************************************************
                 " FilePopUp
                 " *************************************************************************************
 let g:filepageno = 0
@@ -723,6 +755,10 @@ endfunc
 function! g:FilePopUp(...)
     let s:filePagerList=[]
     let l:arr = readfile(a:1)
+    let l:lines=len(l:arr)
+    let l:linesperpage = 24
+    let l:pagecount=l:lines/l:linesperpage
+
     let l:v = -1
     let l:pages = 0 
     let l:idx = 0
@@ -732,7 +768,7 @@ function! g:FilePopUp(...)
     endfor
 
     for i in range(0, len(l:arr)-1)
-        let l:n = (i/24)+1
+        let l:n = (i/l:linesperpage)+1
         if l:n != l:v
             let l:v = l:n
             let l:pages = l:pages + 1
@@ -745,7 +781,8 @@ function! g:FilePopUp(...)
     if g:filepageno > l:pages
         let g:filepageno = 1
     endif
-    call g:PopMeUp(s:filePagerList[g:filepageno], "Test", 'FilePopUpCustomFilter')
+    let l:szTitle = " " . l:lines . " Lines, " . pagecount . " Pages,  Page# ". g:filepageno . " "
+    call g:PopMeUp(s:filePagerList[g:filepageno], l:szTitle, 'FilePopUpCustomFilter')
 
 
 endfunction
@@ -797,7 +834,21 @@ function! GetTypeName(var)
 
     return 'Unknown'
 endfunction
+" *****************************************************************************************************
+                " GUF
+                " *************************************************************************************
+
+let g:GUFFILEDEFAULT = $HOME . "/.vim.txt"
+let g:GUFFILE        = g:GUFFILEDEFAULT
+function! g:SetGUF(...)
+    let g:GUFFILE = a:1
+    return g:GUFFILE
+endfunction
+function! g:ReSetGUF(...)
+    let g:GUFFILE = g:GUFFILEDEFAULT
+    return g:GUFFILE
+endfunction
 function! g:GUF()
-    let l:arr = readfile($HOME . "/.vim.txt")
+    let l:arr = readfile(g:GUFFILE)
     return l:arr[0]
 endfunction
