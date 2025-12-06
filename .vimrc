@@ -284,54 +284,84 @@ func MyFilter100(winid, key)
 endfunc
 
 
+func! g:CommanderDash(...)
+    call add(s:pageSetList[s:pageno][a:1 + 1], '----' )
+endfunc
+func! g:CommanderSpace(...)
+    call add(s:pageSetList[s:pageno][a:1 + 1], '' )
+endfunc
 func! g:CommanderText(...)
+    if a:0 == 2
+        call add(s:pageSetList[s:pageno][a:1 + 1], a:2 )
+    else
+        if a:0 == 3
+            call add(s:pageSetList[s:pageno][a:1 + 1], a:2 . " - " . a:3)
+        endif
+    endif
+endfunc
+
+
+func! g:CommanderTextxx(...)
     if a:0 == 1
         call g:Commander('', a:1)
     else
-        call g:Commander('', a:1 . " - " . a:2)
+        if a:0 == 2
+            call g:Commander('', a:1 . " - " . a:2)
+        else
+            if a:0 == 3
+                let l:sz = ""
+                if a:1 == 0
+                    let l:sz = ""
+                endif
+                if a:1 == 1
+                    let l:sz = "+"
+                endif
+                if a:1 == 2
+                    let l:sz = "++"
+                endif
+                if a:1 == 3
+                    let l:sz = "+++"
+                endif
+                if a:1 == 4
+                    let l:sz = "++++"
+                endif
+                if a:1 == 5
+                    let l:sz = "+++++"
+                endif
+
+                if a:2 == ""
+                    call g:Commander('', a:3 . l:sz)
+                else
+                    call g:Commander('', a:2 . " - " . a:3 . l:sz)
+                endif
+            endif
+        endif
     endif
 endfunction
 
-func! g:Commander(szCommand, szHelp)
-    if len(a:szCommand)+len(a:szHelp) == 0
-        call add(s:pageSetList[1], "" )
-    else
-        if len(a:szHelp) > 0
-            let l:szSz = CapitalizeWords(a:szHelp)
+function! g:Commander(...)
+    if a:0 == 3
+        let l:nCol      = a:1
+        let l:szCommand = a:2
+        let l:szHelp    = a:3
 
-            if EndsWith(l:szSz,"++++")
-                call add(s:pageSetList[s:pageno][5], strpart(l:szSz, 0, len(l:szSz) - 4) )
-            else
-                if EndsWith(l:szSz,"+++")
-                    call add(s:pageSetList[s:pageno][4], strpart(l:szSz, 0, len(l:szSz) - 3) )
-                else
-                    if EndsWith(l:szSz,"++")
-                        call add(s:pageSetList[s:pageno][3], strpart(l:szSz, 0, len(l:szSz) - 2) )
-                    else
-                        if EndsWith(l:szSz,"+")
-                            call add(s:pageSetList[s:pageno][2], strpart(l:szSz, 0, len(l:szSz) - 1) )
-                        else
-                            call add(s:pageSetList[s:pageno][1], l:szSz )
-                        endif
-                    endif
-                endif
-            endif
-        else
-            call add(s:pageSetList[s:pageno][1], '' )
-
+        if len(l:szHelp) > 0
+            let l:szSz = CapitalizeWords(l:szHelp)
+            call add(s:pageSetList[s:pageno][l:nCol + 1], l:szSz)
         endif
 
-        if len(a:szCommand) > 0
-            let l:firstword = GetFirstWord(a:szCommand)
+        if len(l:szCommand) > 0
+            let l:firstword = GetFirstWord(l:szCommand)
             if l:firstword == 'nnoremap' || l:firstword == 'inoremap' || l:firstword == 'command!'
-                execute a:szCommand
+                execute l:szCommand
             else
-                execute 'nnoremap ' . a:szCommand
+                execute 'nnoremap ' . l:szCommand
             endif
        endif
 
    endif
 endfunction
+
 
 "MODIFY
 
@@ -667,112 +697,107 @@ silent !mkdir -p ~/.vim/undo
                 " Use `jj` to exit Insert mode. Much faster than reaching for Esc.
                 " *************************************************************************************
 "
-call g:Commander("", "Help" )
-call g:Commander("", "Help+" )
-call g:Commander("", "Help++" )
-call g:Commander("", "Help+++" )
-call g:Commander("", "Help++++" )
-
-call g:Commander("<F1>          :cclose<cr>:bnext<cr>",      " F1 - Next Buffer" )
-call g:Commander("<leader><F1>  <C-w>w",                     "+F1 - Next Split")
-call g:Commander('', '')
-
-call g:Commander("<F2>          :call VimBufferPopUp()<CR>", " F2 - Vim Buffer PopUp" )
-call g:Commander("<F3>          :call HelpPopUpInit()<CR>",      " F3 - Help Popup" )
-
-call g:Commander('', '')
-call g:Commander("<F5>          :call ProgramCompile()<cr>", " F5 - Program Compile")
-call g:Commander("<F6>          :call ProgramRun()<cr>",     " F6 - Program Run")
-call g:Commander("<leader><F6>  :cclose<cr>",                "+F6 - Close QuickFix")
-call g:Commander("<F7> :call g:MultiToggleVoid()<CR>",         " F7 - Multi-Toggle")
-call g:Commander("<F8> :call g:MultiToggle()<CR>",             " F8 - Toggle Multi-Toggle")
-call g:Commander("<F9> <esc>:call g:FilePopUp(g:GUF())<CR>", " F9 - Utility Popup")
+for i in range(0, 4)
+    call g:CommanderText(i, "Help" )
+    call g:CommanderDash(i)
+endfor
 
 
-call g:Commander("<F12> <esc>:call g:NextHelpPage()<cr>",           " Set Next Help")
-call g:Commander('', '')
-call g:Commander("<Leader>p     :PluginUpdate<cr>",          "+p  - Plugin Update")
-
-" --- Buffer & Tab Navigation ---
-call g:Commander("<leader>b :bnext<CR>",                     "+b  - Next buffer")
-call g:Commander("<leader>k :bprev<CR>",                     "+k  - Previous buffer")
-call g:Commander("<leader>d :bdelete<CR>",                   "+d  - Close buffer")
-call g:Commander("<leader>t :tabnew<CR>",                    "+t  - New tab")
-call g:Commander('', '')
+call g:Commander(0, "<F1>         :cclose<cr>:bnext<cr>",       " F1 - Next Buffer" )
+call g:Commander(0, "<leader><F1> <C-w>w",                      "+F1 - Next Split")
+call g:Commander(0, "<F2>         :call VimBufferPopUp()<CR>",  " F2 - Vim Buffer PopUp" )
+call g:Commander(0, "<F3>         :call HelpPopUpInit()<CR>",   " F3 - Help Popup" )
+call g:Commander(0, "<F5>         :call ProgramCompile()<cr>",  " F5 - Program Compile")
+call g:Commander(0, "<F6>         :call ProgramRun()<cr>",      " F6 - Program Run")
+call g:Commander(0, "<leader><F6> :cclose<cr>",                 "+F6 - Close QuickFix")
+call g:Commander(0, "<F7> :call g:MultiToggleVoid()<CR>",       " F7 - Multi-Toggle")
+call g:Commander(0, "<F8> :call g:MultiToggle()<CR>",           " F8 - Toggle Multi-Toggle")
+call g:Commander(0, "<F9> <esc>:call g:FilePopUp(g:GUF())<CR>", " F9 - Utility Popup")
+call g:Commander(0, "<Leader>p     :PluginUpdate<cr>",          "+p  - Plugin Update")
+call g:CommanderSpace(0)
+call g:Commander(0, "<leader>b :bnext<CR>",                     "+b  - Next buffer")
+call g:Commander(0, "<leader>k :bprev<CR>",                     "+k  - Previous buffer")
+call g:Commander(0, "<leader>d :bdelete<CR>",                   "+d  - Close buffer")
+call g:Commander(0, "<leader>t :tabnew<CR>",                    "+t  - New tab")
 
 " --- Window (Split) Management ---
-call g:Commander("<leader>vs  :call g:HSplit(2)<CR>",  "+vs - Vertical split")
-call g:Commander("<leader>hs  :call g:VSplit(2)<CR>",  "+hs - Horizontal split")
-call g:Commander("<leader>ss  :call g:VSplit(2)<CR>",  "+ss - Horizontal split")
-call g:Commander("<leader>ns  :call g:NoSplits()<CR>", "+ns - Close all splits")
-call g:Commander("<leader>as  :call g:SplitBuffers()<CR>", "+ss - All splits")
-
+call g:Commander(1, "<leader>vs  :call g:HSplit(2)<CR>",  "+vs     - Vertical split")
+call g:Commander(1, "<leader>hs  :call g:VSplit(2)<CR>",  "+hs     - Horizontal split")
+call g:Commander(1, "<leader>ss  :call g:VSplit(2)<CR>",  "+ss     - Horizontal split")
+call g:Commander(1, "<leader>ns  :call g:NoSplits()<CR>", "+ns     - Close all splits")
+call g:Commander(1, "<leader>as  :call g:SplitBuffers()<CR>", "+ss     - All splits")
+call g:CommanderSpace(1)
 " Navigate splits using Ctrl + (h,j,k,l)
-call g:Commander("<C-h> <C-w>h",           "^h   - Mv Sp-Left+")
-call g:Commander("<C-j> <C-w>j",           "^j   - Mv Sp-Down+")
-call g:Commander("<C-k> <C-w>k",           "^k   - Mv Sp-Up+")
-call g:Commander("<C-l> <C-w>l",           "^l   - Mv Sp-Right+")
-call g:Commander("<leader><Left> <C-w>h",  "+<L> - Mv Sp-Left+")
-call g:Commander("<leader><Down> <C-w>j",  "+<D> - Mv Sp-Down+")
-call g:Commander("<leader><Up> <C-w>k",    "+<U> - Mv Sp-Up+")
-call g:Commander("<leader><Right> <C-w>l", "+<R> - Mv Sp-Right+")
+call g:Commander(1, "<C-h> <C-w>h",           "^h      - Mv Split-Left")
+call g:Commander(1, "<C-j> <C-w>j",           "^j      - Mv Split-Down")
+call g:Commander(1, "<C-k> <C-w>k",           "^k      - Mv Split-Up")
+call g:Commander(1, "<C-l> <C-w>l",           "^l      - Mv Split-Right")
+call g:Commander(1, "<leader><Left> <C-w>h",  "+<L>    - Mv Split-Left")
+call g:Commander(1, "<leader><Down> <C-w>j",  "+<D>    - Mv Split-Down")
+call g:Commander(1, "<leader><Up> <C-w>k",    "+<U>    - Mv Split-Up")
+call g:Commander(1, "<leader><Right> <C-w>l", "+<R>    - Mv Split-Right")
+call g:CommanderSpace(1)
+call g:CommanderText(1,                       ":sp <f> - edit in split")
+call g:CommanderText(1,                       ":vsp    - edit in vsplit")
+call g:CommanderText(1,                       "gv      - remember last select")
+call g:CommanderText(1,                       "Sgq     - breaks down long line")
+call g:CommanderText(1,                       "%       - jump to match ( { [")
+call g:CommanderText(1,                       "ci<obj> - chg inside text obj")
+call g:CommanderSpace(1)
 
-call g:Commander("<leader>gaf  :!git add %<CR>","git add++")
-call g:Commander("<leader>gac  :!git add % && git commit -m 'Staged changes' <CR>","git add and commit++")
-call g:Commander("<leader>gaa  :!git add .<CR>","git add .++")
-call g:Commander("<leader>gss  :!git add . && git commit -m 'Staged all changes' <CR>","git add . and commit++")
-call g:Commander("<leader>gas  :!git add %<CR>:!git status<CR>","git add and status++")
-call g:Commander("<leader>gaas :!git add .<CR>:!git status<CR>","git add . and status++")
 
-call g:Commander("",                                ":sp  <fn> - edit in split+++" )
-call g:Commander("",                                ":vsp <fn> - edit in vsplit+++" )
-call g:Commander("",                                " gv       - remember last select+++" )
-call g:Commander("",                                "Sgq       - breaks down long line+++" )
-call g:CommanderText(" %        - jumps to the match prn,brckt,brc+++")
-call g:CommanderText(" ci<obj>  - changes inside a text object+++")
-call g:CommanderText("--- Ex Commands++++")
-call g:CommanderText(":wincmd h","Cursor to win-left++++")
-call g:CommanderText(":wincmd j","Cursor to win-below++++")
-call g:CommanderText(":wincmd k","Cursor to win-above++++")
-call g:CommanderText(":wincmd l","Cursor to win-right++++")
-call g:CommanderText(":wincmd w","Cycle next win++++")
-call g:CommanderText(":wincmd p","Go to the prev active win++++")
-call g:CommanderText(":wincmd =","All winds equal size++++")
-call g:CommanderText(":wincmd _","Max wind height++++")
-call g:CommanderText(":wincmd |","Max wind width++++")
-call g:CommanderText(":wincmd H","Mv wind far left++++")
-call g:CommanderText(":wincmd J","Mv wind very bottom++++")
-call g:CommanderText(":wincmd K","Mv wind very top++++")
-call g:CommanderText(":wincmd L","Mv wind far right++++")
-call g:Commander("inoremap jj <Esc>",                        " jj - <ESC>+++")
-call g:CommanderText("+++")
-call g:CommanderText("--- Commands+++")
-call g:Commander("command! Gemini   :call Gemini()<cr>",     "Gemini+++")
-call g:Commander("command! Gem      :call Gemini()<cr>",     "Gem+++")
-call g:Commander("command! GEM      :call Gemini()<cr>",     "GEM+++")
-call g:Commander("command! SESSION  :call CaptureSession()", "SESSION+++") 
-call g:Commander("command! -nargs=+ GREP    call GrepPopUp(<q-args>)<cr>", "GREP+++")
-call g:Commander("command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "POPGREP+++")
+call g:Commander(2, "<leader>gaf  :!git add %<CR>","git add++")
+call g:Commander(2, "<leader>gac  :!git add % && git commit -m 'Staged changes' <CR>","git add and commit++")
+call g:Commander(2, "<leader>gaa  :!git add .<CR>","git add .++")
+call g:Commander(2, "<leader>gss  :!git add . && git commit -m 'Staged all changes' <CR>","git add . and commit++")
+call g:Commander(2, "<leader>gas  :!git add %<CR>:!git status<CR>","git add and status++")
+call g:Commander(2, "<leader>gaas :!git add .<CR>:!git status<CR>","git add . and status++")
+
+
+call g:CommanderText(3, "--- Ex Commands")
+call g:CommanderText(3, ":wincmd h","Cursor to win-left")
+call g:CommanderText(3, ":wincmd j","Cursor to win-below")
+call g:CommanderText(3, ":wincmd k","Cursor to win-above")
+call g:CommanderText(3, ":wincmd l","Cursor to win-right")
+call g:CommanderText(3, ":wincmd w","Cycle next win")
+call g:CommanderText(3, ":wincmd p","Go to the prev active win")
+call g:CommanderText(3, ":wincmd =","All winds equal size")
+call g:CommanderText(3, ":wincmd _","Max wind height")
+call g:CommanderText(3, ":wincmd |","Max wind width")
+call g:CommanderText(3, ":wincmd H","Mv wind far left")
+call g:CommanderText(3, ":wincmd J","Mv wind very bottom")
+call g:CommanderText(3, ":wincmd K","Mv wind very top")
+call g:CommanderText(3, ":wincmd L","Mv wind far right")
+call g:Commander("inoremap jj <Esc>",                        " jj - <ESC>")
+call g:CommanderText("")
+call g:CommanderText("--- Commands")
+call g:Commander(3, "command! Gemini   :call Gemini()<cr>",     "Gemini")
+call g:Commander(3, "command! Gem      :call Gemini()<cr>",     "Gem")
+call g:Commander(3, "command! GEM      :call Gemini()<cr>",     "GEM")
+call g:Commander(3, "command! SESSION  :call CaptureSession()", "SESSION") 
+call g:Commander(3, "command! -nargs=+ GREP    call GrepPopUp(<q-args>)<cr>", "GREP")
+call g:Commander(3, "command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "POPGREP")
 
 " Define the command :RunScript
 " call g:Commander("<F9> :call system('ls -la > /tmp/files.txt')<cr>",           " Test Command")
 "
-call Commander("command! -nargs=1 CLI call system( <q-args> . ' > /tmp/files.txt  ') | call FilePopUp('/tmp/files.txt', 'System','FilesDotTxtPopUpCustomFilter')", "CLI+++")
-let s:pageno = 2
-call g:CommanderText("+++")
-call g:CommanderText("--- Sets+++")
-call g:CommanderText("set nu!", "Toggle screen mumbering+++")
-call g:CommanderText("+++")
-call g:CommanderText("--- Scrolling+++")
-call g:CommanderText("CTRL-F","Scroll forward full screen+++")
-call g:CommanderText("CTRL-B","Scroll backward full screen+++")
-call g:CommanderText("CTRL-D","Scroll down (forward) half screen+++")
-call g:CommanderText("CTRL-U","Scroll up (backward) half screen+++")
-call g:CommanderText("CTRL-E","Scroll down one line+++")
-call g:CommanderText("CTRL-Y","Scroll up one line+++")
-call g:CommanderText("zz","Center the current line on screen+++")
-call g:CommanderText("zt","Mv current line to the top of screen+++")
-call g:CommanderText("zb","Mv current line to the bottom of screen+++")
+call Commander(3, "command! -nargs=1 CLI call system( <q-args> . ' > /tmp/files.txt  ') | call FilePopUp('/tmp/files.txt', 'System','FilesDotTxtPopUpCustomFilter')", "CLI+++")
+let s:pageno = 1
+call g:CommanderText(2,"","")
+call g:CommanderText(2,"","")
+call g:CommanderText(2,"","")
+call g:CommanderText(2, "set nu!", "Toggle scrn #s")
+call g:CommanderText(2,"","")
+call g:CommanderText(2, "", "--- Scrolling")
+call g:CommanderText(2, "C-F","Scrl fwd full scrn")
+call g:CommanderText(2, "C-B","Scrl bck full scrn")
+call g:CommanderText(2, "C-D","Scrl dn (fwd) half scrn")
+call g:CommanderText(2, "C-U","Scrl up (bck) half scrn")
+call g:CommanderText(2, "C-E","Scrl dn 1 line")
+call g:CommanderText(2, "C-Y","Scrl up 1 line")
+call g:CommanderText(2, "zz","Center crnt")
+call g:CommanderText(2, "zt","Mv crnt line top scrn")
+call g:CommanderText(2, "zb","Mv crnt line bot scrn")
 let s:pageno = 1
 
 "Key Sequence","Description"

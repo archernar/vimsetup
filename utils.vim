@@ -736,15 +736,30 @@ endfunc
 " *****************************************************************************************************
                 " FilePopUp
                 " *************************************************************************************
-let g:filepageno = 0
+let g:filepageno = 1
+let g:filepages  = 1
 
 function! FilePopUpCustomFilter(winid, key)
     if g:StandardFilter(a:winid, a:key) > 0
         return 1
     endif
 
-    if a:key == "\<F9>"
+    "if a:key == "\<F9>"
+    if a:key == "n"
         call popup_close(a:winid)
+        let g:filepageno = g:filepageno + 1 
+        if g:filepageno > g:filepages
+            let g:filepageno = 1
+        endif
+        call g:FilePopUp(g:GUF())
+        return 1
+    endif
+    if a:key == "b"
+        call popup_close(a:winid)
+        let g:filepageno = g:filepageno - 1 
+        if g:filepageno < 1
+            let g:filepageno = g:filepages
+        endif
         call g:FilePopUp(g:GUF())
         return 1
     endif
@@ -760,7 +775,7 @@ function! g:FilePopUp(...)
     let l:pagecount=l:lines/l:linesperpage
 
     let l:v = -1
-    let l:pages = 0 
+    let l:pages = 1 
     let l:idx = 0
 
     for i in range(1, 50)
@@ -777,11 +792,12 @@ function! g:FilePopUp(...)
         let l:idx = l:idx +1
     endfor
 
-    let g:filepageno = g:filepageno + 1 
-    if g:filepageno > l:pages
-        let g:filepageno = 1
-    endif
-    let l:szTitle = " " . l:lines . " Lines, " . pagecount . " Pages,  Page# ". g:filepageno . " "
+    "let g:filepageno = g:filepageno + 1 
+    "if g:filepageno > l:pages
+    "    let g:filepageno = 1
+    "endif
+    let g:filepages  = l:pages
+    let l:szTitle = " " . l:lines . " Lines, " . l:pages . " Pages,  Page# ". g:filepageno . " "
     call g:PopMeUp(s:filePagerList[g:filepageno], l:szTitle, 'FilePopUpCustomFilter')
 
 
@@ -851,4 +867,12 @@ endfunction
 function! g:GUF()
     let l:arr = readfile(g:GUFFILE)
     return l:arr[0]
+endfunction
+
+function! RightPad(text, width)
+    " %-Ns formats the string left-aligned within a field of N width
+    return printf('%-' . a:width . 's', a:text)
+endfunction
+function! RP6(text)
+    return RightPad(text, 6)
 endfunction
