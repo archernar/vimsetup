@@ -662,6 +662,8 @@ endfunction
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
+
 function! LocalSetups()
     setlocal iskeyword=@,48-57,_,192-255,.
 endfunction
@@ -782,6 +784,7 @@ call g:Commander(3, "command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "P
 " call g:Commander("<F9> :call system('ls -la > /tmp/files.txt')<cr>",           " Test Command")
 "
 call Commander(3, "command! -nargs=1 CLI call system( <q-args> . ' > /tmp/files.txt  ') | call FilePopUp('/tmp/files.txt', 'System','FilesDotTxtPopUpCustomFilter')", "CLI+++")
+call Commander(3, "command! -nargs=0 BASHTOP call TopInclude('~/.vim/vimsetup/snips/top.bash')", "BASHTOP")
 let s:pageno = 1
 call g:CommanderText(2,"","")
 call g:CommanderText(2,"","")

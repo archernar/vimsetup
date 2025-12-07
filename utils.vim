@@ -876,3 +876,8 @@ endfunction
 function! RP6(text)
     return RightPad(text, 6)
 endfunction
+
+function! TopInclude(...)
+    normal gg
+    execute "-1r " . a:1 
+endfunction
