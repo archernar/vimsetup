@@ -8,7 +8,7 @@ set hidden                        " Will switch to next buffer without raising a
 set nowrap
 set nohlsearch
 set noerrorbells
-set scrolloff=8
+set scrolloff=0
 let loaded_matchparen = 1         
             " http://vimrc-dissection.blogspot.com/2006/09/vim-7-re-turn-off-parenparenthesiswhat.html
 set splitbelow
@@ -283,6 +283,10 @@ func MyFilter100(winid, key)
 	  return 0
 endfunc
 
+
+func! g:CommanderStr(...)
+    call add(s:pageSetList[s:pageno][a:1 + 1], a:2)
+endfunc
 
 func! g:CommanderDash(...)
     call add(s:pageSetList[s:pageno][a:1 + 1], '----' )
@@ -701,7 +705,7 @@ silent !mkdir -p ~/.vim/undo
 "
 for i in range(0, 4)
     call g:CommanderText(i, "Help" )
-    call g:CommanderDash(i)
+    call g:CommanderSpace(i)
 endfor
 
 
@@ -748,12 +752,6 @@ call g:CommanderText(1,                       "ci<obj> - chg inside text obj")
 call g:CommanderSpace(1)
 
 
-call g:Commander(2, "<leader>gaf  :!git add %<CR>","git add++")
-call g:Commander(2, "<leader>gac  :!git add % && git commit -m 'Staged changes' <CR>","git add and commit++")
-call g:Commander(2, "<leader>gaa  :!git add .<CR>","git add .++")
-call g:Commander(2, "<leader>gss  :!git add . && git commit -m 'Staged all changes' <CR>","git add . and commit++")
-call g:Commander(2, "<leader>gas  :!git add %<CR>:!git status<CR>","git add and status++")
-call g:Commander(2, "<leader>gaas :!git add .<CR>:!git status<CR>","git add . and status++")
 
 
 call g:CommanderText(3, "--- Ex Commands")
@@ -772,19 +770,6 @@ call g:CommanderText(3, ":wincmd K","Mv wind very top")
 call g:CommanderText(3, ":wincmd L","Mv wind far right")
 call g:Commander("inoremap jj <Esc>",                        " jj - <ESC>")
 call g:CommanderText("")
-call g:CommanderText("--- Commands")
-call g:Commander(3, "command! Gemini   :call Gemini()<cr>",     "Gemini")
-call g:Commander(3, "command! Gem      :call Gemini()<cr>",     "Gem")
-call g:Commander(3, "command! GEM      :call Gemini()<cr>",     "GEM")
-call g:Commander(3, "command! SESSION  :call CaptureSession()", "SESSION") 
-call g:Commander(3, "command! -nargs=+ GREP    call GrepPopUp(<q-args>)<cr>", "GREP")
-call g:Commander(3, "command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "POPGREP")
-
-" Define the command :RunScript
-" call g:Commander("<F9> :call system('ls -la > /tmp/files.txt')<cr>",           " Test Command")
-"
-call Commander(3, "command! -nargs=1 CLI call system( <q-args> . ' > /tmp/files.txt  ') | call FilePopUp('/tmp/files.txt', 'System','FilesDotTxtPopUpCustomFilter')", "CLI+++")
-call Commander(3, "command! -nargs=0 BASHTOP call TopInclude('~/.vim/vimsetup/snips/top.bash')", "BASHTOP")
 let s:pageno = 1
 call g:CommanderText(2,"","")
 call g:CommanderText(2,"","")
@@ -798,9 +783,35 @@ call g:CommanderText(2, "C-D","Scrl dn (fwd) half scrn")
 call g:CommanderText(2, "C-U","Scrl up (bck) half scrn")
 call g:CommanderText(2, "C-E","Scrl dn 1 line")
 call g:CommanderText(2, "C-Y","Scrl up 1 line")
-call g:CommanderText(2, "zz","Center crnt")
-call g:CommanderText(2, "zt","Mv crnt line top scrn")
-call g:CommanderText(2, "zb","Mv crnt line bot scrn")
+
+
+call g:CommanderStr( 4, "--- Current Line")
+call g:CommanderText(4, "zz","Center")
+call g:CommanderText(4, "zt","Top")
+call g:CommanderText(4, "zb","Bottom")
+call g:CommanderSpace(4)
+call g:CommanderStr(4, "--- Commands")
+call g:Commander(4, "command! Gemini   :call Gemini()<cr>",     "Gemini")
+call g:Commander(4, "command! Gem      :call Gemini()<cr>",     "Gem")
+call g:Commander(4, "command! GEM      :call Gemini()<cr>",     "GEM")
+call g:Commander(4, "command! SESSION  :call CaptureSession()", "SESSION") 
+call g:Commander(4, "command! -nargs=+ GREP    call GrepPopUp(<q-args>)<cr>", "GREP")
+call g:Commander(4, "command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "POPGREP")
+call g:Commander(4, "command! -nargs=1 CLI call system( <q-args> . ' > /tmp/files.txt  ') | call FilePopUp('/tmp/files.txt', 'System','FilesDotTxtPopUpCustomFilter')", "CLI+++")
+call g:Commander(4, "command! -nargs=0 BASHTOP call TopInclude('~/.vim/vimsetup/snips/top.bash')", "BASHTOP")
+call g:CommanderSpace(4)
+call g:CommanderStr(4, "--- Git Commands")
+call g:Commander(4, "<leader>gaf  :!git add %<CR>",                                         "+gaf  - git add")
+call g:Commander(4, "<leader>gac  :!git add % && git commit -m 'Staged changes' <CR>",      "+gac  - git add   + commit")
+call g:Commander(4, "<leader>gaa  :!git add .<CR>",                                         "+gaa  - git add .")
+call g:Commander(4, "<leader>gss  :!git add . && git commit -m 'Staged all changes' <CR>",  "+gss  - git add . + commit")
+call g:Commander(4, "<leader>gas  :!git add %<CR>:!git status<CR>",                         "+gas  - git add   + status")
+call g:Commander(4, "<leader>gaas :!git add .<CR>:!git status<CR>",                         "+gaas - git add . + status")
+call g:CommanderSpace(4)
+
+
+" call g:Commander("<F9> :call system('ls -la > /tmp/files.txt')<cr>",           " Test Command")
+
 let s:pageno = 1
 
 "Key Sequence","Description"

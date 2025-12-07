@@ -1,5 +1,5 @@
 
-function g:LogMessage(...)
+function! g:LogMessage(...)
     let l:ret = 0
 
     let l:messages=[]
@@ -261,7 +261,7 @@ function! ToUpperUnderCursor()
     call cursor(row, col)
   endif
 endfunction
-function g:HSplit(...)
+function! g:HSplit(...)
     let l:i = 0
     let l:bc = a:1 - 1
     while l:i < l:bc 
@@ -272,7 +272,7 @@ function g:HSplit(...)
     execute "wincmd t"
     normal! 0
 endfunction
-function g:VSplit(...)
+function! g:VSplit(...)
     let l:i = 0
     let l:bc = a:1 - 1
     while l:i < l:bc 
@@ -283,7 +283,7 @@ function g:VSplit(...)
     execute "wincmd t"
     normal! 0
 endfunction
-function g:NoSplits()
+function! g:NoSplits()
     execute "only"
     normal! 0
 endfunction
@@ -381,24 +381,6 @@ function! g:UtilityPopUp(...)
     call g:PopMeUp(readfile(a:1), "Test")
 endfunction
 
-function! g:XxUtilityPopUp(...)
-    if filereadable(a:1)
-        let g:utilityPopupFilename = a:1 
-        call popup_create(readfile(a:1), #{ line: 1, col: 1, border: [], padding: [1,1,1,1] } )
-        let l:id = popup_list()[0]
-        call popup_move(l:id, #{ line: 2, col: 4, 
-                    \ minwidth: &columns -14,
-                    \ maxheight: &lines -8, maxwidth: &columns -8,
-                    \ })
-        hi MyPopupColor ctermbg=black guibg=black
-        call setwinvar(l:id, '&wincolor', 'MyPopupColor')
-        nnoremap <DOWN> :call ScrollPopup(1)<CR>
-        nnoremap <UP>   :call ScrollPopup(-1)<CR>
-        nnoremap <F10>  :call UtilityPopUpClear(g:utilityPopupFilename)<CR>
-    endif
-endfunction
-
-
 function! g:UtilityBufferCommand(...)
     call system( a:1 . " > /tmp/out" )
     call UtilityBuffer("/tmp/out")
@@ -447,7 +429,7 @@ endfunction
 
 
 " let user_string = GetUserInput("Enter your name: ")
-func! g:GrepPopUpCallBack(id, result)
+function! g:GrepPopUpCallBack(id, result)
      "echom "XXXX: "
      echom "XXXX: " . a:id . " " . a:result
      execute ":" . s:numbers[a:result-1]
@@ -538,11 +520,11 @@ function! g:HelpPopUpPrime()
     \ highlight: 'Question', border: [], close: 'click',  padding: [1,1,0,1]} )
 endfunction
 
-func! MenuCBDoNothingPrime(id, result)
+function! MenuCBDoNothingPrime(id, result)
     let l:NOTHING=0
 endfunction
 
-func! g:CommanderTextPrime(...)
+function! g:CommanderTextPrime(...)
     if a:0 == 1
         call g:Commander('', a:1)
     else
@@ -550,7 +532,7 @@ func! g:CommanderTextPrime(...)
     endif
 endfunction
 
-func! g:CommanderPrime(szCommand, szHelp)
+function! g:CommanderPrime(szCommand, szHelp)
     if len(a:szCommand)+len(a:szHelp) == 0
         call add(s:helpdisplaynames, "" )
     else
@@ -601,7 +583,7 @@ call popup_menu(['Status', 'add', 'commit', 'push', 'all', 'make', 'deploy','df'
 endfunction
 "https://www.baeldung.com/linux/vim-find-full-path-current-file#:~:text=The%20%25%20Register,%2C%20depending%20on%20the%20context).
 "let l:command = "/usr/bin/git add " . expand('%') . ";git commit -m \"Update\"; git push origin master"
-func! MenuCB(id, result)
+function! MenuCB(id, result)
     if ( a:result == 1 )
         let l:command = "git status > /tmp/out"
         call system(l:command)
@@ -651,7 +633,7 @@ func! MenuCB(id, result)
 
 endfunc
 
-func! DoNothingCB(id, result)
+function! DoNothingCB(id, result)
     let l:NOTHING=0
 endfunc
 
