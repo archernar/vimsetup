@@ -641,21 +641,29 @@ endfunc
                 " PopUps
                 " *************************************************************************************
 function! g:PopMeUp(...)
-    if a:0 == 3
+    if a:0 == 4
         let l:thefilter = a:3
+        let l:thecallback = a:4
         call popup_menu(a:1,
-        \ #{ title: a:2, callback: 'MenuCBDoNothing', line: 1, col: 1, 
+        \ #{ title: a:2, callback: l:thecallback , line: 1, col: 1, 
         \ highlight: 'Question', border: [], minheight: 28, minwidth: 132, maxheight: 10000, filter: l:thefilter, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
     else
-        if a:0 == 2
+        if a:0 == 3
+            let l:thefilter = a:3
             call popup_menu(a:1,
             \ #{ title: a:2, callback: 'MenuCBDoNothing', line: 1, col: 1, 
-            \ highlight: 'Question', border: [], minheight: 28, minwidth: 132, maxheight: 10000, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
+            \ highlight: 'Question', border: [], minheight: 28, minwidth: 132, maxheight: 10000, filter: l:thefilter, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
         else
-            if a:0 == 1
+            if a:0 == 2
                 call popup_menu(a:1,
-                \ #{ callback: 'MenuCBDoNothing', line: 1, col: 1, 
+                \ #{ title: a:2, callback: 'MenuCBDoNothing', line: 1, col: 1, 
                 \ highlight: 'Question', border: [], minheight: 28, minwidth: 132, maxheight: 10000, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
+            else
+                if a:0 == 1
+                    call popup_menu(a:1,
+                    \ #{ callback: 'MenuCBDoNothing', line: 1, col: 1, 
+                    \ highlight: 'Question', border: [], minheight: 28, minwidth: 132, maxheight: 10000, scrollbar: 1, close: 'click',  padding: [1,1,0,1]} )
+                endif
             endif
         endif
     endif
@@ -716,6 +724,32 @@ function! FilesDotTxtPopUpCustomFilter(winid, key)
     return popup_filter_menu(a:winid, a:key)
 endfunc
 " *****************************************************************************************************
+                " IncluderPopUp
+                " *************************************************************************************
+function! IncluderPopUpCustomFilter(winid, key)
+    if g:StandardFilter(a:winid, a:key) > 0
+        return 1
+    endif
+
+    if a:key == "\<F9>"
+        call popup_close(a:winid)
+        call g:FilePopUp($HOME . '/.vim/includerfiles.txt')
+        return 1
+    endif
+
+    return popup_filter_menu(a:winid, a:key)
+endfunc
+" *****************************************************************************************************
+                " IncluderCallBack
+                " *************************************************************************************
+function! IncluderCallBack(id, result)
+    let l:arr = readfile($HOME . '/.vim/includerfiles.txt')
+    if ( a:result > -1 ) 
+        echom l:arr[a:result-1]
+        call HereInclude(l:arr[a:result-1])
+    endif
+endfunction
+" *****************************************************************************************************
                 " FilePopUp
                 " *************************************************************************************
 let g:filepageno = 1
@@ -770,7 +804,7 @@ function! g:FilePopUp(...)
             let l:v = l:n
             let l:pages = l:pages + 1
         endif
-        call add(s:filePagerList[l:n], ">> " . l:arr[l:idx])
+        call add(s:filePagerList[l:n], "" . l:arr[l:idx])
         let l:idx = l:idx +1
     endfor
 
@@ -780,7 +814,11 @@ function! g:FilePopUp(...)
     "endif
     let g:filepages  = l:pages
     let l:szTitle = " " . l:lines . " Lines, " . l:pages . " Pages,  Page# ". g:filepageno . " "
-    call g:PopMeUp(s:filePagerList[g:filepageno], l:szTitle, 'FilePopUpCustomFilter')
+    if a:0 == 4
+        call g:PopMeUp(s:filePagerList[g:filepageno], l:szTitle, 'FilePopUpCustomFilter', a:4)
+    else
+        call g:PopMeUp(s:filePagerList[g:filepageno], l:szTitle, 'FilePopUpCustomFilter')
+    endif
 
 
 endfunction
@@ -861,5 +899,8 @@ endfunction
 
 function! TopInclude(...)
     normal gg
+    execute "-1r " . a:1 
+endfunction
+function! HereInclude(...)
     execute "-1r " . a:1 
 endfunction

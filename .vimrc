@@ -799,6 +799,8 @@ call g:Commander(4, "command! -nargs=+ GREP    call GrepPopUp(<q-args>)<cr>", "G
 call g:Commander(4, "command! -nargs=+ POPGREP call GrepPopUp(<q-args>)<cr>", "POPGREP")
 call g:Commander(4, "command! -nargs=1 CLI call system( <q-args> . ' > /tmp/files.txt  ') | call FilePopUp('/tmp/files.txt', 'System','FilesDotTxtPopUpCustomFilter')", "CLI+++")
 call g:Commander(4, "command! -nargs=0 BASHTOP call TopInclude('~/.vim/vimsetup/snips/top.bash')", "BASHTOP")
+call g:Commander(4, "command! -nargs=0 TOPs    call TopInclude('~/.vim/vimsetup/snips/top.bash')", "BASHTOP")
+call g:Commander(4, "command! -nargs=0 INC     call FilePopUp($HOME . '/.vim/includerfiles.txt', 'Includers','IncluderPopUpCustomFilter','IncluderCallBack')", "TOPS")
 call g:CommanderSpace(4)
 call g:CommanderStr(4, "--- Git Commands")
 call g:Commander(4, "<leader>gaf  :!git add %<CR>",                                         "+gaf  - git add")
