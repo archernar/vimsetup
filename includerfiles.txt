@@ -1,3 +1,5 @@
+~/.vim/vimsetup/snips/range.vim
+~/.vim/vimsetup/snips/LogMessage.vim
+~/.vim/vimsetup/snips/ifelse.vim
+~/.vim/vimsetup/snips/script.bash
 ~/.vim/vimsetup/snips/top.bash
-~/.vim/vimsetup/snips/top1.bash
-~/.vim/vimsetup/snips/top2.bash
