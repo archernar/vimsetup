@@ -1,0 +1,3 @@
+~/.vim/vimsetup/snips/top.bash
+~/.vim/vimsetup/snips/top1.bash
+~/.vim/vimsetup/snips/top2.bash
