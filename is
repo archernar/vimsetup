@@ -37,14 +37,22 @@ EOF
 }
 
 
+ALL="NO"
 MOVE="NO"
 LIST="NO"
 UNTRACKED="NO"
 PLAIN="NO"
 # Added 'h' to getopts string
-while getopts "pm:luh" arg
+while getopts "apm:luh" arg
 do
     case $arg in
+        a) ALL="YES"
+           git ls-files --full-name :/ | sed "s|^|$(git rev-parse --show-toplevel)/|" | gawk '
+           {
+                print "✅ " $0 " is tracked by Git."
+           }'
+           exit 0
+           ;;
         p) PLAIN="YES"
            ;;
         m) MOVE="YES"
