@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vim Command Reference (500+)</title>
+    <style>
+        /* Basic styles for readability, no Tailwind used. */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 24px 0;
+            margin: 0;
+            background-color: #2d3748;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        h2 {
+            background-color: #edf2f7;
+            color: #2d3748;
+            padding: 12px 24px;
+            margin: 0;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            font-weight: 600;
+            font-size: 1.25em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f9f9f9;
+        }
+
+        th, td {
+            padding: 12px 24px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fdfdfd;
+        }
+
+        tr:hover {
+            background-color: #f7fafc;
+        }
+
+        td:first-child {
+            width: 30%;
+        }
+
+        /* Style for the key sequences */
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: #f0f0f0;
+            color: #c53030;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Vim Command Reference</h1>
+
+        <h2>Basic Motion</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>h</code></td><td>Move cursor left one character</td></tr>
+                <tr><td><code>l</code></td><td>Move cursor right one character</td></tr>
+                <tr><td><code>j</code></td><td>Move cursor down one line</td></tr>
+                <tr><td><code>k</code></td><td>Move cursor up one line</td></tr>
+                <tr><td><code>0</code></td><td>Move cursor to the beginning of the line (column 0)</td></tr>
+                <tr><td><code>^</code></td><td>Move cursor to the first non-blank character of the line</td></tr>
+                <tr><td><code>$</code></td><td>Move cursor to the end of the line</td></tr>
+                <tr><td><code>g_</code></td><td>Move cursor to the last non-blank character of the line</td></tr>
+                <tr><td><code>w</code></td><td>Move cursor forward to the start of the next word</td></tr>
+                <tr><td><code>W</code></td><td>Move cursor forward to the start of the next WORD (space-separated)</td></tr>
+                <tr><td><code>b</code></td><td>Move cursor backward to the start of the previous word</td></tr>
+                <tr><td><code>B</code></td><td>Move cursor backward to the start of the previous WORD (space-separated)</td></tr>
+                <tr><td><code>e</code></td><td>Move cursor forward to the end of the current word</td></tr>
+                <tr><td><code>E</code></td><td>Move cursor forward to the end of the current WORD (space-separated)</td></tr>
+                <tr><td><code>ge</code></td><td>Move cursor backward to the end of the previous word</td></tr>
+                <tr><td><code>gE</code></td><td>Move cursor backward to the end of the previous WORD (space-separated)</td></tr>
+                <tr><td><code>gg</code></td><td>Go to the first line of the file</td></tr>
+                <tr><td><code>G</code></td><td>Go to the last line of the file</td></tr>
+                <tr><td><code>5G</code></td><td>Go to line 5 (replace 5 with any number)</td></tr>
+                <tr><td><code>:5</code></td><td>Go to line 5 (Ex command)</td></tr>
+                <tr><td><code>H</code></td><td>Move cursor to the top of the screen (High)</td></tr>
+                <tr><td><code>M</code></td><td>Move cursor to the middle of the screen (Middle)</td></tr>
+                <tr><td><code>L</code></td><td>Move cursor to the bottom of the screen (Low)</td></tr>
+                <tr><td><code>f{char}</code></td><td>Find next occurrence of {char} on the current line</td></tr>
+                <tr><td><code>F{char}</code></td><td>Find previous occurrence of {char} on the current line</td></tr>
+                <tr><td><code>t{char}</code></td><td>Move cursor *to* just before the next occurrence of {char}</td></tr>
+                <tr><td><code>T{char}</code></td><td>Move cursor *to* just after the previous occurrence of {char}</td></tr>
+                <tr><td><code>;</code></td><td>Repeat the last f, F, t, or T command</td></tr>
+                <tr><td><code>,</code></td><td>Repeat the last f, F, t, or T command in the reverse direction</td></tr>
+                <tr><td><code>%</code></td><td>Jump to matching parenthesis, bracket, or brace</td></tr>
+                <tr><td><code>(</code></td><td>Jump to previous sentence</td></tr>
+                <tr><td><code>)</code></td><td>Jump to next sentence</td></tr>
+                <tr><td><code>{</code></td><td>Jump to previous paragraph</td></tr>
+                <tr><td><code>}</code></td><td>Jump to next paragraph</td></tr>
+                <tr><td><code>[[</code></td><td>Jump to previous function or block</td></tr>
+                <tr><td><code>]]</code></td><td>Jump to next function or block</td></tr>
+                <tr><td><code>gj</code></td><td>Move down one *display* line (for wrapped text)</td></tr>
+                <tr><td><code>gk</code></td><td>Move up one *display* line (for wrapped text)</td></tr>
+                <tr><td><code>g0</code></td><td>Move to the beginning of the *display* line</td></tr>
+                <tr><td><code>g^</code></td><td>Move to the first non-blank char of the *display* line</td></tr>
+                <tr><td><code>g$</code></td><td>Move to the end of the *display* line</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Scrolling</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>CTRL-F</code></td><td>Scroll forward one full screen</td></tr>
+                <tr><td><code>CTRL-B</code></td><td>Scroll backward one full screen</td></tr>
+                <tr><td><code>CTRL-D</code></td><td>Scroll down (forward) half a screen</td></tr>
+                <tr><td><code>CTRL-U</code></td><td>Scroll up (backward) half a screen</td></tr>
+                <tr><td><code>CTRL-E</code></td><td>Scroll down one line</td></tr>
+                <tr><td><code>CTRL-Y</code></td><td>Scroll up one line</td></tr>
+                <tr><td><code>zz</code></td><td>Center the current line on the screen</td></tr>
+                <tr><td><code>zt</code></td><td>Move current line to the top of the screen</td></tr>
+                <tr><td><code>zb</code></td><td>Move current line to the bottom of the screen</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Entering Insert Mode</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>i</code></td><td>Enter Insert mode before the cursor</td></tr>
+                <tr><td><code>I</code></td><td>Enter Insert mode at the beginning of the line</td></tr>
+                <tr><td><code>a</code></td><td>Enter Insert mode after the cursor</td></tr>
+                <tr><td><code>A</code></td><td>Enter Insert mode at the end of the line</td></tr>
+                <tr><td><code>o</code></td><td>Open a new line below the current one and enter Insert mode</td></tr>
+                <tr><td><code>O</code></td><td>Open a new line above the current one and enter Insert mode</td></tr>
+                <tr><td><code>s</code></td><td>Substitute (delete) the character under the cursor and enter Insert mode</td></tr>
+                <tr><td><code>S</code></td><td>Substitute (delete) the entire current line and enter Insert mode (same as cc)</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Insert Mode Commands</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>CTRL-H</code></td><td>Delete the previous character (like backspace)</td></tr>
+                <tr><td><code>CTRL-W</code></td><td>Delete the previous word</td></tr>
+                <tr><td><code>CTRL-U</code></td><td>Delete from the cursor to the start of the line</td></tr>
+                <tr><td><code>CTRL-T</code></td><td>Indent the current line (add shiftwidth)</td></tr>
+                <tr><td><code>CTRL-D</code></td><td>Un-indent the current line (remove shiftwidth)</td></tr>
+                <tr><td><code>CTRL-O</code></td><td>Execute a single Normal mode command, then return to Insert mode</td></tr>
+                <tr><td><code>CTRL-P</code></td><td>Autocomplete word (previous match)</td></tr>
+                <tr><td><code>CTRL-N</code></td><td>Autocomplete word (next match)</td></tr>
+                <tr><td><code>CTRL-X CTRL-F</code></td><td>Autocomplete file path</td></tr>
+                <tr><td><code>CTRL-X CTRL-L</code></td><td>Autocomplete whole line</td></tr>
+                <tr><td><code>CTRL-V {char}</code></td><td>Insert a special character literally (e.g., CTRL-V &lt;Tab&gt;)</td></tr>
+                <tr><td><code>&lt;Esc&gt;</code></td><td>Exit Insert mode and return to Normal mode</td></tr>
+                <tr><td><code>CTRL-[</code></td><td>Exit Insert mode (canonical alternative to &lt;Esc&gt;)</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Editing in Normal Mode (Operators)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>d</code></td><td>Delete operator</td></tr>
+                <tr><td><code>c</code></td><td>Change operator (delete, then enter Insert mode)</td></tr>
+                <tr><td><code>y</code></td><td>Yank operator (copy)</td></tr>
+                <tr><td><code>&gt;</code></td><td>Indent operator</td></tr>
+                <tr><td><code>&lt;</code></td><td>Un-indent operator</td></tr>
+                <tr><td><code>gU</code></td><td>Operator to make text uppercase</td></tr>
+                <tr><td><code>gu</code></td><td>Operator to make text lowercase</td></tr>
+                <tr><td><code>g~</code></td><td>Operator to swap case</td></tr>
+                <tr><td><code>=</code></td><td>Auto-indent operator</td></tr>
+                <tr><td><code>!</code></td><td>Filter operator (send text to external command)</td></tr>
+                <tr><td><code>r{char}</code></td><td>Replace the character under the cursor with {char}</td></tr>
+                <tr><td><code>R</code></td><td>Enter Replace mode (overwrite characters)</td></tr>
+                <tr><td><code>x</code></td><td>Delete the character under the cursor (shorthand for dl)</td></tr>
+                <tr><td><code>X</code></td><td>Delete the character before the cursor (shorthand for dh)</td></tr>
+                <tr><td><code>p</code></td><td>Paste *after* the cursor (from default register)</td></tr>
+                <tr><td><code>P</code></td><td>Paste *before* the cursor (from default register)</td></tr>
+                <tr><td><code>gp</code></td><td>Paste *after* the cursor and move cursor to end of pasted text</td></tr>
+                <tr><td><code>gP</code></td><td>Paste *before* the cursor and move cursor to end of pasted text</td></tr>
+                <tr><td><code>J</code></td><td>Join the current line with the next line (adds a space)</td></tr>
+                <tr><td><code>gJ</code></td><td>Join the current line with the next line (no space)</td></tr>
+                <tr><td><code>u</code></td><td>Undo the last change</td></tr>
+                <tr><td><code>U</code></td><td>Undo all changes on the current line</td></tr>
+                <tr><td><code>CTRL-R</code></td><td>Redo the last undone change</td></tr>
+                <tr><td><code>.</code></td><td>Repeat the last change</td></tr>
+                <tr><td><code>~</code></td><td>Swap the case of the character under the cursor and move right</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Operator + Motion Combinations</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>dw</code></td><td>Delete from cursor to the start of the next word</td></tr>
+                <tr><td><code>db</code></td><td>Delete from cursor to the start of the previous word</td></tr>
+                <tr><td><code>de</code></td><td>Delete from cursor to the end of the current word</td></tr>
+                <tr><td><code>d$</code></td><td>Delete from cursor to the end of the line</td></tr>
+                <tr><td><code>d0</code></td><td>Delete from cursor to the beginning of the line</td></tr>
+                <tr><td><code>d^</code></td><td>Delete from cursor to the first non-blank char of the line</td></tr>
+                <tr><td><code>dd</code></td><td>Delete the current line</td></tr>
+                <tr><td><code>D</code></td><td>Delete from cursor to the end of the line (shorthand for d$)</td></tr>
+                <tr><td><code>cw</code></td><td>Change from cursor to the start of the next word</td></tr>
+                <tr><td><code>cb</code></td><td>Change from cursor to the start of the previous word</td></tr>
+                <tr><td><code>ce</code></td><td>Change from cursor to the end of the current word</td></tr>
+                <tr><td><code>c$</code></td><td>Change from cursor to the end of the line</td></tr>
+                <tr><td><code>c0</code></td><td>Change from cursor to the beginning of the line</td></tr>
+                <tr><td><code>c^</code></td><td>Change from cursor to the first non-blank char of the line</td></tr>
+                <tr><td><code>cc</code></td><td>Change the current line</td></tr>
+                <tr><td><code>C</code></td><td>Change from cursor to the end of the line (shorthand for c$)</td></tr>
+                <tr><td><code>yw</code></td><td>Yank (copy) from cursor to the start of the next word</td></tr>
+                <tr><td><code>yb</code></td><td>Yank from cursor to the start of the previous word</td></tr>
+                <tr><td><code>ye</code></td><td>Yank from cursor to the end of the current word</td></tr>
+                <tr><td><code>y$</code></td><td>Yank from cursor to the end of the line</td></tr>
+                <tr><td><code>y0</code></td><td>Yank from cursor to the beginning of the line</td></tr>
+                <tr><td><code>y^</code></td><td>Yank from cursor to the first non-blank char of the line</td></tr>
+                <tr><td><code>yy</code></td><td>Yank (copy) the current line</td></tr>
+                <tr><td><code>Y</code></td><td>Yank (copy) the current line (shorthand for yy)</td></tr>
+                <tr><td><code>dgg</code></td><td>Delete from current line to the top of the file</td></tr>
+                <tr><td><code>dG</code></td><td>Delete from current line to the end of the file</td></tr>
+                <tr><td><code>cgg</code></td><td>Change from current line to the top of the file</td></tr>
+                <tr><td><code>cG</code></td><td>Change from current line to the end of the file</td></tr>
+                <tr><td><code>ygg</code></td><td>Yank from current line to the top of the file</td></tr>
+                <tr><td><code>yG</code></td><td>Yank from current line to the end of the file</td></tr>
+                <tr><td><code>d/foo</code></td><td>Delete from cursor to next occurrence of 'foo'</td></tr>
+                <tr><td><code>c/foo</code></td><td>Change from cursor to next occurrence of 'foo'</td></tr>
+                <tr><td><code>y/foo</code></td><td>Yank from cursor to next occurrence of 'foo'</td></tr>
+                <tr><td><code>dfx</code></td><td>Delete from cursor up to and including 'x' on the line</td></tr>
+                <tr><td><code>dtx</code></td><td>Delete from cursor up to 'x' on the line</td></tr>
+                <tr><td><code>cfx</code></td><td>Change from cursor up to and including 'x' on the line</td></tr>
+                <tr><td><code>ctx</code></td><td>Change from cursor up to 'x' on the line</td></tr>
+                <tr><td><code>yfx</code></td><td>Yank from cursor up to and including 'x' on the line</td></tr>
+                <tr><td><code>ytx</code></td><td>Yank from cursor up to 'x' on the line</td></tr>
+                <tr><td><code>&gt;&gt;</code></td><td>Indent the current line</td></tr>
+                <tr><td><code>&lt;&lt;</code></td><td>Un-indent the current line</td></tr>
+                <tr><td><code>&gt;G</code></td><td>Indent from current line to the end of the file</td></tr>
+                <tr><td><code>&lt;G</code></td><td>Un-indent from current line to the end of the file</td></tr>
+                <tr><td><code>=G</code></td><td>Auto-indent from current line to the end of the file</td></tr>
+                <tr><td><code>gUe</code></td><td>Make text uppercase to the end of the word</td></tr>
+                <tr><td><code>gU$</code></td><td>Make text uppercase to the end of the line</td></tr>
+                <tr><td><code>gUw</code></td><td>Make text uppercase for one word</td></tr>
+                <tr><td><code>gUU</code></td><td>Make the entire line uppercase</td></tr>
+                <tr><td><code>gue</code></td><td>Make text lowercase to the end of the word</td></tr>
+                <tr><td><code>gu$</code></td><td>Make text lowercase to the end of the line</td></tr>
+                <tr><td><code>guw</code></td><td>Make text lowercase for one word</td></tr>
+                <tr><td><code>guu</code></td><td>Make the entire line lowercase</td></tr>
+                <tr><td><code>g~e</code></td><td>Swap case to the end of the word</td></tr>
+                <tr><td><code>g~$</code></td><td>Swap case to the end of the line</td></tr>
+                <tr><td><code>g~w</code></td><td>Swap case for one word</td></tr>
+                <tr><td><code>g~~</code></td><td>Swap case for the entire line</td></tr>
+                <tr><td><code>!G</code></td><td>Filter all lines from cursor to end of file through an external command</td></tr>
+                <tr><td><code>!!{cmd}</code></td><td>Filter the current line through external command {cmd}</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Text Objects (used with d, c, y, v)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>iw</code></td><td>Inner Word (text object for word, excluding whitespace)</td></tr>
+                <tr><td><code>aw</code></td><td>A Word (text object for word, including whitespace)</td></tr>
+                <tr><td><code>iW</code></td><td>Inner WORD (text object for WORD, excluding whitespace)</td></tr>
+                <tr><td><code>aW</code></td><td>A WORD (text object for WORD, including whitespace)</td></tr>
+                <tr><td><code>is</code></td><td>Inner Sentence</td></tr>
+                <tr><td><code>as</code></td><td>A Sentence</td></tr>
+                <tr><td><code>ip</code></td><td>Inner Paragraph</td></tr>
+                <tr><td><code>ap</code></td><td>A Paragraph</td></tr>
+                <tr><td><code>i"</code></td><td>Inner Double Quotes (content inside "")</td></tr>
+                <tr><td><code>a"</code></td><td>A Double Quotes (content + the "")</td></tr>
+                <tr><td><code>i'</code></td><td>Inner Single Quotes (content inside '')</td></tr>
+                <tr><td><code>a'</code></td><td>A Single Quotes (content + the '')</td></tr>
+                <tr><td><code>i`</code></td><td>Inner Backticks (content inside ``)</td></tr>
+                <tr><td><code>a`</code></td><td>A Backticks (content + the ``)</td></tr>
+                <tr><td><code>i(</code></td><td>Inner Parentheses (content inside ())</td></tr>
+                <tr><td><code>a(</code></td><td>A Parentheses (content + the ())</td></tr>
+                <tr><td><code>ib</code></td><td>Inner Block (same as i(), short for 'inner block')</td></tr>
+                <tr><td><code>ab</code></td><td>A Block (same as a(), short for 'a block')</td></tr>
+                <tr><td><code>i[</code></td><td>Inner Brackets (content inside [])</td></tr>
+                <tr><td><code>a[</code></td><td>A Brackets (content + the [])</td></tr>
+                <tr><td><code>i{</code></td><td>Inner Braces (content inside {})</td></tr>
+                <tr><td><code>a{</code></td><td>A Braces (content + the {})</td></tr>
+                <tr><td><code>iB</code></td><td>Inner Block (same as i{, short for 'inner Braces')</td></tr>
+                <tr><td><code>aB</code></td><td>A Block (same as a{, short for 'a Braces')</td></tr>
+                <tr><td><code>i&lt;</code></td><td>Inner Angle Brackets (content inside &lt;&gt;)</td></tr>
+                <tr><td><code>a&lt;</code></td><td>A Angle Brackets (content + the &lt;&gt;)</td></tr>
+                <tr><td><code>it</code></td><td>Inner Tag (content inside an HTML/XML tag)</td></tr>
+                <tr><td><code>at</code></td><td>A Tag (content + the tag)</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Text Object Combinations (Examples)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>diw</code></td><td>Delete inner word (cursor can be anywhere in word)</td></tr>
+                <tr><td><code>daw</code></td><td>Delete a word (deletes word and one space)</td></tr>
+                <tr><td><code>ciw</code></td><td>Change inner word</td></tr>
+                <tr><td><code>caw</code></td><td>Change a word</td></tr>
+                <tr><td><code>yiw</code></td><td>Yank inner word</td></tr>
+                <tr><td><code>yaw</code></td><td>Yank a word</td></tr>
+                <tr><td><code>viw</code></td><td>Visually select inner word</td></tr>
+                <tr><td><code>vaw</code></td><td>Visually select a word</td></tr>
+                <tr><td><code>di"</code></td><td>Delete inside double quotes</td></tr>
+                <tr><td><code>da"</code></td><td>Delete a double-quoted string (including quotes)</td></tr>
+                <tr><td><code>ci"</code></td><td>Change inside double quotes</td></tr>
+                <tr><td><code>ca"</code></td><td>Change a double-quoted string</td></tr>
+                <tr><td><code>yi"</code></td><td>Yank inside double quotes</td></tr>
+                <tr><td><code>ya"</code></td><td>Yank a double-quoted string</td></tr>
+                <tr><td><code>di(</code></td><td>Delete inside parentheses</td></tr>
+                <tr><td><code>da(</code></td><td>Delete a parenthesized block (including parentheses)</td></tr>
+                <tr><td><code>ci(</code></td><td>Change inside parentheses</td></tr>
+                <tr><td><code>ca(</code></td><td>Change a parenthesized block</td></tr>
+                <tr><td><code>yi(</code></td><td>Yank inside parentheses</td></tr>
+                <tr><td><code>ya(</code></td><td>Yank a parenthesized block</td></tr>
+                <tr><td><code>dib</code></td><td>Delete inside block ()</td></tr>
+                <tr><td><code>dab</code></td><td>Delete a block ()</td></tr>
+                <tr><td><code>di[</code></td><td>Delete inside brackets</td></tr>
+                <tr><td><code>da[</code></td><td>Delete a bracketed block</td></tr>
+                <tr><td><code>ci[</code></td><td>Change inside brackets</td></tr>
+                <tr><td><code>di{</code></td><td>Delete inside braces</td></tr>
+                <tr><td><code>da{</code></td><td>Delete a brace block</td></tr>
+                <tr><td><code>ci{</code></td><td>Change inside braces</td></tr>
+                <tr><td><code>ca{</code></td><td>Change a brace block</td></tr>
+                <tr><td><code>diB</code></td><td>Delete inside Brace block {}</td></tr>
+                <tr><td><code>daB</code></td><td>Delete a Brace block {}</td></tr>
+                <tr><td><code>dit</code></td><td>Delete inner tag (HTML/XML)</td></tr>
+                <tr><td><code>dat</code></td><td>Delete a tag (HTML/XML)</td></tr>
+                <tr><td><code>cit</code></td><td>Change inner tag</td></tr>
+                <tr><td><code>cat</code></td><td>Change a tag</td></tr>
+                <tr><td><code>dip</code></td><td>Delete inner paragraph</td></tr>
+                <tr><td><code>dap</code></td><td>Delete a paragraph</td></tr>
+                <tr><td><code>cip</code></td><td>Change inner paragraph</td></tr>
+                <tr><td><code>cap</code></td><td>Change a paragraph</td></tr>
+                <tr><td><code>dis</code></td><td>Delete inner sentence</td></tr>
+                <tr><td><code>das</code></td><td>Delete a sentence</td></tr>
+                <tr><td><code>cis</code></td><td>Change inner sentence</td></tr>
+                <tr><td><code>cas</code></td><td>Change a sentence</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Visual Mode (Entering)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>v</code></td><td>Enter Visual mode (character-wise)</td></tr>
+                <tr><td><code>V</code></td><td>Enter Visual mode (line-wise)</td></tr>
+                <tr><td><code>CTRL-V</code></td><td>Enter Visual Block mode (column-wise)</td></tr>
+                <tr><td><code>gv</code></td><td>Reselect the last visual selection</td></tr>
+                <tr><td><code>viw</code></td><td>Visually select inner word</td></tr>
+                <tr><td><code>vas</code></td><td>Visually select a sentence</td></tr>
+                <tr><td><code>vap</code></td><td>Visually select a paragraph</td></tr>
+                <tr><td><code>vib</code></td><td>Visually select inner block ()</td></tr>
+                <tr><td><code>viB</code></td><td>Visually select inner Brace block {}</td></tr>
+                <tr><td><code>vit</code></td><td>Visually select inner tag block</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Visual Mode (Commands *in* Visual Mode)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>o</code></td><td>Go to Other end of the visual selection</td></tr>
+                <tr><td><code>O</code></td><td>Go to other end of visual selection (block mode)</td></tr>
+                <tr><td><code>d</code></td><td>Delete the selected text</td></tr>
+                <tr><td><code>c</code></td><td>Change the selected text</td></tr>
+                <tr><td><code>y</code></td><td>Yank (copy) the selected text</td></tr>
+                <tr><td><code>J</code></td><td>Join all selected lines (adds spaces)</td></tr>
+                <tr><td><code>gJ</code></td><td>Join all selected lines (no spaces)</td></tr>
+                <tr><td><code>&gt;</code></td><td>Indent the selected lines</td></tr>
+                <tr><td><code>&lt;</code></td><td>Un-indent the selected lines</td></tr>
+                <tr><td><code>u</code></td><td>Make selected text lowercase</td></tr>
+                <tr><td><code>U</code></td><td>Make selected text uppercase</td></tr>
+                <tr><td><code>~</code></td><td>Swap case of selected text</td></tr>
+                <tr><td><code>=</code></td><td>Auto-indent the selected lines</td></tr>
+                <tr><td><code>r{char}</code></td><td>Replace every selected character with {char}</td></tr>
+                <tr><td><code>:</code></td><td>Enter Ex command mode for the selected range (shows :'&lt;,'&gt;)</td></tr>
+                <tr><td><code>!{cmd}</code></td><td>Filter selected lines through external command {cmd}</td></tr>
+                <tr><td><code>I</code></td><td>(In Block Mode) Enter Insert mode at the beginning of *each* selected line</td></tr>
+                <tr><td><code>A</code></td><td>(In Block Mode) Enter Insert mode at the end of *each* selected line</td></tr>
+                <tr><td><code>s</code></td><td>(In Block Mode) Delete the block and enter Insert mode (same as c)</td></tr>
+                <tr><td><code>C</code></td><td>(In Block Mode) Delete the block from cursor to end of lines and enter Insert mode</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Search & Replace</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>/pattern</code></td><td>Search forward for 'pattern'</td></tr>
+                <tr><td><code>?pattern</code></td><td>Search backward for 'pattern'</td></tr>
+                <tr><td><code>n</code></td><td>Repeat last search in the same direction</td></tr>
+                <tr><td><code>N</code></td><td>Repeat last search in the opposite direction</td></tr>
+                <tr><td><code>*</code></td><td>Search forward for the whole word under the cursor</td></tr>
+                <tr><td><code>#</code></td><td>Search backward for the whole word under the cursor</td></tr>
+                <tr><td><code>g*</code></td><td>Search forward for the partial word under the cursor</td></tr>
+                <tr><td><code>g#</code></td><td>Search backward for the partial word under the cursor</td></tr>
+                <tr><td><code>:s/old/new/</code></td><td>Replace first 'old' with 'new' on the current line</td></tr>
+                <tr><td><code>:s/old/new/g</code></td><td>Replace all 'old' with 'new' on the current line</td></tr>
+                <tr><td><code>:s/old/new/i</code></td><td>Replace 'old' with 'new' on current line (case-insensitive)</td></tr>
+                <tr><td><code>:s/old/new/c</code></td><td>Replace 'old' with 'new' on current line (with confirmation)</td></tr>
+                <tr><td><code>:%s/old/new/g</code></td><td>Replace all 'old' with 'new' in the entire file</td></tr>
+                <tr><td><code>:%s/old/new/gc</code></td><td>Replace all 'old' with 'new' in the file, with confirmation</td></tr>
+                <tr><td><code>:'a,'bs/old/new/g</code></td><td>Replace all 'old' with 'new' between marks 'a' and 'b'</td></tr>
+                <tr><td><code>:.,+5s/old/new/g</code></td><td>Replace all 'old' with 'new' from current line to 5 lines down</td></tr>
+                <tr><td><code>:g/pattern/s/old/new/g</code></td><td>Run a substitution on all lines that match 'pattern'</td></tr>
+                <tr><td><code>:v/pattern/s/old/new/g</code></td><td>Run a substitution on all lines that *do not* match 'pattern'</td></tr>
+                <tr><td><code>:noh</code></td><td>Clear search highlighting (no highlight)</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Marks and Jumps</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>m{a-z}</code></td><td>Set mark {a-z} at cursor position (local to file)</td></tr>
+                <tr><td><code>m{A-Z}</code></td><td>Set mark {A-Z} at cursor position (global, across files)</td></tr>
+                <tr><td><code>'{a-z}</code></td><td>Jump to the *line* of mark {a-z} (first non-blank char)</td></tr>
+                <tr><td><code>`{a-z}`</code></td><td>Jump to the *exact position* (line and column) of mark {a-z}</td></tr>
+                <tr><td><code>'{A-Z}</code></td><td>Jump to the *line* of global mark {A-Z}</td></tr>
+                <tr><td><code>`{A-Z}`</code></td><td>Jump to the *exact position* of global mark {A-Z}</td></tr>
+                <tr><td><code>''</code></td><td>Jump to the *line* of the last jump</td></tr>
+                <tr><td><code>``</code></td><td>Jump to the *exact position* of the last jump</td></tr>
+                <tr><td><code>'.</code></td><td>Jump to the *line* of the last edit</td></tr>
+                <tr><td><code>`.</code></td><td>Jump to the *exact position* of the last edit</td></tr>
+                <tr><td><code>gi</code></td><td>Jump to the *exact position* of the last insert and enter insert mode</td></tr>
+                <tr><td><code>:marks</code></td><td>List all current marks</td></tr>
+                <tr><td><code>CTRL-O</code></td><td>Go to older position in the jump list (go 'back')</td></tr>
+                <tr><td><code>CTRL-I</code></td><td>Go to newer position in the jump list (go 'forward')</td></tr>
+                <tr><td><code>:jumps</code></td><td>List all positions in the jump list</td></tr>
+                <tr><td><code>CTRL-]</code></td><td>Jump to the definition of the tag under the cursor (uses tags file)</td></tr>
+                <tr><td><code>CTRL-T</code></td><td>Jump back from a tag definition</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Registers</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>"{register}y</code></td><td>Yank into a specific {register} (e.g., "ayy)</td></tr>
+                <tr><td><code>"{register}d</code></td><td>Delete into a specific {register} (e.g., "add)</td></tr>
+                <tr><td><code>"{register}p</code></td><td>Paste from a specific {register} (e.g., "ap)</td></tr>
+                <tr><td><code>"{register}P</code></td><td>Paste before from a specific {register} (e.g., "aP)</td></tr>
+                <tr><td><code>"Ayy</code></td><td>Append the current line to register 'a' (use uppercase letter)</td></tr>
+                <tr><td><code>"Add</code></td><td>Append-delete the current line to register 'a'</td></tr>
+                <tr><td><code>:reg</code></td><td>Display the contents of all registers</td></tr>
+                <tr><td><code>:reg {register}</code></td><td>Display the contents of a specific {register}</td></tr>
+                <tr><td><code>""</code></td><td>The unnamed register (default for y, d, p)</td></tr>
+                <tr><td><code>"0</code></td><td>The yank register (holds the last yank, not overwritten by delete)</td></tr>
+                <tr><td><code>"1-9</code></td><td>The numbered registers (hold last 9 deletes, 1 is newest)</td></tr>
+                <tr><td><code>"a-z</code></td><td>The named registers (user-controlled)</td></tr>
+                <tr><td><code>"A-Z</code></td><td>The named registers (appends to the lowercase version)</td></tr>
+                <tr><td><code>"*</code></td><td>The system clipboard register (selection clipboard, X11)</td></tr>
+                <tr><td><code>"+</code></td><td>The system clipboard register (primary clipboard)</td></tr>
+                <tr><td><code>".</code></td><td>The last inserted text register</td></tr>
+                <tr><td><code>"%</code></td><td>The current file name register</td></tr>
+                <tr><td><code>":</code></td><td>The last Ex command register</td></tr>
+                <tr><td><code>"/</code></td><td>The last search pattern register</td></tr>
+                <tr><td><code>"_</code></td><td>The black hole register (deletes to here are gone forever, e.g. "_dd)</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Macros</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>q{a-z}</code></td><td>Start recording a macro into register {a-z}</td></tr>
+                <tr><td><code>q</code></td><td>Stop recording a macro (while recording)</td></tr>
+                <tr><td><code>@{a-z}</code></td><td>Execute the macro from register {a-z}</td></tr>
+                <tr><td><code>@@</code></td><td>Repeat the last executed macro</td></tr>
+                <tr><td><code>10@{a-z}</code></td><td>Execute macro 'a' 10 times</td></tr>
+                <tr><td><code>10@@</code></td><td>Execute the last macro 10 times</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Ex Commands (File)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>:w</code></td><td>Write (save) the current file</td></tr>
+                <tr><td><code>:w!</code></td><td>Write (save) the current file, force overwrite</td></tr>
+                <tr><td><code>:w {filename}</code></td><td>Write to {filename} (Save As)</td></tr>
+                <tr><td><code>:.w {filename}</code></td><td>Write current line to {filename}</td></tr>
+                <tr><td><code>:'a,'bw {filename}</code></td><td>Write lines from mark 'a' to 'b' to {filename}</td></tr>
+                <tr><td><code>:q</code></td><td>Quit the current buffer (fails if unsaved)</td></tr>
+                <tr><td><code>:q!</code></td><td>Quit the current buffer (discard changes)</td></tr>
+                <tr><td><code>:wq</code></td><td>Write (save) and quit</td></tr>
+                <tr><td><code>:x</code></td><td>Write (if changed) and quit (same as :wq)</td></tr>
+                <tr><td><code>ZZ</code></td><td>(Normal Mode) Write (if changed) and quit</td></tr>
+                <tr><td><code>ZQ</code></td><td>(Normal Mode) Quit and discard changes</td></tr>
+                <tr><td><code>:qa</code></td><td>Quit all buffers (fails if any are unsaved)</td></tr>
+                <tr><td><code>:qa!</code></td><td>Quit all buffers (discard all changes)</td></tr>
+                <tr><td><code>:wqa</code></td><td>Write (save) and quit all buffers</td></tr>
+                <tr><td><code>:xa</code></td><td>Write (if changed) and quit all buffers</td></tr>
+                <tr><td><code>:e {filename}</code></td><td>Edit {filename} in the current buffer</td></tr>
+                <tr><td><code>:e!</code></td><td>Reload the current file from disk (discard changes)</td></tr>
+                <tr><td><code>:enew</code></td><td>Edit a new, unnamed buffer</td></tr>
+                <tr><td><code>:f</code></td><td>Show current file name and status</td></tr>
+                <tr><td><code>:f {filename}</code></td><td>Rename current file to {filename}</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Ex Commands (Buffers)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>:ls</code></td><td>List all open buffers</td></tr>
+                <tr><td><code>:b {N}</code></td><td>Go to buffer {N} (from :ls)</td></tr>
+                <tr><td><code>:b {name}</code></td><td>Go to buffer {name} (can use partial name)</td></tr>
+                <tr><td><code>:bnext</code></td><td>Go to the next buffer in the list</td></tr>
+                <tr><td><code>:bprev</code></td><td>Go to the previous buffer in the list</td></tr>
+                <tr><td><code>:bfirst</code></td><td>Go to the first buffer in the list</td></tr>
+                <tr><td><code>:blast</code></td><td>Go to the last buffer in the list</td></tr>
+                <tr><td><code>:bd</code></td><td>Delete (close) the current buffer</td></tr>
+                <tr><td><code>:%bd</code></td><td>Delete (close) all buffers</td></tr>
+                <tr><td><code>:sp</code></td><td>Split the window horizontally (new window shows current buffer)</td></tr>
+                <tr><td><code>:sp {filename}</code></td><td>Split the window horizontally and open {filename}</td></tr>
+                <tr><td><code>:vsp</code></td><td>Split the window vertically</td></tr>
+                <tr><td><code>:vsp {filename}</code></td><td>Split the window vertically and open {filename}</td></tr>
+                <tr><td><code>:new</code></td><td>Split horizontally and create a new empty buffer</td></tr>
+                <tr><td><code>:vnew</code></td><td>Split vertically and create a new empty buffer</td></tr>
+                <tr><td><code>:close</code></td><td>Close the current window (or :q)</td></tr>
+                <tr><td><code>:only</code></td><td>Close all *other* windows</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Ex Commands (Tabs)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>:tabnew</code></td><td>Open a new tab with an empty buffer</td></tr>
+                <tr><td><code>:tabnew {filename}</code></td><td>Open a new tab and edit {filename}</td></tr>
+                <tr><td><code>:tabe {filename}</code></td><td>Open {filename} in a new tab (tab edit)</td></tr>
+                <tr><td><code>:tabc</code></td><td>Close the current tab (or :tabclose)</td></tr>
+                <tr><td><code>:tabo</code></td><td>Close all *other* tabs (or :tabonly)</td></tr>
+                <tr><td><code>:tabn</code></td><td>Go to the next tab (or :tabnext)</td></tr>
+                <tr><td><code>:tabp</code></td><td>Go to the previous tab (or :tabprev)</td></tr>
+                <tr><td><code>:tabm {N}</code></td><td>Move current tab to position {N} (0-indexed)</td></tr>
+                <tr><td><code>:tabs</code></td><td>List all tabs</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Tab Commands (Normal Mode)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>gt</code></td><td>Go to the next tab</td></tr>
+                <tr><td><code>gT</code></td><td>Go to the previous tab</td></tr>
+                <tr><td><code>{N}gt</code></td><td>Go to tab number {N} (1-indexed)</td></tr>
+                <tr><td><code>:tabr</code></td><td>Go to the first tab</td></tr>
+                <tr><td><code>:tabl</code></td><td>Go to the last tab</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Ex Commands (Windows)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>:wincmd h</code></td><td>Move cursor to the window on the left</td></tr>
+                <tr><td><code>:wincmd j</code></td><td>Move cursor to the window below</td></tr>
+                <tr><td><code>:wincmd k</code></td><td>Move cursor to the window above</td></tr>
+                <tr><td><code>:wincmd l</code></td><td>Move cursor to the window on the right</td></tr>
+                <tr><td><code>:wincmd w</code></td><td>Cycle to the next window</td></tr>
+                <tr><td><code>:wincmd p</code></td><td>Go to the previously active window</td></tr>
+                <tr><td><code>:wincmd =</code></td><td>Make all windows equal size</td></tr>
+                <tr><td><code>:wincmd _</code></td><td>Maximize current window's height</td></tr>
+                <tr><td><code>:wincmd |</code></td><td>Maximize current window's width</td></tr>
+                <tr><td><code>:wincmd H</code></td><td>Move the current window to the far left</td></tr>
+                <tr><td><code>:wincmd J</code></td><td>Move the current window to the very bottom</td></tr>
+                <tr><td><code>:wincmd K</code></td><td>Move the current window to the very top</td></tr>
+                <tr><td><code>:wincmd L</code></td><td>Move the current window to the far right</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Window Commands (Normal Mode)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>CTRL-W s</code></td><td>Split window horizontally (same as :sp)</td></tr>
+                <tr><td><code>CTRL-W v</code></td><td>Split window vertically (same as :vsp)</td></tr>
+                <tr><td><code>CTRL-W n</code></td><td>Create a new empty window (same as :new)</td></tr>
+                <tr><td><code>CTRL-W q</code></td><td>Quit current window (same as :q)</td></tr>
+                <tr><td><code>CTRL-W c</code></td><td>Close current window (same as :close)</td></tr>
+                <tr><td><code>CTRL-W o</code></td><td>Close all *other* windows (same as :only)</td></tr>
+                <tr><td><code>CTRL-W h</code></td><td>Move cursor to the window on the left</td></tr>
+                <tr><td><code>CTRL-W j</code></td><td>Move cursor to the window below</td></tr>
+                <tr><td><code>CTRL-W k</code></td><td>Move cursor to the window above</td></tr>
+                <tr><td><code>CTRL-W l</code></td><td>Move cursor to the window on the right</td></tr>
+                <tr><td><code>CTRL-W w</code></td><td>Cycle to the next window</td></tr>
+                <tr><td><code>CTRL-W W</code></td><td>Cycle to the previous window</td></tr>
+                <tr><td><code>CTRL-W p</code></td><td>Go to the previously active window</td></tr>
+                <tr><td><code>CTRL-W H</code></td><td>Move the current window to the far left</td></tr>
+                <tr><td><code>CTRL-W J</code></td><td>Move the current window to the very bottom</td></tr>
+                <tr><td><code>CTRL-W K</code></td><td>Move the current window to the very top</td></tr>
+                <tr><td><code>CTRL-W L</code></td><td>Move the current window to the far right</td></tr>
+                <tr><td><code>CTRL-W T</code></td><td>Move the current window to its own new tab</td></tr>
+                <tr><td><code>CTRL-W =</code></td><td>Make all windows equal size</td></tr>
+                <tr><td><code>CTRL-W _</code></td><td>Maximize current window's height</td></tr>
+                <tr><td><code>CTRL-W |</code></td><td>Maximize current window's width</td></tr>
+                <tr><td><code>CTRL-W +</code></td><td>Increase current window height by one line</td></tr>
+                <tr><td><code>CTRL-W -</code></td><td>Decrease current window height by one line</td></tr>
+                <tr><td><code>CTRL-W &gt;</code></td><td>Increase current window width by one column</td></tr>
+                <tr><td><code>CTRL-W &lt;</code></td><td>Decrease current window width by one column</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Ex Commands (Shell & Misc)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>:r {filename}</code></td><td>Read (insert) the contents of {filename} below the cursor</td></tr>
+                <tr><td><code>:r !{cmd}</code></td><td>Read (insert) the output of {cmd} below the cursor</td></tr>
+                <tr><td><code>:!{cmd}</code></td><td>Execute external shell command {cmd}</td></tr>
+                <tr><td><code>:!!</code></td><td>Repeat the last :! command</td></tr>
+                <tr><td><code>:sh</code></td><td>Start a new shell session (type 'exit' to return)</td></tr>
+                <tr><td><code>:help {topic}</code></td><td>Open the help documentation for {topic}</td></tr>
+                <tr><td><code>:helpgrep {pattern}</code></td><td>Search all help files for {pattern}</td></tr>
+                <tr><td><code>:m {N}</code></td><td>Move the current line to *after* line {N}</td></tr>
+                <tr><td><code>:m +{N}</code></td><td>Move the current line {N} lines down</td></tr>
+                <tr><td><code>:m -{N}</code></td><td>Move the current line {N-1} lines up</td></tr>
+                <tr><td><code>:co {N}</code></td><td>Copy the current line to *after* line {N} (or :t)</td></tr>
+                <tr><td><code>:t {N}</code></td><td>Copy the current line to *after* line {N} (or :co)</td></tr>
+                <tr><td><code>:d</code></td><td>Delete the current line</td></tr>
+                <tr><td><code>:'a,'bd</code></td><td>Delete lines from mark 'a' to 'b'</td></tr>
+                <tr><td><code>:g/pattern/d</code></td><td>Global command: delete all lines matching 'pattern'</td></tr>
+                <tr><td><code>:v/pattern/d</code></td><td>Global command: delete all lines *not* matching 'pattern'</td></tr>
+                <tr><td><code>:g/pattern/m {N}</code></td><td>Global command: move all matching lines to after line {N}</td></tr>
+                <tr><td><code>:g/pattern/t {N}</code></td><td>Global command: copy all matching lines to after line {N}</td></tr>
+                <tr><td><code>:g/pattern/y a</code></td><td>Global command: yank all matching lines into register 'a'</td></tr>
+                <tr><td><code>:g/pattern/y A</code></td><td>Global command: append all matching lines into register 'a'</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Ex Commands (Set Options)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>:set nu</code></td><td>Show line numbers</td></tr>
+                <tr><td><code>:set nonu</code></td><td>Hide line numbers</td></tr>
+                <tr><td><code>:set rnu</code></td><td>Show relative line numbers</td></tr>
+                <tr><td><code>:set nornu</code></td><td>Hide relative line numbers</td></tr>
+                <tr><td><code>:set list</code></td><td>Show invisible characters (tabs, eol)</td></tr>
+                <tr><td><code>:set nolist</code></td><td>Hide invisible characters</td></tr>
+                <tr><td><code>:set ic</code></td><td>Set 'ignorecase' for searches</td></tr>
+                <tr><td><code>:set noic</code></td><td>Unset 'ignorecase' (searches are case-sensitive)</td></tr>
+                <tr><td><code>:set scs</code></td><td>Set 'smartcase' (ignore case unless pattern has uppercase)</td></tr>
+                <tr><td><code>:set hls</code></td><td>Set 'hlsearch' (highlight search results)</td></tr>
+                <tr><td><code>:set nohls</code></td><td>Unset 'hlsearch' (temporarily, same as :noh)</td></tr>
+                <tr><td><code>:set incsearch</code></td><td>Show search matches as you type</td></tr>
+                <tr><td><code>:set paste</code></td><td>Enter paste mode (prevents auto-indent)</td></tr>
+                <tr><td><code>:set nopaste</code></td><td>Exit paste mode</td></tr>
+                <tr><td><code>:set ts=4</code></td><td>Set 'tabstop' to 4 spaces</td></tr>
+                <tr><td><code>:set sw=4</code></td><td>Set 'shiftwidth' to 4 spaces</td></tr>
+                <tr><td><code>:set et</code></td><td>Set 'expandtab' (use spaces instead of tabs)</td></tr>
+                <tr><td><code>:set noet</code></td><td>Unset 'expandtab' (use tab characters)</td></tr>
+                <tr><td><code>:set autoindent</code></td><td>Enable auto-indenting</td></tr>
+                <tr><td><code>:set smartindent</code></td><td>Enable smarter auto-indenting for C-like languages</td></tr>
+                <tr><td><code>:set cindent</code></td><td>Enable C-program auto-indenting</td></tr>
+                <tr><td><code>:set wrap</code></td><td>Enable line wrapping</td></tr>
+                <tr><td><code>:set nowrap</code></td><td>Disable line wrapping</td></tr>
+                <tr><td><code>:set spell</code></td><td>Enable spell checking</td></tr>
+                <tr><td><code>:set nospell</code></td><td>Disable spell checking</td></tr>
+                <tr><td><code>:set syn=java</code></td><td>Set syntax highlighting to 'java'</td></tr>
+                <tr><td><code>:syntax on</code></td><td>Turn on syntax highlighting</td></tr>
+                <tr><td><code>:syntax off</code></td><td>Turn off syntax highlighting</td></tr>
+                <tr><td><code>:set filetype=xml</code></td><td>Set the filetype to 'xml'</td></tr>
+                <tr><td><code>:set all</code></td><td>Show all set options</td></tr>
+                <tr><td><code>:set</code></td><td>Show all options that *differ* from their default</td></tr>
+                <tr><td><code>:set {option}?</code></td><td>Show the current value of {option}</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Spell Checking (Normal Mode)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>]s</code></td><td>Go to the next misspelled word</td></tr>
+                <tr><td><code>[s</code></td><td>Go to the previous misspelled word</td></tr>
+                <tr><td><code>z=</code></td><td>Suggest corrections for the word under the cursor</td></tr>
+                <tr><td><code>zg</code></td><td>Add the word under the cursor to the dictionary (good)</td></tr>
+                <tr><td><code>zw</code></td><td>Mark the word under the cursor as misspelled (wrong)</td></tr>
+                <tr><td><code>zug</code></td><td>Undo adding word to dictionary</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Misc (Normal Mode)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>ga</code></td><td>Show the ASCII, hex, and octal value of the char under the cursor</td></tr>
+                <tr><td><code>gf</code></td><td>Go to file: open the file path under the cursor</td></tr>
+                <tr><td><code>gF</code></td><td>Go to file: open file path, plus jump to line number (e.g., file:5)</td></tr>
+                <tr><td><code>CTRL-G</code></td><td>Show current file name, status, and position</td></tr>
+                <tr><td><code>g Ctrl-G</code></td><td>Show file status, path, and cursor position (col, line, etc)</td></tr>
+                <tr><td><code>CTRL-A</code></td><td>Increment the next number on the line</td></tr>
+                <tr><td><code>CTRL-X</code></td><td>Decrement the next number on the line</td></tr>
+                <tr><td><code>g&</code></td><td>Repeat the last :s substitution on all lines</td></tr>
+                <tr><td><code>&</code></td><td>Repeat the last :s substitution on the current line</td></tr>
+                <tr><td><code>K</code></td><td>Look up the keyword under the cursor (via 'keywordprg', usually 'man')</td></tr>
+                <tr><td><code>q:</code></td><td>Open the command-line history window</td></tr>
+                <tr><td><code>q/</code></td><td>Open the search history window</td></tr>
+                <tr><td><code>q?</code></td><td>Open the search history window (backward searches)</td></tr>
+                <tr><td><code>z.</code></td><td>Redraw screen with cursor line at center (same as zz)</td></tr>
+                <tr><td><code>z&lt;Enter&gt;</code></td><td>Redraw screen with cursor line at top (same as zt)</td></tr>
+                <tr><td><code>z-</code></td><td>Redraw screen with cursor line at bottom (same as zb)</td></tr>
+                <tr><td><code>:TOhtml</code></td><td>Convert the current buffer to an HTML file with syntax highlighting</td></tr>
+                <tr><td><code>:difft {file}</code></td><td>Show a diff of the current buffer with {file} (diffthis)</td></tr>
+                <tr><td><code>:diffsplit {file}</code></td><td>Open a new split in diff mode with {file}</td></tr>
+                <tr><td><code>dp</code></td><td>(In diff mode) Diff put: apply change from other buffer to this one</td></tr>
+                <tr><td><code>do</code></td><td>(In diff mode) Diff obtain: get change from other buffer</td></tr>
+                <tr><td><code>]c</code></td><td>(In diff mode) Jump to the next change</td></tr>
+                <tr><td><code>[c</code></td><td>(In diff mode) Jump to the previous change</td></tr>
+                <tr><td><code>:make</code></td><td>Run the 'make' command and parse errors</td></tr>
+                <tr><td><code>:cnext</code></td><td>Go to the next error in the quickfix list</td></tr>
+                <tr><td><code>:cprev</code></td><td>Go to the previous error in the quickfix list</td></tr>
+                <tr><td><code>:copen</code></td><td>Open the quickfix list window</td></tr>
+                <tr><td><code>:cclose</code></td><td>Close the quickfix list window</td></tr>
+                <tr><td><code>:lopen</code></td><td>Open the location list window (file-specific errors)</td></tr>
+                <tr><td><code>:lclose</code></td><td>Close the location list window</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Folding (Normal Mode)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Sequence</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>za</code></td><td>Toggle the fold under the cursor (open/close)</td></tr>
+                <tr><td><code>zA</code></td><td>Toggle the fold under the cursor recursively</td></tr>
+                <tr><td><code>zc</code></td><td>Close one fold under the cursor</td></tr>
+                <tr><td><code>zC</code></td><td>Close all folds under the cursor recursively</td></tr>
+                <tr><td><code>zo</code></td><td>Open one fold under the cursor</td></tr>
+                <tr><td><code>zO</code></td><td>Open all folds under the cursor recursively</td></tr>
+                <tr><td><code>zM</code></td><td>Close all folds in the file (More)</td></tr>
+                <tr><td><code>zR</code></td><td>Open all folds in the file (Reduce)</td></tr>
+                <tr><td><code>zd</code></td><td>Delete the fold under the cursor</td></tr>
+                <tr><td><code>zD</code></td><td>Delete all folds under the cursor recursively</td></tr>
+                <tr><td><code>zE</code></td><td>Eliminate all folds in the file</td></tr>
+            </tbody>
+        </table>
+
+    </div></body>
+</html>
