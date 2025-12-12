@@ -1,22 +1,13 @@
 #!/usr/bin/bash
 
-# --- Configuration ---
-# 1. Default directory where untracked files will be moved.
-#    It's recommended to make this path absolute.
-DEFAULT_DEST_DIR="./untracked_archive_$(date +%Y%m%d_%H%M%S)"
 DEFAULT_DEST_DIR="./UNTRACKED"
-mkdir -p "$DEFAULT_DEST_DIR"
 
 SANITIZED_PWD="$(pwd)"
 SANITIZED_PWD="${SANITIZED_PWD//[[:space:]]//}" # Remove all spaces
-#SANITIZED_PWD="${SANITIZED_PWD//\//}"           # Remove all forward slashes
 SANITIZED_PWD=`echo $SANITIZED_PWD | sed 's/\//__/g'`
 SANITIZED_PWD=`echo $SANITIZED_PWD | sed 's/[.]//g'`
 
-#DEFAULT_TAR= "$SANITIZED_PWD.tar"
 DEFAULT_TAR="$DEFAULT_DEST_DIR/$SANITIZED_PWD$(date +%Y%m%d_%H%M%S).tar"
-echo $DEFAULT_TAR | tee $DEFAULT_TAR
-exit 0
 
 # Check if a destination directory was provided as an argument
 if [ -n "$1" ]; then
@@ -25,34 +16,27 @@ else
     DEST_DIR="$DEFAULT_DEST_DIR"
 fi
 
-# --- Pre-flight Checks ---
-
-# Check if we are inside a Git repository
 if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
     echo "🚨 Error: This directory is not a Git repository."
     exit 1
 fi
 
-# --- Core Logic ---
-
-echo "--- Git Untracked File Mover ---"
-echo "Target archive directory: $DEST_DIR"
-
-# 1. Create the destination directory if it doesn't exist
 if [ ! -d "$DEST_DIR" ]; then
     echo "Creating destination directory: $DEST_DIR"
     mkdir -p "$DEST_DIR"
 fi
 
-# 2. Get the list of untracked files
 # 'git ls-files --others --exclude-standard' lists files that are:
 #   --others: Not in the index (untracked).
 #   --exclude-standard: Not ignored by .gitignore.
 #   -z: Outputs a null-terminated list, which handles filenames with spaces/special characters.
 # The list is stored in a temporary file to handle the null-termination safely.
 UNTRACKED_FILES_TEMP=$(mktemp)
-git ls-files --others --exclude-standard -z > "$UNTRACKED_FILES_TEMP"
-git ls-files --others --exclude-standard    | egrep -v ^[.] > "$UNTRACKED_FILES_TEMP"
+rm -rf fed fedd zed zedd qed qedd
+#git ls-files --others --exclude-standard -z > "$UNTRACKED_FILES_TEMP"
+git ls-files --others --exclude-standard    | \
+    egrep -v tar$                           | \
+    egrep -v ^[.]                           > "$UNTRACKED_FILES_TEMP"
 
 
 # Check if there are any untracked files
@@ -62,51 +46,17 @@ if [ ! -s "$UNTRACKED_FILES_TEMP" ]; then
     exit 0
 fi
 
-echo "Moving the following untracked files:"
-echo "-------------------------------------"
-
 # Use a while loop to read the file line by line
+GOGO=$(mktemp)
+chmod +x $GOGO
 while IFS= read -r LINE; do
     CWD_TO_ROOT=$(git rev-parse --show-cdup 2>/dev/null)
     # Construct the full path from where the script is run
     FULL_PATH="$CWD_TO_ROOT$LINE"
     # Print the file being moved
-    echo "mv     \"$FULL_PATH\"         \"$DEST_DIR\""
+    printf "mv %-50s %-40s\n" "$FULL_PATH" "$DEST_DIR" >> "$GOGO"
 done < "$UNTRACKED_FILES_TEMP"
-exit 0
-
-# 3. Read the null-terminated list and move each file
-# 'xargs -0' is essential for processing the null-terminated list correctly.
-# 'sh -c' executes a shell command for each file.
-# The '-I {}' option substitutes the filename for '{}'.
-< "$UNTRACKED_FILES_TEMP" xargs -0 -I {} sh -c '
-    FILE_PATH="$1"
-    DEST_DIR="$2"
-
-    # Use 'git rev-parse --show-cdup' to get the path from the current directory to the root
-    # of the Git working tree. We need this to make the file path absolute relative to the
-    # current directory before moving, ensuring correct move operation.
-    CWD_TO_ROOT=$(git rev-parse --show-cdup 2>/dev/null)
-    
-    # Construct the full path from where the script is run
-    FULL_PATH="$CWD_TO_ROOT$FILE_PATH"
-
-    # Print the file being moved
-    echo "  -> $FILE_PATH"
-
-    # Move the file, creating necessary subdirectories in the archive to maintain structure
-    # 'dirname "$FILE_PATH"' extracts the path without the filename (e.g., 'src/old/file.txt' -> 'src/old')
-    ARCHIVE_PATH="$DEST_DIR/$(dirname "$FILE_PATH")"
-    
-    # Create the directory structure in the archive
-    mkdir -p "$ARCHIVE_PATH" 2>/dev/null
-
-    # Perform the move operation
-    mv -f "$FULL_PATH" "$ARCHIVE_PATH"
-' sh {} "$DEST_DIR"
-
-echo "-------------------------------------"
-echo "🎉 Operation complete. Untracked files have been moved to $DEST_DIR"
-
-# 4. Clean up the temporary file
+cat $GOGO
+$GOGO
 rm "$UNTRACKED_FILES_TEMP"
+rm "$GOGO"
