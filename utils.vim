@@ -368,6 +368,19 @@ function! QuickfixResize()
   let half_height = total_height / 2
   exe "resize " . half_height
 endfunction
+
+function! MenuCBDoNothing(id, result)
+    let l:NOTHING=0
+endfunction
+function! MenuCBBuffer(id, result)
+    if ( a:result > -1 ) 
+        execute "e " . g:buffernames[a:result-1]
+        call MoveToFront(g:buffernames, a:result-1)
+        call MoveToFront(g:bufferdisplaynames, a:result-1)
+    endif
+endfunction
+
+
 " *****************************************************************************************************
                 " Utility Popup
                 " *************************************************************************************
@@ -903,4 +916,16 @@ function! TopInclude(...)
 endfunction
 function! HereInclude(...)
     execute "-1r " . a:1 
+endfunction
+function! GetUserInput(prompt)
+    " Displays a popup window and prompts the user to enter a string.
+    " Compatible with Vim 8.2 (using inputdialog).
+    " Args:    prompt (string): The prompt message to display in the popup.
+    " Returns: string: The user's input, or an empty string if cancelled.
+    let input = inputdialog(a:prompt, '')
+    if input == ''
+      return "" " User cancelled
+    else
+      return input
+    endif
 endfunction

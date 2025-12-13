@@ -1,6 +1,7 @@
 cp ~/.vimrc .
 cp ~/.macros.vim .
 cp ~/utils.vim .
+cp ~/gemini.vim
 
 git add -u 
 

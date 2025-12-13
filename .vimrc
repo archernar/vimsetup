@@ -461,37 +461,6 @@ endfunction
 let g:multi_toggle_state = -1
 let &statusline = "Void Mode"
 
-" Map a key to call the function.  For example, map <Leader>u to it.
-" You can choose any key combination you prefer.  <Leader> is often \.
-" See :help leader for more about setting the leader key.
-" Example:
-"
-" hello
-"
-"
-" Option 1: Add the current file
-nnoremap <leader>gaf :!git add %<CR>
-
-" Option 2: Add the current file and stage changes
-nnoremap <leader>gac :!git add % && git commit -m "Staged changes" <CR>
-
-" Option 3: Add all changes in the current directory
-nnoremap <leader>gaa :!git add .<CR>
-
-" Option 4: Add all changes in the current directory and stage changes
-nnoremap <leader>gss :!git add . && git commit -m "Staged all changes" <CR>
-
-" Option 5: Add the current file and show git status
-nnoremap <leader>gas :!git add %<CR>:!git status<CR>
-
-" Option 6: Add all changes in the current directory and show git status
-nnoremap <leader>gaas :!git add .<CR>:!git status<CR>
-
-" Option 7: Add the current file and run a custom git command
-"nnoremap <leader>gac :!git add % && git commit -m <C-r>=@%<CR><CR>
-
-" Option 8: Add all changes in the current directory and run a custom git command
-nnoremap <leader>gacc :!git add . && git commit -m <C-r>=getcwd()<CR><CR>
 
 
 function! g:OpenReadOnlyFileExit()
@@ -526,64 +495,7 @@ endfunction
 
 
 
-
-
-
-
-"
-" ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-" Gemini AI Interface
-" ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-"
-function! InsertSystemOutput(command, query)
-  " Run the system command and store the output in a variable.
-  let output = system(a:command)
-
-  " Get the current cursor position.
-  let current_line = line('.')
-  let current_col = col('.')
-
-  " Insert the output into the buffer at the current cursor position.
-  call append(current_line - 1, split(output, '\n'))
-
-  let l:current_date = strftime("%Y-%m-%d")
-  call writefile( ['', l:current_date] , "/tmp/gem.txt", "a") 
-  call writefile( ['--------------------------------------'] , "/tmp/gem.txt", "a") 
-  call writefile( ['New Gemini Query  --------------------'] , "/tmp/gem.txt", "a") 
-  call writefile( ['--------------------------------------'] , "/tmp/gem.txt", "a") 
-  call writefile( [ a:query, '' ]                            , "/tmp/gem.txt", "a") 
-  let l:xx = split(output, '\n')
-  call writefile( l:xx,                      "/tmp/gem.txt", "a")
-
-  " Move the cursor to the end of the inserted text.
-  let output_lines = len(split(output, '\n'))
-  call cursor(current_line + output_lines, current_col)
-endfunction
-
-function! GetUserInput(prompt)
-    " Displays a popup window and prompts the user to enter a string.
-    " Compatible with Vim 8.2 (using inputdialog).
-    " Args:    prompt (string): The prompt message to display in the popup.
-    " Returns: string: The user's input, or an empty string if cancelled.
-    let input = inputdialog(a:prompt, '')
-    if input == ''
-      return "" " User cancelled
-    else
-      return input
-    endif
-endfunction
-
-function! Gemini()
-    let l:dq="\""
-    let l:szIn = GetUserInput("Gemini prompt: ")
-    if l:szIn != ""
-      let l:sz = $HOME . "/scm/private/qg " . l:dq . l:szIn . l:dq . " | fold -sw 80"
-      call InsertSystemOutput(l:sz, l:szIn)
-    else
-      echo "Input cancelled."
-    endif
-  return 0
-endfunction
+source ~/gemini.vim
 
 " https://vi.stackexchange.com/questions/24462/what-are-the-new-popup-windows-in-vim-8-2
 "
@@ -653,16 +565,6 @@ endfunction
 "augroup END
 
 
-func! MenuCBDoNothing(id, result)
-    let l:NOTHING=0
-endfunction
-func! MenuCBBuffer(id, result)
-    if ( a:result > -1 ) 
-        execute "e " . g:buffernames[a:result-1]
-        call MoveToFront(g:buffernames, a:result-1)
-        call MoveToFront(g:bufferdisplaynames, a:result-1)
-    endif
-endfunction
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -828,3 +730,27 @@ let s:pageno = 1
 "* / #","In normal mode, searches forward (*) or backward (#) for the word under the cursor."
 "%","In normal mode, jumps to the matching parenthesis, bracket, or brace."
 ":noh","Clears the search highlighting from the last search."
+" Map a key to call the function.  For example, map <Leader>u to it.
+" You can choose any key combination you prefer.  <Leader> is often \.
+" See :help leader for more about setting the leader key.
+" Example:
+"
+" hello
+"
+"
+" Option 1: Add the current file
+" nnoremap <leader>gaf :!git add %<CR>
+" Option 2: Add the current file and stage changes
+" nnoremap <leader>gac :!git add % && git commit -m "Staged changes" <CR>
+" Option 3: Add all changes in the current directory
+" nnoremap <leader>gaa :!git add .<CR>
+" Option 4: Add all changes in the current directory and stage changes
+" nnoremap <leader>gss :!git add . && git commit -m "Staged all changes" <CR>
+" Option 5: Add the current file and show git status
+" nnoremap <leader>gas :!git add %<CR>:!git status<CR>
+" Option 6: Add all changes in the current directory and show git status
+" nnoremap <leader>gaas :!git add .<CR>:!git status<CR>
+" Option 7: Add the current file and run a custom git command
+" nnoremap <leader>gac :!git add % && git commit -m <C-r>=@%<CR><CR>
+" Option 8: Add all changes in the current directory and run a custom git command
+" nnoremap <leader>gacc :!git add . && git commit -m <C-r>=getcwd()<CR><CR>
