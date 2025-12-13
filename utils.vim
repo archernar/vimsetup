@@ -380,6 +380,56 @@ function! MenuCBBuffer(id, result)
     endif
 endfunction
 
+" https://vi.stackexchange.com/questions/24462/what-are-the-new-popup-windows-in-vim-8-2
+"
+" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+" Vim Buffer Popup
+" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+let g:buffernames=[]
+let g:bufferdisplaynames=[]
+
+
+function! g:VimBufferPopUp()
+    " let l:buffer_list = getbufinfo()
+    " let listed_buffers = getbufinfo({'buflisted': 1})
+    " let l:buffer_names = map(getbufinfo({'buflisted': 1}), 'v:val.name')
+    let l:last_bufno  = bufnr("$")
+    let l:i = 1
+    let l:filenames = ""
+    let l:filename  = ""
+    let l:a1  = [] 
+    let l:a2  = [] 
+    let l:arr  = [] 
+    " Notes
+    " let buffer_list = getbufinfo()
+    " buffer_list is a list of dictionaries.
+    " Example element:
+    " {'bufnr': 1, 'changed': 0, 'filetype': 'vim', 'hidden': 0, 'lnum': 1, 'name': '/path/to/file.vim', 'listed': 1, 'windows': [5001]}
+    " Get info for buffers that are 'listed' (like :ls output)
+    " let listed_buffers = filter(getbufinfo(), 'v:val.listed')
+    " Or, more efficiently in recent Vim versions:
+    " let listed_buffers = getbufinfo({'buflisted': 1})
+    " Get a list of the names of all listed buffers
+    " let buffer_names = map(getbufinfo({'buflisted': 1}), 'v:val.name')
+    " Display the result (for demonstration)
+    while l:i <= l:last_bufno
+        if bufexists(i) && buflisted(i)
+            let l:fullpath = fnamemodify(bufname(i), ':p')
+            if filereadable(l:fullpath)
+               call add(l:a1, bufname(i))
+               call add(l:a2, l:fullpath)
+            endif
+        endif
+        let l:i = l:i + 1
+    endwhile
+    " #{ title: "Vim Buffers", callback: 'MenuCBBuffer', line: 25, col: 40, 
+    let l:arr =  ConcatStringLists(g:PadStrings(l:a1), g:PadStrings(l:a2))
+
+    call g:PopMeUp(l:arr, "Buffers")
+
+endfunction
+
 
 " *****************************************************************************************************
                 " Utility Popup
