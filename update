@@ -1,3 +1,11 @@
+
+ITEM="item$(date +%Y%m%d_%H%M%S)"
+
+git branch $ITEM
+git checkout $ITEM
+# longhand git checkout -b $ITEM
+
+
 cp ~/.vimrc .
 cp ~/.macros.vim .
 cp ~/utils.vim .
@@ -6,8 +14,12 @@ cp ~/gemini.vim .
 
 git add -u 
 
-
 git commit -m "Update"
+
+
+git checkout master
+git merge $ITEM
+
 
 git push origin master
 
