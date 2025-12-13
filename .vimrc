@@ -156,6 +156,7 @@ filetype plugin indent on         " required, to ignore plugin indent changes, i
                                   " filetype plugin on
                                   " Put non-Plugin stuff after this line
 
+
 " *****************************************************************************************************
                 " Utility Library Of Functions
                 " *************************************************************************************
@@ -166,6 +167,7 @@ source ~/utils.vim
                 " *************************************************************************************
 source ~/gemini.vim
 
+
 " *****************************************************************************************************
                 " Macros
                 " *************************************************************************************
@@ -175,7 +177,7 @@ source ~/.macros.vim
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 " Help Buffer Popup
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-let s:pageSetList=[]
+let g:pageSetList=[]
 for i in range(1, 10)
     let s:pageSet = []
     call add(s:pageSet, [])
@@ -184,16 +186,16 @@ for i in range(1, 10)
     call add(s:pageSet, [])
     call add(s:pageSet, [])
     call add(s:pageSet, [])
-    call add(s:pageSetList, s:pageSet)
+    call add(g:pageSetList, s:pageSet)
 endfor
-let s:pageno = 1
+let g:pageno = 1
 
 function! g:NextHelpPage()
-    let s:pageno = s:pageno + 1
-    if s:pageno > 4
-        let s:pageno = 1
+    let g:pageno = g:pageno + 1
+    if g:pageno > 4
+        let g:pageno = 1
     endif
-    echom "Help Page Number " . s:pageno
+    echom "Help Page Number " . g:pageno
     call HelpPopUp()
 endfunction
 
@@ -208,50 +210,50 @@ let s:helpdisplaynames5=[]
 "endfor
 "MODIFY
 "
-"let s:pageSetList[3][1] = readfile("zed",'',12)
+"let g:pageSetList[3][1] = readfile("zed",'',12)
 function! g:HelpPopUpInit()
-    let s:pageno = 0
+    let g:pageno = 0
     call g:HelpPopUp()
 endfunction
 
 function! g:HelpPopUp()
         let l:MAX = 5
-        let s:pageno = s:pageno + 1
-        if s:pageno > l:MAX 
-            let s:pageno = 1
+        let g:pageno = g:pageno + 1
+        if g:pageno > l:MAX 
+            let g:pageno = 1
         endif
 
     "let maxLen = max([len1, len2])
     let l:maxLen = -100
-    let l:maxLen = max([len(s:pageSetList[s:pageno][1]), l:maxLen])
-    let l:maxLen = max([len(s:pageSetList[s:pageno][2]), l:maxLen])
-    let l:maxLen = max([len(s:pageSetList[s:pageno][3]), l:maxLen])
-    let l:maxLen = max([len(s:pageSetList[s:pageno][4]), l:maxLen])
-    let l:maxLen = max([len(s:pageSetList[s:pageno][5]), l:maxLen])
+    let l:maxLen = max([len(g:pageSetList[g:pageno][1]), l:maxLen])
+    let l:maxLen = max([len(g:pageSetList[g:pageno][2]), l:maxLen])
+    let l:maxLen = max([len(g:pageSetList[g:pageno][3]), l:maxLen])
+    let l:maxLen = max([len(g:pageSetList[g:pageno][4]), l:maxLen])
+    let l:maxLen = max([len(g:pageSetList[g:pageno][5]), l:maxLen])
 
     let l:fullsize = l:maxLen
-    for i in range(1, l:fullsize-len(s:pageSetList[s:pageno][1]))
-        call add(s:pageSetList[s:pageno][1], "" )
+    for i in range(1, l:fullsize-len(g:pageSetList[g:pageno][1]))
+        call add(g:pageSetList[g:pageno][1], "" )
     endfor
-    for i in range(1, l:fullsize-len(s:pageSetList[s:pageno][2]))
-        call add(s:pageSetList[s:pageno][2], "" )
+    for i in range(1, l:fullsize-len(g:pageSetList[g:pageno][2]))
+        call add(g:pageSetList[g:pageno][2], "" )
     endfor
-    for i in range(1, l:fullsize-len(s:pageSetList[s:pageno][3]))
-        call add(s:pageSetList[s:pageno][3], "" )
+    for i in range(1, l:fullsize-len(g:pageSetList[g:pageno][3]))
+        call add(g:pageSetList[g:pageno][3], "" )
     endfor
-    for i in range(1, l:fullsize-len(s:pageSetList[s:pageno][4]))
-        call add(s:pageSetList[s:pageno][4], "" )
+    for i in range(1, l:fullsize-len(g:pageSetList[g:pageno][4]))
+        call add(g:pageSetList[g:pageno][4], "" )
     endfor
-    for i in range(1, l:fullsize-len(s:pageSetList[s:pageno][5]))
-        call add(s:pageSetList[s:pageno][5], "" )
+    for i in range(1, l:fullsize-len(g:pageSetList[g:pageno][5]))
+        call add(g:pageSetList[g:pageno][5], "" )
     endfor
 
-    let l:temp1 =  ConcatStringLists(g:PadStrings(s:pageSetList[s:pageno][1]), g:PadStrings(s:pageSetList[s:pageno][2]))
-    let l:temp2 =  ConcatStringLists(l:temp1, g:PadStrings(s:pageSetList[s:pageno][3]))
-    let l:temp3 =  ConcatStringLists(l:temp2, g:PadStrings(s:pageSetList[s:pageno][4]))
-    let l:arr   =  ConcatStringLists(l:temp3, g:PadStrings(s:pageSetList[s:pageno][5]))
+    let l:temp1 =  ConcatStringLists(g:PadStrings(g:pageSetList[g:pageno][1]), g:PadStrings(g:pageSetList[g:pageno][2]))
+    let l:temp2 =  ConcatStringLists(l:temp1, g:PadStrings(g:pageSetList[g:pageno][3]))
+    let l:temp3 =  ConcatStringLists(l:temp2, g:PadStrings(g:pageSetList[g:pageno][4]))
+    let l:arr   =  ConcatStringLists(l:temp3, g:PadStrings(g:pageSetList[g:pageno][5]))
 
-    let l:szTitle = " Help " . s:pageno . " "
+    let l:szTitle = " Help " . g:pageno . " "
     call g:PopMeUp(l:arr, l:szTitle, 'HelpPopUpCustomFilter')
 
 endfunction
@@ -273,9 +275,9 @@ func MyFilter100(winid, key)
 
 	  if a:key == "\<F12>"
 	    call popup_close(a:winid)
-        let s:pageno = s:pageno + 1
-        if s:pageno > l:MAX 
-            let s:pageno = 1
+        let g:pageno = g:pageno + 1
+        if g:pageno > l:MAX 
+            let g:pageno = 1
         endif
         call HelpPopUp()
 	    " do something
@@ -284,9 +286,9 @@ func MyFilter100(winid, key)
 
 	  if a:key == 'c'
 	    call popup_close(a:winid)
-        let s:pageno = s:pageno + 1
-        if s:pageno > l:MAX 
-            let s:pageno = 1
+        let g:pageno = g:pageno + 1
+        if g:pageno > l:MAX 
+            let g:pageno = 1
         endif
         call HelpPopUp()
 	    return 1
@@ -297,21 +299,21 @@ endfunc
 
 
 func! g:CommanderStr(...)
-    call add(s:pageSetList[s:pageno][a:1 + 1], a:2)
+    call add(g:pageSetList[g:pageno][a:1 + 1], a:2)
 endfunc
 
 func! g:CommanderDash(...)
-    call add(s:pageSetList[s:pageno][a:1 + 1], '----' )
+    call add(g:pageSetList[g:pageno][a:1 + 1], '----' )
 endfunc
 func! g:CommanderSpace(...)
-    call add(s:pageSetList[s:pageno][a:1 + 1], '' )
+    call add(g:pageSetList[g:pageno][a:1 + 1], '' )
 endfunc
 func! g:CommanderText(...)
     if a:0 == 2
-        call add(s:pageSetList[s:pageno][a:1 + 1], a:2 )
+        call add(g:pageSetList[g:pageno][a:1 + 1], a:2 )
     else
         if a:0 == 3
-            call add(s:pageSetList[s:pageno][a:1 + 1], a:2 . " - " . a:3)
+            call add(g:pageSetList[g:pageno][a:1 + 1], a:2 . " - " . a:3)
         endif
     endif
 endfunc
@@ -355,29 +357,11 @@ func! g:CommanderTextxx(...)
     endif
 endfunction
 
-function! g:Commander(...)
-    if a:0 == 3
-        let l:nCol      = a:1
-        let l:szCommand = a:2
-        let l:szHelp    = a:3
 
-        if len(l:szHelp) > 0
-            let l:szSz = CapitalizeWords(l:szHelp)
-            call add(s:pageSetList[s:pageno][l:nCol + 1], l:szSz)
-        endif
-
-        if len(l:szCommand) > 0
-            let l:firstword = GetFirstWord(l:szCommand)
-            if l:firstword == 'nnoremap' || l:firstword == 'inoremap' || l:firstword == 'command!'
-                execute l:szCommand
-            else
-                execute 'nnoremap ' . l:szCommand
-            endif
-       endif
-
-   endif
-endfunction
-
+" *****************************************************************************************************
+                " Commander Library
+                " *************************************************************************************
+source ~/commander.vim
 
 "MODIFY
 
@@ -617,7 +601,7 @@ call g:CommanderText(3, ":wincmd K","Mv wind very top")
 call g:CommanderText(3, ":wincmd L","Mv wind far right")
 call g:Commander("inoremap jj <Esc>",                        " jj - <ESC>")
 call g:CommanderText("")
-let s:pageno = 1
+let g:pageno = 1
 call g:CommanderText(2,"","")
 call g:CommanderText(2,"","")
 call g:CommanderText(2,"","")
@@ -662,7 +646,7 @@ call g:CommanderSpace(4)
 
 " call g:Commander("<F9> :call system('ls -la > /tmp/files.txt')<cr>",           " Test Command")
 
-let s:pageno = 1
+let g:pageno = 1
 
 "Key Sequence","Description"
 ".","Repeats the last change (insert, delete, change, replace)."
