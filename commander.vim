@@ -1,3 +1,18 @@
+let g:LogCommandMessages=[]
+
+function! g:LogCommandInit()
+    let g:LogCommandMessages=[]
+endfunction
+function! g:LogCommandWrite()
+    call writefile(g:LogCommandMessages, $HOME . "/.vim/vimsetup/LogCommands.log")
+endfunction
+
+function! g:LogCommand(...)
+    let l:ret = 0
+    call add(g:LogCommandMessages, a:1)
+    return l:ret
+endfunction
+
 
 function! g:Commander(...)
     if a:0 == 3
@@ -19,5 +34,29 @@ function! g:Commander(...)
             endif
        endif
 
+       call g:LogCommand(l:szHelp)
+
    endif
 endfunction
+
+function! g:CommanderStr(...)
+    call add(g:pageSetList[g:pageno][a:1 + 1], a:2)
+endfunc
+
+function! g:CommanderDash(...)
+    call add(g:pageSetList[g:pageno][a:1 + 1], '----' )
+endfunc
+
+function! g:CommanderSpace(...)
+    call add(g:pageSetList[g:pageno][a:1 + 1], '' )
+endfunc
+
+function! g:CommanderText(...)
+    if a:0 == 2
+        call add(g:pageSetList[g:pageno][a:1 + 1], a:2 )
+    else
+        if a:0 == 3
+            call add(g:pageSetList[g:pageno][a:1 + 1], a:2 . " - " . a:3)
+        endif
+    endif
+endfunc

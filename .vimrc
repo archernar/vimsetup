@@ -156,11 +156,15 @@ filetype plugin indent on         " required, to ignore plugin indent changes, i
                                   " filetype plugin on
                                   " Put non-Plugin stuff after this line
 
-
 " *****************************************************************************************************
                 " Utility Library Of Functions
                 " *************************************************************************************
 source ~/utils.vim
+
+" *****************************************************************************************************
+                " Commander Library
+                " *************************************************************************************
+source ~/commander.vim
 
 " *****************************************************************************************************
                 " Gemini Interface
@@ -298,73 +302,6 @@ func MyFilter100(winid, key)
 endfunc
 
 
-func! g:CommanderStr(...)
-    call add(g:pageSetList[g:pageno][a:1 + 1], a:2)
-endfunc
-
-func! g:CommanderDash(...)
-    call add(g:pageSetList[g:pageno][a:1 + 1], '----' )
-endfunc
-func! g:CommanderSpace(...)
-    call add(g:pageSetList[g:pageno][a:1 + 1], '' )
-endfunc
-func! g:CommanderText(...)
-    if a:0 == 2
-        call add(g:pageSetList[g:pageno][a:1 + 1], a:2 )
-    else
-        if a:0 == 3
-            call add(g:pageSetList[g:pageno][a:1 + 1], a:2 . " - " . a:3)
-        endif
-    endif
-endfunc
-
-
-func! g:CommanderTextxx(...)
-    if a:0 == 1
-        call g:Commander('', a:1)
-    else
-        if a:0 == 2
-            call g:Commander('', a:1 . " - " . a:2)
-        else
-            if a:0 == 3
-                let l:sz = ""
-                if a:1 == 0
-                    let l:sz = ""
-                endif
-                if a:1 == 1
-                    let l:sz = "+"
-                endif
-                if a:1 == 2
-                    let l:sz = "++"
-                endif
-                if a:1 == 3
-                    let l:sz = "+++"
-                endif
-                if a:1 == 4
-                    let l:sz = "++++"
-                endif
-                if a:1 == 5
-                    let l:sz = "+++++"
-                endif
-
-                if a:2 == ""
-                    call g:Commander('', a:3 . l:sz)
-                else
-                    call g:Commander('', a:2 . " - " . a:3 . l:sz)
-                endif
-            endif
-        endif
-    endif
-endfunction
-
-
-" *****************************************************************************************************
-                " Commander Library
-                " *************************************************************************************
-source ~/commander.vim
-
-"MODIFY
-
 " *****************************************************************************************************
                 " Folding
                 " *************************************************************************************
@@ -439,20 +376,6 @@ endfunction
 " wget -O ~/.vim/vim.txt https://raw.githubusercontent.com/archernar/basics/refs/heads/master/vim.txt
 " nnoremap         <F7> :call g:FlashCard($HOME . "/.vim/1.fc")<cr>
 " nnoremap <leader><F7> :call g:UnFlashCard()<cr>
-function! g:Test()
-    echom "TEST TEST TEST TEST"
-endfunction
-
-function! EditDotFiles()
-        execute  "edit ~/.bashrc"
-        execute  "edit ~/.vimrc"
-        execute  "edit ~/.profile"
-        execute  "edit ~/.vim/vimbrief.txt"
-        execute  "edit ~/.vim/vim.txt"
-endfunction
-function! g:MultiToggleVoid()
-        let g:multi_toggle_state = 0
-endfunction
 
 let g:multi_toggle_state = -1
 let &statusline = "Void Mode"
@@ -642,6 +565,11 @@ call g:Commander(4, "<leader>gss  :!git add . && git commit -m 'Staged all chang
 call g:Commander(4, "<leader>gas  :!git add %<CR>:!git status<CR>",                         "+gas  - git add   + status")
 call g:Commander(4, "<leader>gaas :!git add .<CR>:!git status<CR>",                         "+gaas - git add . + status")
 call g:CommanderSpace(4)
+
+
+call g:LogCommandWrite()
+
+
 
 
 " call g:Commander("<F9> :call system('ls -la > /tmp/files.txt')<cr>",           " Test Command")

@@ -979,3 +979,18 @@ function! GetUserInput(prompt)
       return input
     endif
 endfunction
+
+function! g:Test()
+    echom "TEST TEST TEST TEST"
+endfunction
+
+function! EditDotFiles()
+        execute  "edit ~/.bashrc"
+        execute  "edit ~/.vimrc"
+        execute  "edit ~/.profile"
+        execute  "edit ~/.vim/vimbrief.txt"
+        execute  "edit ~/.vim/vim.txt"
+endfunction
+function! g:MultiToggleVoid()
+        let g:multi_toggle_state = 0
+endfunction
