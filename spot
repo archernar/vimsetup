@@ -1,0 +1,10 @@
+
+ITEM="spot$(date +%Y%m%d_%H%M%S)"
+
+git branch $ITEM
+git checkout $ITEM
+# longhand git checkout -b $ITEM
+git push origin $ITEM
+
+
+git checkout master
