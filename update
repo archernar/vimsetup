@@ -15,6 +15,7 @@ cp ~/gemini.vim .
 git add -u 
 
 git commit -m "Update"
+git push origin $ITEM
 
 
 git checkout master
