@@ -22,9 +22,10 @@ shift $(($OPTIND - 1))
 
 ITEM="item__$(date +%Y%m%d_%H%M%S)"
 if [[ "$MESSAGE" != "" ]]; then                                                                                               
-    ITEM="${MESSAGE}__$(date +%Y%m%d_%H%M%S)"
+    MESSAGE="${MESSAGE}__$(date +%Y%m%d_%H%M%S)"
 fi
-    echo "$ITEM"
+
+echo "$MESSAGE"
 
 
 
