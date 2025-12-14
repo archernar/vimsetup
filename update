@@ -22,10 +22,15 @@ shift $(($OPTIND - 1))
 
 ITEM="item__$(date +%Y%m%d_%H%M%S)"
 if [[ "$MESSAGE" != "" ]]; then                                                                                               
+    ITEM=`echo $MESSAGE | sed 's/[[:space:]]/__/g'`
     MESSAGE="${MESSAGE}__$(date +%Y%m%d_%H%M%S)"
+    ITEM=`echo $ITEM | sed 's/[.,]//g'`
+    MESSAGE=`echo $MESSAGE | sed 's/[.,]//g'`
 fi
 
 echo "$MESSAGE"
+echo "$ITEM"
+
 
 
 
