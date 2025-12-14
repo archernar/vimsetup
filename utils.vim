@@ -809,7 +809,7 @@ function! IncluderCallBack(id, result)
     let l:arr = readfile($HOME . '/.vim/vimsetup/includerfiles.txt')
     if ( a:result > -1 ) 
         echom l:arr[a:result-1]
-        "call HereInclude(l:arr[a:result-1])
+        call HereInclude(l:arr[a:result-1])
     endif
 endfunction
 " *****************************************************************************************************
