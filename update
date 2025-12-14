@@ -41,7 +41,8 @@ cp ~/gemini.vim .
 
 git add -u 
 
-git commit -m "Update"
+git commit -m "$MESSAGE"
+
 git push origin $ITEM
 
 
