@@ -10,9 +10,21 @@ rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
 
 MESSAGE=""
-while getopts "m:b:" arg
+while getopts "s:m:b:" arg
 do
     case $arg in
+        s) MESSAGE="$OPTARG"
+           MESSAGE="${MESSAGE}__$(date +%Y%m%d_%H%M%S)"
+           MESSAGE=`echo $MESSAGE | sed 's/[.,]//g'`
+           cp ~/.vimrc .
+           cp ~/.macros.vim .
+           cp ~/utils.vim .
+           cp ~/commander.vim .
+           cp ~/gemini.vim .
+           git add -u 
+           git commit -m "$MESSAGE"
+           exit 0
+           ;;
         m) MESSAGE="$OPTARG"
            ;;
         b) MESSAGE="$OPTARG"
