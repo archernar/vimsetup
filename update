@@ -10,10 +10,19 @@ rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
 
 MESSAGE=""
-while getopts "m:" arg
+while getopts "m:b:" arg
 do
     case $arg in
         m) MESSAGE="$OPTARG"
+           ;;
+        b) MESSAGE="$OPTARG"
+           ITEM=`echo $MESSAGE | sed 's/[[:space:]]/__/g'`
+           MESSAGE="${MESSAGE}__$(date +%Y%m%d_%H%M%S)"
+           ITEM=`echo $ITEM | sed 's/[.,]//g'`
+           MESSAGE=`echo $MESSAGE | sed 's/[.,]//g'`
+           git branch $ITEM
+           git checkout $ITEM
+           exit 0
            ;;
     esac
 done
