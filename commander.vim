@@ -19,6 +19,9 @@ function! g:Commander(...)
         let l:nCol      = a:1
         let l:szCommand = a:2
         let l:szHelp    = a:3
+        " Syntax: substitute({expr}, {pat}, {sub}, {flags})
+        let l:szCommand = substitute(l:szCommand, 'DOUBLEQUOTE', '"', '')
+        let l:szCommand = substitute(l:szCommand, '<DQ>', '"', '')
 
         if len(l:szHelp) > 0
             let l:szSz = CapitalizeWords(l:szHelp)

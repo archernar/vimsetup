@@ -33,7 +33,7 @@ set background=dark
 set laststatus=2                  " For Status Line
 set t_Co=256                      " For Status Line
 
- set relativenumber
+" set relativenumber
 " set signcolumn=yes
 " set incsearch
 " set hlsearch incsearch          " Highlight searches (use <C-L> to temporarily turn off highlighting
@@ -539,6 +539,11 @@ call g:CommanderText(2, "C-E","Scrl dn 1 line")
 call g:CommanderText(2, "C-Y","Scrl up 1 line")
 
 
+call g:CommanderStr(4, "--- Register a Commands")
+call g:Commander(4, "<leader>a  :normal <DQ>ayy<CR>",  "+a  - clear and yank to regA")
+call g:Commander(4, "<leader>y  :normal DOUBLEQUOTEAyy<CR>",  "+y  - append yank to regA")
+call g:Commander(4, "<leader>p  :normal DOUBLEQUOTEap<CR>",   "+p  - paste regA")
+call g:CommanderSpace(4)
 call g:CommanderStr( 4, "--- Current Line")
 call g:CommanderText(4, "zz","Center")
 call g:CommanderText(4, "zt","Top")

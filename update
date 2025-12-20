@@ -10,9 +10,14 @@ rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
 
 MESSAGE=""
-while getopts "s:m:b:" arg
+while getopts "ps:m:b:" arg
 do
     case $arg in
+        p) git add -u
+           git commit -m "Update"
+           git push origin master
+           exit 0
+           ;;
         s) MESSAGE="$OPTARG"
            MESSAGE="${MESSAGE}__$(date +%Y%m%d_%H%M%S)"
            MESSAGE=`echo $MESSAGE | sed 's/[.,]//g'`
