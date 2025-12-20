@@ -13,7 +13,12 @@ MESSAGE=""
 while getopts "ps:m:b:" arg
 do
     case $arg in
-        p) git add -u
+        p) cp ~/.vimrc .
+           cp ~/.macros.vim .
+           cp ~/utils.vim .
+           cp ~/commander.vim .
+           cp ~/gemini.vim .
+           git add -u
            git commit -m "Update"
            git push origin master
            exit 0
