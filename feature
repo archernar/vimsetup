@@ -20,7 +20,7 @@ function git_branch() {
 ITEM=""
 NAME=""
 
-while getopts "ned" arg
+while getopts "neds" arg
 do
     case $arg in
         n) git checkout develop
@@ -39,6 +39,18 @@ do
            git checkout develop
            git branch -D  $(cat .thisbranch)
            rm -f .thisbranch >/dev/null 2>&1;
+           exit 0
+           ;;
+        s) echo ""
+           echo "+--------------------------------------------------------------------------------+"
+           echo "+--------------------------------------------------------------------------------+"
+           echo ""
+           git status
+           echo ""
+           echo ""
+           git branch -a
+           echo ""
+           echo ""
            exit 0
            ;;
 
