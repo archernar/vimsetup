@@ -1,0 +1,9 @@
+cp ~/script.one /var/www/html
+cp ~/script.two /var/www/html
+cp ~/font.one   /var/www/html
+cp ~/git.html   /var/www/html
+
+includer myFlow.src > /var/www/html/myFlow.html
+
+cp myFlow.css         /var/www/html/myFlow.css
+
