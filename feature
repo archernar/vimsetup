@@ -18,6 +18,7 @@ fi
 
 
 
+
 function git_branch() {
          local void="11";                          # Bash-Function-Args
      if [ -d ".git" ]; then
@@ -29,8 +30,10 @@ function git_branch() {
 ITEM=""
 NAME=""
 MSG="Merge Without Message"
+# The file where the version number is stored
+VERSION_FILE="version.txt"
 
-while getopts "m:neds" arg
+while getopts "m:nedsr" arg
 do
     case $arg in
         m) MSG="$OPTARG"
@@ -54,6 +57,40 @@ do
            rm -f .thisbranch >/dev/null 2>&1;
            exit 0
            ;;
+        r) 
+           # Check if the version file exists. If not, create it with a default version.
+           if [ ! -f "$VERSION_FILE" ]; then
+             echo "1.0.0" > "$VERSION_FILE"
+           fi
+
+           # Read the current version from the file
+           current_version=$(cat "$VERSION_FILE")
+
+           # Use IFS to split the version string into an array (major, minor, patch)
+           IFS='.' read -ra version_parts <<< "$current_version"
+
+           # Assign parts to variables
+           major=${version_parts[0]}
+           minor=${version_parts[1]}
+           # patch=${version_parts[2]} # Old patch number isn't needed
+
+           # Increment the minor version
+           new_minor=$((minor + 1))
+
+           # Reset the patch version to 0
+           new_patch=0
+
+           # Assemble the new version string
+           new_version="$major.$new_minor.$new_patch"
+           BUILDVERSION="$major.$new_minor.$new_patch"
+
+           # Write the new version back to the file
+           # Print the new version to the console
+           echo "$new_version" > "$VERSION_FILE"
+           echo "Version updated to $new_version"
+           exit 0
+           ;;
+
         s) echo ""
            echo "+--------------------------------------------------------------------------------+"
            echo "+--------------------------------------------------------------------------------+"
