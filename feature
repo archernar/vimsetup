@@ -58,9 +58,11 @@ do
            exit 0
            ;;
         r) 
+           git checkout develop
+
            # Check if the version file exists. If not, create it with a default version.
            if [ ! -f "$VERSION_FILE" ]; then
-             echo "1.0.0" > "$VERSION_FILE"
+             echo "1.0.0" > "/tmp/$VERSION_FILE"
            fi
 
            # Read the current version from the file
@@ -86,8 +88,22 @@ do
 
            # Write the new version back to the file
            # Print the new version to the console
-           echo "$new_version" > "$VERSION_FILE"
+           echo "$new_version" > "/tmp/$VERSION_FILE"
            echo "Version updated to $new_version"
+
+           git checkout -b release/$new_version
+           cp "/tmp/$VERSION_FILE"   "$VERSION_FILE"
+           git add "VERSION_FILE"
+           git commit -m "Version $new_version"
+
+
+           git checkout master
+           git merge --no-ff release/$new_version
+           git tag -a v$new_version -m 'Release $new_version'
+           git checkout develop
+           git merge --no-ff release/$new_version
+           git branch -d release/$new_version
+           git push origin master develop --tags
            exit 0
            ;;
 
