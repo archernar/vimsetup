@@ -1,0 +1,32 @@
+#!/usr/bin/bash
+Tmp=/tmp/$$
+Tmp0=/tmp/$$_$$
+Tmp1=/tmp/$$_$$_$$
+Tmp2=/tmp/$$_$$_$$_$$
+Tmp3=/tmp/$$_$$_$$_$$_$$
+trap 'exit 0' INT HUP QUIT TERM ALRM USR1
+trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
+rm -f "$Tmp $Tmp0 $Tmp1 $Tmp2 $Tmp3"  >/dev/null 2>&1;
+#   >/dev/null 2>&1;
+#        gsub(/["]/, "&quot;", line)
+#        gsub(/[&]/, "&amp;", line)
+
+cat "$1" | gawk '
+/^[ ]*source / {
+    dq="\""
+    fn =  $2
+    while ((getline < fn) > 0) {
+        line = $0
+        aa="\\&"
+        gsub(/[<]/, aa "lt;", line)
+        gsub(/[>]/, aa "gt;", line)
+        print line
+    }
+    next
+}
+
+{
+    print $0
+}'
+
+
