@@ -19,17 +19,21 @@ function git_branch() {
 }
 ITEM=""
 NAME=""
+MSG="Merge Without Message"
 
-while getopts "neds" arg
+while getopts "m:neds" arg
 do
     case $arg in
+        m) MSG="$OPTARG"
+           echo "$MSG"
+           ;;
         n) git checkout develop
            git pull origin develop
            git checkout -b feature/my-new-feature
            exit 0
            ;;
         e) git checkout develop
-           git merge --no-ff  feature/my-new-feature
+           git merge --no-ff  feature/my-new-feature -m "$MSG"
            git branch -d      feature/my-new-feature
            git push origin develop
            exit 0
