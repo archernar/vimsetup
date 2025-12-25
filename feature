@@ -9,6 +9,15 @@ trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
 rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
 
+if [ ! -d ".git" ]; then
+     echo "Not a Git Repo"
+     exit 1
+fi
+
+
+
+
+
 function git_branch() {
          local void="11";                          # Bash-Function-Args
      if [ -d ".git" ]; then
