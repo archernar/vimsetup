@@ -20,22 +20,17 @@ function git_branch() {
 ITEM=""
 NAME=""
 
-while getopts "f:ed" arg
+while getopts "ned" arg
 do
     case $arg in
-        f) ITEM="$OPTARG"
-           NAME=`echo $ITEM | sed 's/[[:space:]]/-/g'`
-           git checkout develop
+        n) git checkout develop
            git pull origin develop
-           git checkout -b feature/$NAME
+           git checkout -b feature/my-new-feature
            exit 0
            ;;
-        e) echo $(git_branch) > .thisbranch
-           cat .thisbranch
-           exit 0
-           git checkout develop
-           git merge --no-ff $(git_branch)
-           git branch -d feature/my-new-feature
+        e) git checkout develop
+           git merge --no-ff  feature/my-new-feature
+           git branch -d      feature/my-new-feature
            git push origin develop
            exit 0
            ;;
