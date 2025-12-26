@@ -33,7 +33,7 @@ MSG="Merge Without Message"
 # The file where the version number is stored
 VERSION_FILE="version.txt"
 
-while getopts "m:nedsr" arg
+while getopts "m:nedsru" arg
 do
     case $arg in
         m) MSG="$OPTARG"
@@ -48,10 +48,9 @@ do
                exit 0
            else
                echo "Branch '$BRANCH_NAME' does not exist locally."
-               exit 0
+               git checkout -b feature/my-new-feature
            fi
 
-           git checkout -b feature/my-new-feature
            exit 0
            ;;
         e) git checkout develop
@@ -126,6 +125,10 @@ do
            git branch -a
            echo ""
            echo ""
+           exit 0
+           ;;
+        u) git add -u
+           git commit -m "Update"
            exit 0
            ;;
 
