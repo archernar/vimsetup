@@ -14,7 +14,20 @@ if [ ! -d ".git" ]; then
      exit 1
 fi
 
-
+if git rev-parse --verify master >/dev/null 2>&1; then
+    echo "branch master exists locally."
+else
+    echo "branch master does not exist locally."
+    echo "run $ git checkout -b master"
+    exit 1
+fi
+if git rev-parse --verify develop >/dev/null 2>&1; then
+    echo "branch develop exists locally."
+else
+    echo "branch develop does not exist locally."
+    echo "run $ git checkout -b develop"
+    exit 1
+fi
 
 # --- HELP FUNCTION ---
 function usage() {
