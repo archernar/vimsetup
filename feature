@@ -16,6 +16,33 @@ fi
 
 
 
+# --- HELP FUNCTION ---
+function usage() {
+    echo "Usage: $(basename "$0") [OPTIONS]"
+    echo ""
+    echo "A helper script for managing feature branches, releases, and hotfixes."
+    echo ""
+    echo "Options:"
+    echo "  -h          Show this help message."
+    echo "  -m <msg>    Set a custom message for merges or commits (Default: 'Merge Without Message')."
+    echo "  -s          Status: Show git status and list all branches."
+    echo "  -u          Update: Stage all modified files (git add -u) and commit with message 'Update'."
+    echo ""
+    echo "Feature Workflow (Hardcoded to 'feature/my-new-feature'):"
+    echo "  -n          New Feature: Checkout develop, pull, and create/checkout 'feature/my-new-feature'."
+    echo "  -e          End Feature: Merge 'feature/my-new-feature' into develop, push, and delete local branch."
+    echo "  -d          Delete Feature: Force delete 'feature/my-new-feature' without merging."
+    echo ""
+    echo "Release & Hotfix Workflow:"
+    echo "  -r          Release Start: Increment minor version, create release branch, commit, merge to master/develop, and tag."
+    echo "  -1          Hotfix Start: Increment version, update version.txt, and checkout 'hotfix/<version>'."
+    echo "  -2          Hotfix Finish: Merge 'release/1.0.0' (hardcoded) into master/develop and tag."
+    echo ""
+    echo "Examples:"
+    echo "  $(basename "$0") -n           # Start a new feature"
+    echo "  $(basename "$0") -m \"Fix\" -u  # Update tracked files with message 'Fix'"
+    exit 0
+}
 
 
 
@@ -33,9 +60,11 @@ MSG="Merge Without Message"
 # The file where the version number is stored
 VERSION_FILE="version.txt"
 
-while getopts "m:neds12ru" arg
+while getopts "hm:neds12ru" arg
 do
     case $arg in
+        h) usage
+           ;;
         m) MSG="$OPTARG"
            echo "$MSG"
            ;;
