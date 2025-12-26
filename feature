@@ -33,7 +33,7 @@ MSG="Merge Without Message"
 # The file where the version number is stored
 VERSION_FILE="version.txt"
 
-while getopts "m:nedsr" arg
+while getopts "m:nedsru" arg
 do
     case $arg in
         m) MSG="$OPTARG"
@@ -41,7 +41,16 @@ do
            ;;
         n) git checkout develop
            git pull origin develop
-           git checkout -b feature/my-new-feature
+
+           BRANCH_NAME="feature/my-new-feature"
+           if git rev-parse --verify "$BRANCH_NAME" >/dev/null 2>&1; then
+               echo "Branch '$BRANCH_NAME' exists locally."
+               exit 0
+           else
+               echo "Branch '$BRANCH_NAME' does not exist locally."
+               git checkout -b feature/my-new-feature
+           fi
+
            exit 0
            ;;
         e) git checkout develop
@@ -50,11 +59,10 @@ do
            git push origin develop
            exit 0
            ;;
-        d) echo $(git_branch) > .thisbranch
-           cat .thisbranch
-           git checkout develop
-           git branch -D  $(cat .thisbranch)
-           rm -f .thisbranch >/dev/null 2>&1;
+        d) git checkout develop
+           if git rev-parse --verify feature/my-new-feature >/dev/null 2>&1; then
+               git branch -D  feature/my-new-feature
+           fi
            exit 0
            ;;
         r) 
@@ -117,6 +125,10 @@ do
            git branch -a
            echo ""
            echo ""
+           exit 0
+           ;;
+        u) git add -u
+           git commit -m "Update"
            exit 0
            ;;
 
