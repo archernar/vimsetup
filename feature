@@ -33,7 +33,7 @@ MSG="Merge Without Message"
 # The file where the version number is stored
 VERSION_FILE="version.txt"
 
-while getopts "m:nedsru" arg
+while getopts "m:neds12ru" arg
 do
     case $arg in
         m) MSG="$OPTARG"
@@ -65,6 +65,49 @@ do
            fi
            exit 0
            ;;
+        1) exit 0
+           git checkout master
+           # Check if the version file exists. If not, create it with a default version.
+           if [ ! -f "$VERSION_FILE" ]; then
+             echo "1.0.0" > "/tmp/$VERSION_FILE"
+           fi
+
+           # Read the current version from the file
+           current_version=$(cat "$VERSION_FILE")
+
+           # Use IFS to split the version string into an array (major, minor, patch)
+           IFS='.' read -ra version_parts <<< "$current_version"
+
+           # Assign parts to variables
+           major=${version_parts[0]}
+           minor=${version_parts[1]}
+           patch=${version_parts[2]}
+
+           # Increment the patch version
+           new_patch=$((minor + 1))
+
+           # Assemble the new version string
+           new_version="$major.$minor.$new_patch"
+
+           # Write the new version back to the file
+           # Print the new version to the console
+           echo "$new_version" > "/tmp/$VERSION_FILE"
+           echo "Version updated to $new_version"
+
+           git checkout -b hotfix/$new_version
+           cp "/tmp/$VERSION_FILE"   "$VERSION_FILE"
+           exit 0
+           ;;
+        2) exit 0
+           git checkout master
+           git merge --no-ff release/1.0.0
+           git tag -a v1.0.0 -m 'Release 1.0.0'
+           git checkout develop
+           git merge --no-ff release/1.0.0
+           git branch -d release/1.0.0
+           git push origin master develop --tags
+           exit 0
+           ;;
         r) 
            git checkout develop
 
@@ -92,7 +135,6 @@ do
 
            # Assemble the new version string
            new_version="$major.$new_minor.$new_patch"
-           BUILDVERSION="$major.$new_minor.$new_patch"
 
            # Write the new version back to the file
            # Print the new version to the console
