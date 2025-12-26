@@ -41,6 +41,16 @@ do
            ;;
         n) git checkout develop
            git pull origin develop
+
+           BRANCH_NAME="feature/my-new-feature"
+           if git rev-parse --verify "$BRANCH_NAME" >/dev/null 2>&1; then
+               echo "Branch '$BRANCH_NAME' exists locally."
+               exit 0
+           else
+               echo "Branch '$BRANCH_NAME' does not exist locally."
+               exit 0
+           fi
+
            git checkout -b feature/my-new-feature
            exit 0
            ;;
@@ -50,11 +60,10 @@ do
            git push origin develop
            exit 0
            ;;
-        d) echo $(git_branch) > .thisbranch
-           cat .thisbranch
-           git checkout develop
-           git branch -D  $(cat .thisbranch)
-           rm -f .thisbranch >/dev/null 2>&1;
+        d) git checkout develop
+           if git rev-parse --verify feature/my-new-feature >/dev/null 2>&1; then
+               git branch -D  feature/my-new-feature
+           fi
            exit 0
            ;;
         r) 
