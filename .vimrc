@@ -172,11 +172,6 @@ source ~/commander.vim
 source ~/gemini.vim
 
 
-" *****************************************************************************************************
-                " Macros
-                " *************************************************************************************
-source ~/.macros.vim
-
 
 " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 " Help Buffer Popup
@@ -492,10 +487,11 @@ call g:Commander(1, "<C-h> <C-w>h",           "^h      - Mv Split-Left")
 call g:Commander(1, "<C-j> <C-w>j",           "^j      - Mv Split-Down")
 call g:Commander(1, "<C-k> <C-w>k",           "^k      - Mv Split-Up")
 call g:Commander(1, "<C-l> <C-w>l",           "^l      - Mv Split-Right")
-call g:Commander(1, "<leader><Left> <C-w>h",  "+<L>    - Mv Split-Left")
-call g:Commander(1, "<leader><Down> <C-w>j",  "+<D>    - Mv Split-Down")
-call g:Commander(1, "<leader><Up> <C-w>k",    "+<U>    - Mv Split-Up")
-call g:Commander(1, "<leader><Right> <C-w>l", "+<R>    - Mv Split-Right")
+" HEREHERE
+call g:Commander(1, "<leader><Left>  :wincmd h<CR>","+<L>    - Mv Split-Left")
+call g:Commander(1, "<leader><Down>  :wincmd j<CR>","+<D>    - Mv Split-Down")
+call g:Commander(1, "<leader><Up>    :wincmd k<CR>","+<U>    - Mv Split-Up")
+call g:Commander(1, "<leader><Right> :wincmd l<CR>","+<R>    - Mv Split-Right")
 call g:CommanderSpace(1)
 call g:CommanderText(1,                       ":sp <f> - edit in split")
 call g:CommanderText(1,                       ":vsp    - edit in vsplit")
@@ -537,7 +533,15 @@ call g:CommanderText(2, "C-D","Scrl dn (fwd) half scrn")
 call g:CommanderText(2, "C-U","Scrl up (bck) half scrn")
 call g:CommanderText(2, "C-E","Scrl dn 1 line")
 call g:CommanderText(2, "C-Y","Scrl up 1 line")
+" ommand	Direction	Match Type	Description
+" *	Forward	Whole Word	Finds the next exact match (e.g., "the" matches "the", but not "there").
+" #	Backward	Whole Word	Finds the previous exact match.
+" g*	Forward	Partial	Finds the next match, even if it's inside another word (e.g., "the" matches "there").
+" g#	Backward	Partial	Finds the previous partial match.
 
+call g:CommanderStr(4, "--- Notes")
+call g:CommanderText(4, "*", "Forward Find Whole Word")
+call g:CommanderText(4, "#", "Backward Find Whole Word")
 
 call g:CommanderStr(4, "--- Register a Commands")
 call g:Commander(4, "<leader>a  :normal <DQ>ayy<CR>",  "+a  - clear and yank to regA")
