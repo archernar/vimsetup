@@ -1,9 +1,36 @@
-cp ~/script.one /var/www/html
-cp ~/script.two /var/www/html
-cp ~/font.one   /var/www/html
-cp ~/git.html   /var/www/html
+is_apache_running() {
+    local port="${1:-80}" # Default to port 80
+    
+    # Check if we can connect to localhost port 80
+    if (echo > /dev/tcp/localhost/"$port") 2>/dev/null; then
+        return 0 # True
+    else
+        return 1 # False
+    fi
+}
 
-includer myFlow.src > /var/www/html/myFlow.html
 
-cp myFlow.css         /var/www/html/myFlow.css
+is_apache_process_running() {
+    # Check for 'apache2' OR 'httpd'
+    # -x matches the exact process name
+    if pgrep -x "apache2" > /dev/null || pgrep -x "httpd" > /dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+
+if is_apache_running; then
+    echo "Apache is Running"
+    #cp ~/script.one       /var/www/html
+    rm -f                 /var/www/html/script.one
+    #cp ~/script.two       /var/www/html
+    rm -f                 /var/www/html/script.two
+    #cp ~/font.one         /var/www/html
+    rm -f                 /var/www/html/font.one
+    
+    includer myFlow.src > /var/www/html/myFlow.html
+    cp myFlow.css         /var/www/html/myFlow.css
+fi
 
