@@ -20,6 +20,10 @@ is_apache_process_running() {
     fi
 }
 
+cp ./.vimrc        ~
+cp ./commander.vim ~
+cp ./gemini.vim    ~
+cp ./utils.vim     ~
 
 if is_apache_running; then
     echo "Apache is Running"
