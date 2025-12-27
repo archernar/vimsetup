@@ -442,7 +442,7 @@ export PS1="\u@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
                         "",
                         "",
                         "Utility",
-                        "git push origin --delete <remote-branch>  : Delete Remote Branch"
+                        "git push origin --delete <remote-branch>  : Delete Remote Branch",
                         "git branch -d <branch>                    : Delete Local Branch"
                     ],
                     logic: "Creates the two infinite lifetime branches: <strong>master</strong> (production) and <strong>develop</strong> (integration). Pushes both to remote."
