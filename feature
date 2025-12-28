@@ -89,7 +89,9 @@ do
            echo "$MSG"
            ;;
         n) git checkout develop
-           git pull origin develop
+           if git remote | grep -q "^origin$"; then
+               git pull origin develop
+           fi
 
            BRANCH_NAME="feature/my-new-feature"
            if git rev-parse --verify "$BRANCH_NAME" >/dev/null 2>&1; then
@@ -156,7 +158,9 @@ do
            git checkout develop
            git merge --no-ff release/1.0.0
            git branch -d release/1.0.0
-           git push origin master develop --tags
+           if git remote | grep -q "^origin$"; then
+               git push origin master develop --tags
+           fi
            exit 0
            ;;
         r) 
@@ -204,7 +208,9 @@ do
            git checkout develop
            git merge --no-ff release/$new_version
            git branch -d release/$new_version
-           git push origin master develop --tags
+           if git remote | grep -q "^origin$"; then
+               git push origin master develop --tags
+           fi
            exit 0
            ;;
 
