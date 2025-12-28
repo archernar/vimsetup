@@ -241,6 +241,13 @@ do
                tar cf $filename .
                cp $filename ~/GITSTAGE
                gzip -9 $filename
+               if ssh -o ConnectTimeout=2 $USER@tower exit; then
+                   echo "Alamo Server is up and SSH is working."
+                   scp $filename.gz $USER@tower:/home/$USER/Alamo
+               else
+                   echo "AlamoServer is down or unreachable."
+               fi
+
                echo ""
                ls -lh  $filename.gz
                echo ""
