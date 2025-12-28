@@ -231,19 +231,19 @@ do
            exit 0
            ;;
         b) if [ -d ".git" ]; then
-               cd .git
+               mkdir -p ~/BACKUPS
+               rm -rf   ~/GITSTAGE
+               mkdir -p ~/GITSTAGE
                filename="$(pwd | sed 's/[/ .]/_/g' | tr -d '/')_$(date +%Y%m%d_%H%M%S)"
                filename="$(echo $filename | sed 's/^_//g')"
                filename="$(echo $filename | sed 's/__/_/g')"
-               filename="$(hostname)_$filename.tar"
-               cd ..
-               tar cf $filename .git
+               filename=~/BACKUPS/$(hostname)_$filename.tar
+               tar cf $filename .
+               cp $filename ~/GITSTAGE
                gzip -9 $filename
-               if [ -d ~/BACKUPS ]; then
-                   mv $filename.gz ~/BACKUPS
-               else
-                   echo "No ~/BACKUPS. Backup file remains in local folder"
-               fi
+               echo ""
+               ls -lh  $filename.gz
+               echo ""
                exit 0
            fi
            exit 0
