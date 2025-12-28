@@ -80,7 +80,7 @@ MSG="Merge Without Message"
 # The file where the version number is stored
 VERSION_FILE="version.txt"
 
-while getopts "hm:neds12rub" arg
+while getopts "hm:neds12ruba" arg
 do
     case $arg in
         h) usage
@@ -250,6 +250,29 @@ do
 
                echo ""
                ls -lh  $filename.gz
+               echo ""
+               exit 0
+           fi
+           exit 0
+           ;;
+        a) mkdir -p ~/BACKUPS
+               filename="$(pwd | sed 's/[/ .]/_/g' | tr -d '/')_$(date +%Y%m%d_%H%M%S)"
+               filename="$(echo $filename | sed 's/^_//g')"
+               filename="$(echo $filename | sed 's/__/_/g')"
+               filename=~/BACKUPS/$(hostname)_$filename.tar
+               tar cf $filename .
+               gzip -9 $filename
+               if ssh -o ConnectTimeout=2 $USER@tower exit; then
+                   echo "Alamo Server is up and SSH is working."
+                   scp $filename.gz $USER@tower:/home/$USER/Alamo
+               else
+                   echo "AlamoServer is down or unreachable."
+               fi
+
+               echo ""
+               ls -lh  $filename.gz
+               rm -f $filename.gz
+
                echo ""
                exit 0
            fi
