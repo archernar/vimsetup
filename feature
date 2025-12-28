@@ -14,6 +14,12 @@ if [ ! -d ".git" ]; then
      exit 1
 fi
 
+if git remote | grep -q "^origin$"; then
+    echo "Remote 'origin' exists."
+else
+    echo "No remote named 'origin' found."
+fi
+
 if git rev-parse --verify master >/dev/null 2>&1; then
     echo "branch master exists locally."
 else
@@ -99,7 +105,9 @@ do
         e) git checkout develop
            git merge --no-ff  feature/my-new-feature -m "$MSG"
            git branch -d      feature/my-new-feature
-           git push origin develop
+           if git remote | grep -q "^origin$"; then
+               git push origin develop
+           fi
            exit 0
            ;;
         d) git checkout develop
