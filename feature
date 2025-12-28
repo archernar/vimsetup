@@ -40,6 +40,7 @@ function usage() {
     echo "  -m <msg>    Set a custom message for merges or commits (Default: 'Merge Without Message')."
     echo "  -s          Status: Show git status and list all branches."
     echo "  -u          Update: Stage all modified files (git add -u) and commit with message 'Update'."
+    echo "  -b          Backup .git folder."
     echo ""
     echo "Feature Workflow (Hardcoded to 'feature/my-new-feature'):"
     echo "  -n          New Feature: Checkout develop, pull, and create/checkout 'feature/my-new-feature'."
@@ -73,7 +74,7 @@ MSG="Merge Without Message"
 # The file where the version number is stored
 VERSION_FILE="version.txt"
 
-while getopts "hm:neds12ru" arg
+while getopts "hm:neds12rub" arg
 do
     case $arg in
         h) usage
@@ -213,6 +214,24 @@ do
            ;;
         u) git add -u
            git commit -m "Update"
+           exit 0
+           ;;
+        b) if [ -d ".git" ]; then
+               cd .git
+               filename="$(pwd | sed 's/[/ .]/_/g' | tr -d '/')_$(date +%Y%m%d_%H%M%S)"
+               filename="$(echo $filename | sed 's/^_//g')"
+               filename="$(echo $filename | sed 's/__/_/g')"
+               filename="$(hostname)_$filename.tar"
+               cd ..
+               tar cf $filename .git
+               gzip -9 $filename
+               if [ -d ~/BACKUPS ]; then
+                   mv $filename.gz ~/BACKUPS
+               else
+                   echo "No ~/BACKUPS. Backup file remains in local folder"
+               fi
+               exit 0
+           fi
            exit 0
            ;;
 
