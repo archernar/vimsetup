@@ -1,0 +1,44 @@
+#!/bin/bash
+clear
+
+# 2. Get terminal dimensions
+# WIDTH=$(tput cols)
+# HEIGHT=$(tput lines)
+WIDTH=$(tput cols < /dev/tty)
+HEIGHT=$(tput lines < /dev/tty)
+
+# 3. Calculate horizontal midpoint and prompt position
+START_COL=$((WIDTH / 2))
+PROMPT_ROW=$((HEIGHT - 1))
+
+START_ROW=1
+
+while getopts "hc:r:" arg
+do
+    case $arg in
+        h) usage
+           ;;
+        c) START_COL=$OPTARG
+           ;;
+        r) START_ROW=$OPTARG
+           ;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+
+# 4. Move cursor to the specific Start Row, Column 1 to begin printing
+printf "\033[${START_ROW};1H"
+
+# 5. Read file and print
+INPUT_SOURCE="/dev/stdin"
+cat "$INPUT_SOURCE" | while IFS= read -r line || [ -n "$line" ]; do
+    # \033[nG -> Move to midpoint
+    # \033[K  -> Clear to end of line
+    # %s      -> Print line content
+    # \n      -> Move down
+    printf "\033[${START_COL}G\033[K%s\n" "$line"
+done
+
+# 6. Move cursor to the second-to-last line for the prompt
+printf "\033[${PROMPT_ROW};1H"
