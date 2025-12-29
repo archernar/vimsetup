@@ -9,31 +9,34 @@ trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
 rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
 
-if [ ! -d ".git" ]; then
-     echo "Not a Git Repo"
-     exit 1
-fi
+function gitcheck() {
+    if [ ! -d ".git" ]; then
+         echo "Not a Git Repo"
+         exit 1
+    fi
 
-if git remote | grep -q "^origin$"; then
-    echo "Remote 'origin' exists."
-else
-    echo "No remote named 'origin' found."
-fi
+    if git remote | grep -q "^origin$"; then
+        echo "Remote 'origin' exists."
+    else
+        echo "No remote named 'origin' found."
+        exit 1
+    fi
 
-if git rev-parse --verify master >/dev/null 2>&1; then
-    echo "branch master exists locally."
-else
-    echo "branch master does not exist locally."
-    echo "run $ git checkout -b master"
-    exit 1
-fi
-if git rev-parse --verify develop >/dev/null 2>&1; then
-    echo "branch develop exists locally."
-else
-    echo "branch develop does not exist locally."
-    echo "run $ git checkout -b develop"
-    exit 1
-fi
+    if git rev-parse --verify master >/dev/null 2>&1; then
+        echo "branch master exists locally."
+    else
+        echo "branch master does not exist locally."
+        echo "run $ git checkout -b master"
+        exit 1
+    fi
+    if git rev-parse --verify develop >/dev/null 2>&1; then
+        echo "branch develop exists locally."
+    else
+        echo "branch develop does not exist locally."
+        echo "run $ git checkout -b develop"
+        exit 1
+    fi
+}
 
 # --- HELP FUNCTION ---
 function usage() {
@@ -88,7 +91,8 @@ do
         m) MSG="$OPTARG"
            echo "$MSG"
            ;;
-        n) git checkout develop
+        n) gitcheck
+           git checkout develop
            if git remote | grep -q "^origin$"; then
                git pull origin develop
            fi
@@ -104,7 +108,8 @@ do
 
            exit 0
            ;;
-        e) git checkout develop
+        e) gitcheck
+           git checkout develop
            git merge --no-ff  feature/my-new-feature -m "$MSG"
            git branch -d      feature/my-new-feature
            if git remote | grep -q "^origin$"; then
@@ -112,13 +117,15 @@ do
            fi
            exit 0
            ;;
-        d) git checkout develop
+        d) gitcheck
+           git checkout develop
            if git rev-parse --verify feature/my-new-feature >/dev/null 2>&1; then
                git branch -D  feature/my-new-feature
            fi
            exit 0
            ;;
         1) exit 0
+           gitcheck
            git checkout master
            # Check if the version file exists. If not, create it with a default version.
            if [ ! -f "$VERSION_FILE" ]; then
@@ -152,6 +159,7 @@ do
            exit 0
            ;;
         2) exit 0
+           gitcheck
            git checkout master
            git merge --no-ff release/1.0.0
            git tag -a v1.0.0 -m 'Release 1.0.0'
@@ -163,7 +171,7 @@ do
            fi
            exit 0
            ;;
-        r) 
+        r) gitcheck
            git checkout develop
 
            # Check if the version file exists. If not, create it with a default version.
@@ -214,7 +222,8 @@ do
            exit 0
            ;;
 
-        s) echo ""
+        s) gitcheck
+           echo ""
            echo "+--------------------------------------------------------------------------------+"
            echo "+--------------------------------------------------------------------------------+"
            echo ""
@@ -226,7 +235,8 @@ do
            echo ""
            exit 0
            ;;
-        u) git add -u
+        u) gitcheck
+           git add -u
            git commit -m "Update"
            exit 0
            ;;
@@ -274,8 +284,6 @@ do
                rm -f $filename.gz
 
                echo ""
-               exit 0
-           fi
            exit 0
            ;;
 
