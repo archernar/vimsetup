@@ -1,12 +1,12 @@
 #!/usr/bin/bash
 
-# 2. Get terminal dimensions
+# Get terminal dimensions
 # WIDTH=$(tput cols)
 # HEIGHT=$(tput lines)
 WIDTH=$(tput cols < /dev/tty)
 HEIGHT=$(tput lines < /dev/tty)
 
-# 3. Calculate horizontal midpoint and prompt position
+# Calculate horizontal midpoint and prompt position
 START_COL=$((WIDTH / 2))
 PROMPT_ROW=$((HEIGHT - 4))
 
@@ -33,10 +33,10 @@ done
 shift $(($OPTIND - 1))
 
 
-# 4. Move cursor to the specific Start Row, Column 1 to begin printing
+# Move cursor to the specific Start Row, Column 1 to begin printing
 printf "\033[${START_ROW};1H"
 
-# 5. Read file and print
+# Read file and print
 INPUT_SOURCE="/dev/stdin"
 cat "$INPUT_SOURCE" | while IFS= read -r line || [ -n "$line" ]; do
     # \033[nG -> Move to midpoint
@@ -48,5 +48,5 @@ cat "$INPUT_SOURCE" | while IFS= read -r line || [ -n "$line" ]; do
     echo $REMROW > .posi
 done
 
-# 6. Move cursor to the second-to-last line for the prompt
+# Move cursor to the second-to-last line for the prompt
 printf "\033[${PROMPT_ROW};1H"
