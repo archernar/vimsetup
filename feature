@@ -223,16 +223,11 @@ do
            ;;
 
         s) gitcheck
-           echo ""
-           echo "+--------------------------------------------------------------------------------+"
-           echo "+--------------------------------------------------------------------------------+"
-           echo ""
-           git status
-           echo ""
-           echo ""
-           git branch -a
-           echo ""
-           echo ""
+           is -l *     | posi -x -c 4 -r 4
+           is -u *     | posi    -c 50 -r 4
+           git branch  | posi    -c 110     -r 4
+           
+
            exit 0
            ;;
         u) gitcheck
