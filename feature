@@ -222,7 +222,8 @@ do
            exit 0
            ;;
 
-        s) gitcheck
+        s) shopt -s dotglob
+           gitcheck
            is -l *                                    | posi -x -c 4   -r 4
            is -u *                                    | posi    -c 50  -r 4
            git branch                                 | posi    -c 110 -r 4
@@ -230,8 +231,7 @@ do
            echo ""                                    | posi -p -c 110
            echo ""                                    | posi -p -c 110
            git status --porcelain | gawk '{print "  " $2}' | posi -p -c 110
-           
-
+           shopt -u dotglob
            exit 0
            ;;
         u) gitcheck
