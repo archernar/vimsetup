@@ -223,9 +223,13 @@ do
            ;;
 
         s) gitcheck
-           is -l *     | posi -x -c 4 -r 4
-           is -u *     | posi    -c 50 -r 4
-           git branch  | posi    -c 110     -r 4
+           is -l *                                    | posi -x -c 4   -r 4
+           is -u *                                    | posi    -c 50  -r 4
+           git branch                                 | posi    -c 110 -r 4
+           echo ""                                    | posi -p -c 110
+           echo ""                                    | posi -p -c 110
+           echo ""                                    | posi -p -c 110
+           git status --porcelain | gawk '{print "  " $2}' | posi -p -c 110
            
 
            exit 0

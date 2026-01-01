@@ -1,3 +1,7 @@
 *.log
 version.txt
 install
+.vim.*
+tags
+.posi
+

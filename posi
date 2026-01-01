@@ -32,6 +32,7 @@ do
 done
 shift $(($OPTIND - 1))
 
+# Begin
 
 # Move cursor to the specific Start Row, Column 1 to begin printing
 printf "\033[${START_ROW};1H"
