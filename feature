@@ -49,6 +49,7 @@ function usage() {
     echo "  -m <msg>    Set a custom message for merges or commits (Default: 'Merge Without Message')."
     echo "  -s          Status: Show git status and list all branches."
     echo "  -u          Update: Stage all modified files (git add -u) and commit with message 'Update'."
+    echo "  -g          Run Gource."
     echo "  -b          Backup .git folder."
     echo ""
     echo "Feature Workflow (Hardcoded to 'feature/my-new-feature'):"
@@ -90,6 +91,8 @@ NAME=""
 MSG="Merge Without Message"
 # The file where the version number is stored
 VERSION_FILE="version.txt"
+# Added gource
+
 
 while getopts "hgm:neds12ruba" arg
 do
