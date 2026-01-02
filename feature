@@ -271,6 +271,8 @@ do
            git branch                                 | posi    -c 116 -r 4
            echo ""                                    | posi -p -c 116
            echo ""                                    | posi -p -c 116
+           git remote get-url origin | gawk '{print "  " $0}' | posi -p -c 116
+           echo ""                                    | posi -p -c 116
            echo ""                                    | posi -p -c 116
            git status --porcelain | gawk '{print "  " $2}' | posi -p -c 116
            shopt -u dotglob
