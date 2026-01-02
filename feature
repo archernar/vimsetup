@@ -91,10 +91,40 @@ MSG="Merge Without Message"
 # The file where the version number is stored
 VERSION_FILE="version.txt"
 
-while getopts "hm:neds12ruba" arg
+while getopts "hgm:neds12ruba" arg
 do
     case $arg in
         h) usage
+           ;;
+        g) GOURCEVIDEO="NO"
+           if [[ "$GOURCEVIDEO" != "YES" ]]; then                                                                                               
+               gource \
+                --seconds-per-day 0.5 \
+                --auto-skip-seconds 1 \
+                --multi-sampling \
+                --camera-mode track \
+                --bloom-multiplier 1.2 \
+                --bloom-intensity 1.5 \
+                --hide mouse,progress,filenames \
+                --font-size 24 \
+                --title "Project History" \
+                --file-idle-time 0 \
+                -1920x1080
+           else
+                gource \
+                   -1920x1080 \
+                   --seconds-per-day 0.5 \
+                   --auto-skip-seconds 1 \
+                   --multi-sampling \
+                   --stop-at-end \
+                   --key \
+                   --highlight-users \
+                   --hide mouse,progress \
+                   --file-idle-time 0 \
+                   --output-ppm-stream - \
+                   --output-framerate 60 \
+                   | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264 -preset medium -pix_fmt yuv420p -crf 18 output.mp4v
+           fi
            ;;
         m) MSG="$OPTARG"
            echo "$MSG"
