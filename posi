@@ -1,5 +1,15 @@
 #!/usr/bin/bash
 
+# Function: move_cursor <row> <col>
+# move_cursor 2 10
+move_cursor() {
+    local row=$1
+    local col=$2
+    printf "\033[${row};${col}H"
+}
+
+# Move to bottom to prevent prompt from overwriting the UI
+move_cursor 10 1
 # Get terminal dimensions
 # WIDTH=$(tput cols)
 # HEIGHT=$(tput lines)
@@ -9,6 +19,7 @@ HEIGHT=$(tput lines < /dev/tty)
 # Calculate horizontal midpoint and prompt position
 START_COL=$((WIDTH / 2))
 PROMPT_ROW=$((HEIGHT - 4))
+PROMPT_COLUMN=$((0 + 4))
 
 START_ROW=1
 REMROW=$START_ROW
@@ -50,4 +61,4 @@ cat "$INPUT_SOURCE" | while IFS= read -r line || [ -n "$line" ]; do
 done
 
 # Move cursor to the second-to-last line for the prompt
-printf "\033[${PROMPT_ROW};1H"
+#printf "\033[${PROMPT_ROW};1H"
