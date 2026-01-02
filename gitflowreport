@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # ==============================================================================
 # Script Name: gitflow-report.sh
 # Description: Generates a status report for a GitFlow-compliant repository.
