@@ -1,0 +1,151 @@
+#!/bin/bash
+
+# ==============================================================================
+# Script Name: gitflow-report.sh
+# Description: Generates a status report for a GitFlow-compliant repository.
+# Usage:       ./gitflow-report.sh [path_to_repo]
+# ==============================================================================
+
+# --- Configuration ---
+REPO_PATH="${1:-.}"
+STALE_DAYS=30
+MASTER_BRANCH="master" # Will auto-detect 'main' if 'master' is missing
+
+# --- Colors for formatting ---
+BOLD="\033[1m"
+RED="\033[31m"
+GREEN="\033[32m"
+YELLOW="\033[33m"
+BLUE="\033[34m"
+CYAN="\033[36m"
+RESET="\033[0m"
+
+# --- Functions ---
+
+print_header() {
+    echo -e "\n${BLUE}${BOLD}=== $1 ===${RESET}"
+}
+
+print_kv() {
+    printf "${BOLD}%-25s${RESET} %s\n" "$1:" "$2"
+}
+
+check_dependency() {
+    if ! command -v "$1" &> /dev/null; then
+        echo -e "${RED}Error: Required command '$1' not found.${RESET}"
+        exit 1
+    fi
+}
+
+# --- Main Execution ---
+
+check_dependency git
+check_dependency awk
+
+# Navigate to repo
+if [ ! -d "$REPO_PATH/.git" ]; then
+    echo -e "${RED}Error: '$REPO_PATH' is not a valid git repository.${RESET}"
+    exit 1
+fi
+
+cd "$REPO_PATH" || exit 1
+
+# Fetch latest to ensure report is accurate
+echo -e "${CYAN}Fetching latest references...${RESET}"
+git fetch --all --prune --quiet
+
+# Detect Master/Main
+if git show-ref --verify --quiet refs/remotes/origin/main; then
+    MASTER_BRANCH="main"
+fi
+
+# 1. General Overview
+print_header "General Overview"
+REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+REMOTE_URL=$(git config --get remote.origin.url)
+
+print_kv "Repository Name" "$REPO_NAME"
+print_kv "Remote Origin" "$REMOTE_URL"
+print_kv "Production Branch" "$MASTER_BRANCH"
+print_kv "Current Branch" "$CURRENT_BRANCH"
+
+# 2. GitFlow Health (Master vs Develop)
+print_header "GitFlow Divergence"
+
+if git show-ref --verify --quiet refs/remotes/origin/develop; then
+    # Calculate divergence
+    BEHIND=$(git rev-list --count "origin/develop..origin/$MASTER_BRANCH")
+    AHEAD=$(git rev-list --count "origin/$MASTER_BRANCH..origin/develop")
+    
+    print_kv "Develop Branch" "Exists"
+    echo ""
+    echo -e "  * Commits ${BOLD}develop${RESET} is ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)"
+    echo -e "  * Commits ${BOLD}develop${RESET} is behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)"
+    
+    if [ "$BEHIND" -gt 0 ]; then
+        echo -e "\n  ${YELLOW}[WARNING] develop is behind production. You may need to merge $MASTER_BRANCH back into develop.${RESET}"
+    fi
+else
+    echo -e "${RED}[CRITICAL] 'develop' branch not found on remote! Is this strictly GitFlow?${RESET}"
+fi
+
+# 3. Branch Statistics
+print_header "Branch Statistics (Remote)"
+
+count_branch() {
+    git branch -r | grep -c "origin/$1"
+}
+
+FEAT_COUNT=$(count_branch "feature/")
+REL_COUNT=$(count_branch "release/")
+HOTFIX_COUNT=$(count_branch "hotfix/")
+BUGFIX_COUNT=$(count_branch "bugfix/")
+SUPPORT_COUNT=$(count_branch "support/")
+
+print_kv "Active Features" "$FEAT_COUNT"
+print_kv "Active Releases" "$REL_COUNT"
+print_kv "Active Hotfixes" "$HOTFIX_COUNT"
+print_kv "Active Bugfixes" "$BUGFIX_COUNT"
+
+# 4. Stale Feature Branches
+print_header "Stale Feature Branches (> $STALE_DAYS days)"
+
+# Get branches formatted as: "YYYY-MM-DD|branch_name"
+# Filter for remote feature branches, sort by date
+STALE_BRANCHES=$(git for-each-ref --sort=committerdate refs/remotes/origin/feature --format='%(committerdate:short)|%(refname:short)' | \
+while IFS='|' read -r date branch; do
+    # Calculate days since commit
+    commit_ts=$(date -d "$date" +%s)
+    current_ts=$(date +%s)
+    diff_days=$(( (current_ts - commit_ts) / 86400 ))
+    
+    if [ "$diff_days" -gt "$STALE_DAYS" ]; then
+        printf "  ${RED}%-12s${RESET} %-40s (${BOLD}%d${RESET} days inactive)\n" "$date" "${branch#origin/}" "$diff_days"
+    fi
+done)
+
+if [ -n "$STALE_BRANCHES" ]; then
+    echo -e "The following feature branches have stagnated:"
+    echo "$STALE_BRANCHES"
+else
+    echo -e "${GREEN}No stale feature branches found. Good hygiene!${RESET}"
+fi
+
+# 5. Latest Releases (Tags)
+print_header "Latest Releases"
+# Sort by version number (V) or date, taking top 3
+git tag -l | sort -V -r | head -n 3 | while read -r tag; do
+    tag_date=$(git log -1 --format=%ai "$tag" 2>/dev/null | cut -d' ' -f1)
+    printf "  ${CYAN}%-15s${RESET} %s\n" "$tag" "($tag_date)"
+done
+
+if [ -z "$(git tag)" ]; then
+    echo "  No tags found."
+fi
+
+# 6. Contributor Summary (Last 90 days)
+print_header "Top Contributors (Last 90 Days)"
+git shortlog -sn --since="90 days ago" --no-merges | head -n 5 | awk '{printf "  %4s commits - %s\n", $1, $0}' | sed "s/[0-9]* commits - //" 
+
+echo -e "\n${BOLD}=== Report Complete ===${RESET}"
