@@ -77,6 +77,14 @@ function git_branch() {
          exit 1
      fi
 }
+
+# CMD="lsgi"
+# if ! command -v "$CMD" >/dev/null 2>&1; then
+#         echo "Error: Required dependency '$CMD' is not installed or not in PATH." >&2
+#         exit 1
+# fi
+
+
 ITEM=""
 NAME=""
 MSG="Merge Without Message"
@@ -222,16 +230,25 @@ do
            exit 0
            ;;
 
-        s) shopt -s dotglob
+        s)  
+           shopt -s dotglob
            gitcheck
-           is -l *                                    | posi -x -c 4   -r 4
-           is -u *                                    | posi    -c 50  -r 4
-           git branch                                 | posi    -c 110 -r 4
-           echo ""                                    | posi -p -c 110
-           echo ""                                    | posi -p -c 110
-           echo ""                                    | posi -p -c 110
-           git status --porcelain | gawk '{print "  " $2}' | posi -p -c 110
+           is -l *                                    | posi -x -c 6   -r 4
+           is -u *                                    | posi    -c 56  -r 4
+           git branch                                 | posi    -c 116 -r 4
+           echo ""                                    | posi -p -c 116
+           echo ""                                    | posi -p -c 116
+           echo ""                                    | posi -p -c 116
+           git status --porcelain | gawk '{print "  " $2}' | posi -p -c 116
            shopt -u dotglob
+
+           WIDTH=$(tput cols < /dev/tty)
+           HEIGHT=$(tput lines < /dev/tty)
+           ROW=$((HEIGHT - 4))
+           COLUMN=$((0 + 6))
+           printf "\033[${ROW};${COLUMN}H"
+
+
            exit 0
            ;;
         u) gitcheck
