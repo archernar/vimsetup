@@ -19,6 +19,12 @@ CYAN="\033[36m"
 RESET="\033[0m"
 
 # --- Functions ---
+ansiGreen() {
+    printf "${GREEN}"
+}
+ansiReset() {
+    printf "${RESET}"
+}
 
 print_header() {
     echo -e "\n${BLUE}${BOLD}=== $1 ===${RESET}"
@@ -315,11 +321,13 @@ do
            gitcheck
            is -l *                                     | posi -x -c 6   -r 4
            is -u *                                     | posi    -c 54  -r 4
+           ansiGreen
            echo "  Repository Name   " "$REPO_NAME"      | posi    -c 102 -r 4
            echo "  Remote Origin     " "$REMOTE_URL"     | posi -p -c 102 
            echo "  Remote Origin     " "$HTTPS_URL"      | posi -p -c 102 
            echo "  Production Branch " "$MASTER_BRANCH"  | posi -p -c 102 
            echo "  Current Branch    " "$CURRENT_BRANCH" | posi -p -c 102 
+           ansiReset
            echo ""                                    | posi -p -c 102
            echo ""                                    | posi -p -c 102
            git branch                                 | posi -p -c 102
