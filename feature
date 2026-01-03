@@ -9,6 +9,38 @@ trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
 rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
 
+# --- Colors for formatting ---
+BOLD="\033[1m"
+RED="\033[31m"
+GREEN="\033[32m"
+YELLOW="\033[33m"
+BLUE="\033[34m"
+CYAN="\033[36m"
+RESET="\033[0m"
+
+# --- Functions ---
+
+print_header() {
+    echo -e "\n${BLUE}${BOLD}=== $1 ===${RESET}"
+}
+
+print_kv() {
+    printf "${BOLD}%-25s${RESET} %s\n" "$1:" "$2"
+}
+
+check_dependency() {
+    if ! command -v "$1" &> /dev/null; then
+        echo -e "${RED}Error: Required command '$1' not found.${RESET}"
+        exit 1
+    fi
+}
+
+# --- Main Execution ---
+
+check_dependency git
+check_dependency awk
+check_dependency sed
+
 function gitcheck() {
     if [ ! -d ".git" ]; then
          echo "Not a Git Repo"
@@ -93,6 +125,20 @@ MSG="Merge Without Message"
 VERSION_FILE="version.txt"
 # Added gource
 
+REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
+MASTER_BRANCH="master"
+# Detect Master/Main
+if git show-ref --verify --quiet refs/remotes/origin/main; then
+    MASTER_BRANCH="main"
+fi
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+REMOTE_URL=$(git config --get remote.origin.url)
+HTTPS_URL=$(echo $REMOTE_URL | sed 's/[:]/./')
+HTTPS_URL=$(echo $HTTPS_URL  | sed 's/^git@/https:\/\//')
+HTTPS_URL=$(echo $HTTPS_URL  | sed 's/github[.]com[.]/github.com\//')
+
+
+
 
 while getopts "hgm:neds12ruba" arg
 do
@@ -141,6 +187,7 @@ do
            BRANCH_NAME="feature/my-new-feature"
            if git rev-parse --verify "$BRANCH_NAME" >/dev/null 2>&1; then
                echo "Branch '$BRANCH_NAME' exists locally."
+               git checkout feature/my-new-feature
                exit 0
            else
                echo "Branch '$BRANCH_NAME' does not exist locally."
@@ -266,15 +313,19 @@ do
         s)  
            shopt -s dotglob
            gitcheck
-           is -l *                                    | posi -x -c 6   -r 4
-           is -u *                                    | posi    -c 56  -r 4
-           git branch                                 | posi    -c 116 -r 4
-           echo ""                                    | posi -p -c 116
-           echo ""                                    | posi -p -c 116
-           git remote get-url origin | gawk '{print "  " $0}' | posi -p -c 116
-           echo ""                                    | posi -p -c 116
-           echo ""                                    | posi -p -c 116
-           git status --porcelain | gawk '{print "  " $2}' | posi -p -c 116
+           is -l *                                     | posi -x -c 6   -r 4
+           is -u *                                     | posi    -c 54  -r 4
+           echo "  Repository Name   " "$REPO_NAME"      | posi    -c 102 -r 4
+           echo "  Remote Origin     " "$REMOTE_URL"     | posi -p -c 102 
+           echo "  Remote Origin     " "$HTTPS_URL"      | posi -p -c 102 
+           echo "  Production Branch " "$MASTER_BRANCH"  | posi -p -c 102 
+           echo "  Current Branch    " "$CURRENT_BRANCH" | posi -p -c 102 
+           echo ""                                    | posi -p -c 102
+           echo ""                                    | posi -p -c 102
+           git branch                                 | posi -p -c 102
+           echo ""                                    | posi -p -c 102
+           echo ""                                    | posi -p -c 102
+           git status --porcelain | gawk '{print "  " $2}' | posi -p -c 102
            shopt -u dotglob
 
            WIDTH=$(tput cols < /dev/tty)
