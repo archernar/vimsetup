@@ -88,6 +88,7 @@ function usage() {
     echo "  -s          Status: Show git status and list all branches."
     echo "  -u          Update: Stage all modified files (git add -u) and commit with message 'Update'."
     echo "  -g          Run Gource."
+    echo "  -a          Backup the current folder."
     echo "  -b          Backup .git folder."
     echo ""
     echo "Feature Workflow (Hardcoded to 'feature/my-new-feature'):"
@@ -131,18 +132,19 @@ MSG="Merge Without Message"
 VERSION_FILE="version.txt"
 # Added gource
 
-REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
-MASTER_BRANCH="master"
-# Detect Master/Main
-if git show-ref --verify --quiet refs/remotes/origin/main; then
-    MASTER_BRANCH="main"
+if [ -d ".git" ]; then
+    REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
+    MASTER_BRANCH="master"
+    # Detect Master/Main
+    if git show-ref --verify --quiet refs/remotes/origin/main; then
+        MASTER_BRANCH="main"
+    fi
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    REMOTE_URL=$(git config --get remote.origin.url)
+    HTTPS_URL=$(echo $REMOTE_URL | sed 's/[:]/./')
+    HTTPS_URL=$(echo $HTTPS_URL  | sed 's/^git@/https:\/\//')
+    HTTPS_URL=$(echo $HTTPS_URL  | sed 's/github[.]com[.]/github.com\//')
 fi
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-REMOTE_URL=$(git config --get remote.origin.url)
-HTTPS_URL=$(echo $REMOTE_URL | sed 's/[:]/./')
-HTTPS_URL=$(echo $HTTPS_URL  | sed 's/^git@/https:\/\//')
-HTTPS_URL=$(echo $HTTPS_URL  | sed 's/github[.]com[.]/github.com\//')
-
 
 
 
@@ -375,7 +377,7 @@ do
            fi
            exit 0
            ;;
-        a) mkdir -p ~/BACKUPS
+        a)     mkdir -p ~/BACKUPS
                filename="$(pwd | sed 's/[/ .]/_/g' | tr -d '/')_$(date +%Y%m%d_%H%M%S)"
                filename="$(echo $filename | sed 's/^_//g')"
                filename="$(echo $filename | sed 's/__/_/g')"
