@@ -43,22 +43,39 @@ do
 done
 shift $(($OPTIND - 1))
 
+
+if [ "$#" -gt 0 ]; then
+    INPUT_SOURCE="$1"
+else
+    INPUT_SOURCE="/dev/stdin"
+fi
+
+
+
 # Begin
 
 # Move cursor to the specific Start Row, Column 1 to begin printing
 printf "\033[${START_ROW};1H"
 
 # Read file and print
-INPUT_SOURCE="/dev/stdin"
-cat "$INPUT_SOURCE" | while IFS= read -r line || [ -n "$line" ]; do
-    # \033[nG -> Move to midpoint
-    # \033[K  -> Clear to end of line
-    # %s      -> Print line content
-    # \n      -> Move down
-    printf "\033[${START_COL}G\033[K%s\n"  "$line"
-    REMROW=$((REMROW + 1))
-    echo $REMROW > .posi
-done
+if [[ "$INPUT_SOURCE" = "/dev/stdin" ]]; then                                                                                               
+    cat  "$INPUT_SOURCE" | while IFS= read -r line || [ -n "$line" ]; do
+        # \033[nG -> Move to midpoint
+        # \033[K  -> Clear to end of line
+        # %s      -> Print line content
+        # \n      -> Move down
+        printf "\033[${START_COL}G\033[K%s\n"  "$line"
+        REMROW=$((REMROW + 1))
+        echo $REMROW > .posi
+    done
+else
+    echo "$INPUT_SOURCE" | while IFS= read -r line || [ -n "$line" ]; do
+        printf "\033[${START_COL}G\033[K%s\n"  "$line"
+        REMROW=$((REMROW + 1))
+        echo $REMROW > .posi
+    done
+fi
+
 
 # Move cursor to the second-to-last line for the prompt
 #printf "\033[${PROMPT_ROW};1H"
