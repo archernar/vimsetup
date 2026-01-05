@@ -330,12 +330,17 @@ do
            echo "  Production Branch " "$MASTER_BRANCH"  | posi -p -c 102 
            echo "  Current Branch    " "$CURRENT_BRANCH" | posi -p -c 102 
            ansiReset
-           echo ""                                    | posi -p -c 102
-           echo ""                                    | posi -p -c 102
-           git branch                                 | posi -p -c 102
-           echo ""                                    | posi -p -c 102
-           echo ""                                    | posi -p -c 102
-           git status --porcelain | gawk '{print "  " $2}' | posi -p -c 102
+           echo ""                                    | posi
+           echo ""                                    | posi
+           git branch                                 | posi
+           echo ""                                    | posi
+           echo ""                                    | posi
+           git status --porcelain                     | gawk '{print "  " $2}' | posi
+           if [ -f ".vim.vimsession" ]; then
+               echo ""                                | posi 
+               echo ""                                | posi 
+               cat .vim.vimsession                    | gawk '{print "  " $0}' | posi 
+           fi
            shopt -u dotglob
 
            WIDTH=$(tput cols < /dev/tty)
