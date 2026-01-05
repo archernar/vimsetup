@@ -23,6 +23,17 @@ PROMPT_COLUMN=$((0 + 4))
 
 START_ROW=1
 REMROW=$START_ROW
+REMCOL=$START_COL
+
+if [ -f ".posirow" ]; then
+    START_ROW=$(cat .posirow)
+    REMROW=$START_ROW
+fi
+if [ -f ".posicol" ]; then
+    START_COL=$(cat .posicol)
+    REMCOL=$START_COL
+fi
+
 
 while getopts "hxc:r:p" arg
 do
@@ -32,12 +43,15 @@ do
         x) clear
            ;;
         c) START_COL=$OPTARG
+           REMCOL=$START_COL
            ;;
         r) START_ROW=$OPTARG
            REMROW=$START_ROW
            ;;
-       p)  START_ROW=$(cat .posi)
+        p) START_ROW=$(cat .posirow)
+           START_COL=$(cat .posicol)
            REMROW=$START_ROW
+           REMCOL=$START_COL
            ;;
     esac
 done
@@ -66,13 +80,15 @@ if [[ "$INPUT_SOURCE" = "/dev/stdin" ]]; then
         # \n      -> Move down
         printf "\033[${START_COL}G\033[K%s\n"  "$line"
         REMROW=$((REMROW + 1))
-        echo $REMROW > .posi
+        echo $REMROW > .posirow
+        echo $REMCOL > .posicol
     done
 else
     echo "$INPUT_SOURCE" | while IFS= read -r line || [ -n "$line" ]; do
         printf "\033[${START_COL}G\033[K%s\n"  "$line"
         REMROW=$((REMROW + 1))
-        echo $REMROW > .posi
+        echo $REMROW > .posirow
+        echo $REMCOL > .posicol
     done
 fi
 
