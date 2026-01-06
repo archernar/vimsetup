@@ -400,6 +400,10 @@ do
            exit 0
            ;;
         u) gitcheck
+           if [ "$(git branch --show-current)" != "feature/my-new-feature" ]; then
+               echo "Not on 'feature/my-new-feature' branch."
+               exit 1
+           fi
            git add -u
            git commit -m "Update"
            exit 0
