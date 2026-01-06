@@ -347,13 +347,13 @@ do
 
            if git show-ref --verify --quiet refs/remotes/origin/develop; then
                # Calculate divergence
-               BEHIND=$(git rev-list --count "origin/develop..origin/$MASTER_BRANCH")
-               AHEAD=$(git rev-list --count "origin/$MASTER_BRANCH..origin/develop")
+               BEHIND=$(git rev-list --count "develop..$MASTER_BRANCH")
+               AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
                echo "" | posi
                echo -e "  Commits ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
                echo -e "  Commits ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
-               BEHIND=$(git rev-list --count "develop..$MASTER_BRANCH")
-               AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
+               BEHIND=$(git rev-list --count "origin/develop..origin/$MASTER_BRANCH")
+               AHEAD=$(git rev-list --count "origin/$MASTER_BRANCH..origin/develop")
                echo "" | posi
                echo -e "  Commits ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
                echo -e "  Commits ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
