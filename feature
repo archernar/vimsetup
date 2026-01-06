@@ -212,6 +212,7 @@ do
                git push origin develop
            fi
            exit 0
+
            ;;
         d) gitcheck
            git checkout develop
@@ -331,15 +332,61 @@ do
            echo "  Current Branch    " "$CURRENT_BRANCH" | posi -p -c 102 
            ansiReset
            echo ""                                    | posi
-           echo ""                                    | posi
            git branch                                 | posi
            echo ""                                    | posi
+           echo "  Changes"                           | posi
+           git status -s | gawk '
+           /^ M/ {
+               print "✅ " $2
+           }
+           /^[?][?]/ {
+               print "❌  " $2
+           }' | gawk '{print "    " $0}'    | posi
            echo ""                                    | posi
-           git status --porcelain                     | gawk '{print "  " $2}' | posi
+           echo "  Staged"                           | posi
+           git diff --name-only --cached | gawk '
+           {
+               print "✅ " $0
+           }' | gawk '{print "    " $0}'    | posi
+
+
+           #  git diff --name-only HEAD | gawk '{print "    " $0}'    | posi
+           #  git status --porcelain                     | gawk '{print "  " $2}' | posi
+           
+
+
+           echo ""                                    | posi
            if [ -f ".vim.vimsession" ]; then
                echo ""                                | posi 
                echo ""                                | posi 
                cat .vim.vimsession                    | gawk '{print "  " $0}' | posi 
+           fi
+
+           echo "" | posi
+           echo  "  GitFlow Divergence" | posi
+
+           if git show-ref --verify --quiet refs/remotes/origin/develop; then
+               # Calculate divergence
+               # BEHIND=$(git rev-list --count "develop..$MASTER_BRANCH")
+               # AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
+               BEHIND=$(git rev-list --count "develop..master")
+               AHEAD=$(git rev-list --count "master..develop")
+               echo "" | posi
+               echo -e "  Commits ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
+               echo -e "  Commits ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
+               # BEHIND=$(git rev-list --count "origin/develop..origin/$MASTER_BRANCH")
+               # AHEAD=$(git rev-list --count "origin/$MASTER_BRANCH..origin/develop")
+               # echo "" | posi
+               # echo -e "  Commits ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
+               # echo -e "  Commits ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
+               
+               if [ "$BEHIND" -gt 0 ]; then
+                   echo -e "\n  ${YELLOW}[WARNING] develop is behind production. {RESET}" | posi
+                   echo -e "\n  ${YELLOW}[WARNING] You may need to merge $MASTER_BRANCH back into develop.${RESET}" | posi
+               fi
+           else
+               echo -e "${RED}[CRITICAL] 'develop' branch not found on remote!${RESET}" | posi
+               echo -e "${RED}[CRITICAL] Is this strictly GitFlow?${RESET}" | posi
            fi
            shopt -u dotglob
 
@@ -353,6 +400,10 @@ do
            exit 0
            ;;
         u) gitcheck
+           if [ "$(git branch --show-current)" != "feature/my-new-feature" ]; then
+               echo "Not on 'feature/my-new-feature' branch."
+               exit 1
+           fi
            git add -u
            git commit -m "Update"
            exit 0
