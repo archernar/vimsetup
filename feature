@@ -212,6 +212,7 @@ do
                git push origin develop
            fi
            exit 0
+
            ;;
         d) gitcheck
            git checkout develop
