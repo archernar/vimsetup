@@ -344,10 +344,10 @@ do
            }' | gawk '{print "    " $0}'    | posi
            echo ""                                    | posi
            echo "  Staged"                           | posi
-           git diff --name-only -cached | gawk '
+           git diff --name-only --cached | gawk '
            {
                print "✅ " $0
-           }'
+           }' | gawk '{print "    " $0}'    | posi
 
 
            #  git diff --name-only HEAD | gawk '{print "    " $0}'    | posi
