@@ -344,7 +344,10 @@ do
            git merge --no-ff release/$new_version
            git branch -d release/$new_version
            if git remote | grep -q "^origin$"; then
-               git push origin master develop --tags
+               git push origin develop --tags
+           fi
+           if git remote | grep -q "^origin$"; then
+               git push origin master --tags
            fi
            exit 0
            ;;
@@ -434,6 +437,7 @@ do
         u) gitcheck
            if [ "$(git branch --show-current)" != "feature/my-new-feature" ]; then
                echo "Not on 'feature/my-new-feature' branch."
+               exit 1
                exit 1
            fi
            git add -u
