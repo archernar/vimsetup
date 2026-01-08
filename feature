@@ -342,6 +342,8 @@ do
            git tag -a v$new_version -m 'Release $new_version'
            git checkout develop
            git merge --no-ff release/$new_version
+
+           
            git branch -d release/$new_version
            if git remote | grep -q "^origin$"; then
                git push origin develop --tags
@@ -400,29 +402,12 @@ do
            echo "" | posi
            echo  "  GitFlow Divergence" | posi
 
-           if git show-ref --verify --quiet refs/remotes/origin/develop; then
                # Calculate divergence
-               # BEHIND=$(git rev-list --count "develop..$MASTER_BRANCH")
-               # AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
-               BEHIND=$(git rev-list --count "develop..master")
-               AHEAD=$(git rev-list --count "master..develop")
+               BEHIND=$(git rev-list --count "develop..$MASTER_BRANCH")
+               AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
                echo "" | posi
-               echo -e "  Commits ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
-               echo -e "  Commits ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
-               # BEHIND=$(git rev-list --count "origin/develop..origin/$MASTER_BRANCH")
-               # AHEAD=$(git rev-list --count "origin/$MASTER_BRANCH..origin/develop")
-               # echo "" | posi
-               # echo -e "  Commits ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
-               # echo -e "  Commits ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
-               
-               if [ "$BEHIND" -gt 0 ]; then
-                   echo -e "\n  ${YELLOW}[WARNING] develop is behind production. {RESET}" | posi
-                   echo -e "\n  ${YELLOW}[WARNING] You may need to merge $MASTER_BRANCH back into develop.${RESET}" | posi
-               fi
-           else
-               echo -e "${RED}[CRITICAL] 'develop' branch not found on remote!${RESET}" | posi
-               echo -e "${RED}[CRITICAL] Is this strictly GitFlow?${RESET}" | posi
-           fi
+               echo -e "  ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
+               echo -e "  ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
            shopt -u dotglob
 
            WIDTH=$(tput cols < /dev/tty)
@@ -440,7 +425,7 @@ do
                exit 1
                exit 1
            fi
-           git add -u
+           #git add -u
            git commit -m "Update"
            exit 0
            ;;
