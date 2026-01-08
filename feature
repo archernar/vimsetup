@@ -347,6 +347,9 @@ do
            git push origin develop --tags
            git push origin master --tags
 
+           git pull origin develop --tags
+           git pull origin master --tags
+
            exit 0
            ;;
 
