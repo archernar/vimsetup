@@ -344,12 +344,9 @@ do
 
            
            git branch -d release/$new_version
-           if git remote | grep -q "^origin$"; then
-               git push origin develop --tags
-           fi
-           if git remote | grep -q "^origin$"; then
-               git push origin master --tags
-           fi
+           git push origin develop --tags
+           git push origin master --tags
+
            exit 0
            ;;
 
