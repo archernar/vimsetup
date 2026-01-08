@@ -348,7 +348,7 @@ do
            git push origin master --tags
 
            git pull origin develop
-           git pull origin masters
+           git pull origin master
 
            exit 0
            ;;
