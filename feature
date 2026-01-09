@@ -137,7 +137,16 @@ confirm() {
         *)     return 1 ;; # Return failure (false) for anything else
     esac
 }
-
+function proceed() {
+    if confirm "${BOLD}${GREEN}Proceed?${RESET}"; then
+        NOTHING=0
+    else
+        echo ""
+        echo "Operation cancelled."
+        echo ""
+        exit 0
+    fi
+}
 function git_branch() {
          local void="11";                          # Bash-Function-Args
      if [ -d ".git" ]; then
@@ -223,7 +232,8 @@ do
            fi
            exit 0
            ;;
-        g) GOURCEVIDEO="NO"
+        g) proceed
+           GOURCEVIDEO="NO"
            if [[ "$GOURCEVIDEO" != "YES" ]]; then                                                                                               
                gource \
                 --seconds-per-day 0.5 \
