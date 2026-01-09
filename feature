@@ -107,7 +107,36 @@ function usage() {
     exit 0
 }
 
+confirm() {
+   # Usage: confirm "Question text" [default (y/n)]
+    local prompt="${1:-Are you sure?}"
+    local default="${2:-n}"  # Default to 'n' for safety if not specified
 
+    local reply
+    
+    # Check if a default is provided to format the prompt options
+    if [[ "$default" =~ ^[Yy]$ ]]; then
+        local options="[Y/n]"
+    else
+        local options="[y/N]"
+    fi
+
+    # Read user input
+    echo -n -e "$prompt"
+    read -r -p " $options " reply
+    #read -r -p "$prompt $options " reply
+
+    # Handle empty input (Enter key) by using the default
+    if [[ -z "$reply" ]]; then
+        reply="$default"
+    fi
+
+    # Check the reply
+    case "${reply,,}" in  # ${reply,,} converts input to lowercase
+        y|yes) return 0 ;; # Return success (true)
+        *)     return 1 ;; # Return failure (false) for anything else
+    esac
+}
 
 function git_branch() {
          local void="11";                          # Bash-Function-Args
@@ -174,10 +203,25 @@ fi
 
 
 
-while getopts "hgm:neds12ruba" arg
+while getopts "hxgm:neds12ruba" arg
 do
     case $arg in
         h) usage
+           ;;
+        x) gitcheck
+           echo ""
+           echo ""
+           if confirm "${BOLD}${RED}This will perform a hard reset of develop and master. Continue?${RESET}"; then
+               git checkout develop
+               git reset --hard origin/develop
+               git checkout master
+               git reset --hard origin/master
+           else
+               echo ""
+               echo "Operation cancelled."
+               echo ""
+           fi
+           exit 0
            ;;
         g) GOURCEVIDEO="NO"
            if [[ "$GOURCEVIDEO" != "YES" ]]; then                                                                                               
