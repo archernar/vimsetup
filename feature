@@ -273,7 +273,7 @@ fi
 
 
 
-while getopts "hvxgm:neds12ruba" arg
+while getopts "hvxgm:neds12rubaf:" arg
 do
     case $arg in
         h) usage
@@ -558,6 +558,21 @@ do
                rm -f $filename.gz
 
                echo ""
+           exit 0
+           ;;
+        f) filename="$OPTARG"
+           if ssh -o ConnectTimeout=2 $USER@tower exit; then
+               echo ""
+               echo "Alamo Server is up and SSH is working."
+               echo ""
+               echo "scp"
+               echo "    $filename"
+               echo "    $USER@tower:/home/$USER/Alamo/FILES/$filename"
+               scp "$filename" "$USER@tower:/home/$USER/Alamo/FILES/$filename"
+           else
+               echo "AlamoServer is down or unreachable."
+           fi
+           echo ""
            exit 0
            ;;
 
