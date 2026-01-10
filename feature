@@ -75,6 +75,67 @@ function gitcheck() {
         exit 1
     fi
 }
+function gitstatus() {
+           shopt -s dotglob
+           is -l *                                     | posi -x -c 6   -r 4
+           is -u *                                     | posi    -c 54  -r 4
+           ansiGreen
+           echo "  Repository Name   " "$REPO_NAME"      | posi    -c 102 -r 4
+           echo "  Remote Origin     " "$REMOTE_URL"     | posi -p -c 102 
+           echo "  Remote Origin     " "$HTTPS_URL"      | posi -p -c 102 
+           echo "  Production Branch " "$MASTER_BRANCH"  | posi -p -c 102 
+           echo "  Current Branch    " "$CURRENT_BRANCH" | posi -p -c 102 
+           ansiReset
+           echo ""                                    | posi
+           git branch                                 | posi
+           echo ""                                    | posi
+           echo "---------------------------------"   | posi
+           echo "  Changes"                           | posi
+           git status -s | gawk '
+           /^ M/ {
+               print "✅ " $2
+           }
+           /^[?][?]/ {
+               print "❌  " $2
+           }' | gawk '{print "    " $0}'    | posi
+           echo ""                                    | posi
+           echo "  Staged"                           | posi
+           git diff --name-only --cached | gawk '
+           {
+               print "✅ " $0
+           }' | gawk '{print "    " $0}'    | posi
+           echo "---------------------------------"   | posi
+
+
+           #  git diff --name-only HEAD | gawk '{print "    " $0}'    | posi
+           #  git status --porcelain                     | gawk '{print "  " $2}' | posi
+           
+
+
+           echo ""                                    | posi
+           if [ -f ".vim.vimsession" ]; then
+               echo ""                                | posi 
+               echo ""                                | posi 
+               cat .vim.vimsession                    | gawk '{print "  " $0}' | posi 
+           fi
+
+           echo "" | posi
+           echo  "  GitFlow Divergence" | posi
+
+               # Calculate divergence
+               BEHIND=$(git rev-list --count "develop..$MASTER_BRANCH")
+               AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
+               echo "" | posi
+               echo -e "  ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
+               echo -e "  ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
+           shopt -u dotglob
+
+           WIDTH=$(tput cols < /dev/tty)
+           HEIGHT=$(tput lines < /dev/tty)
+           ROW=$((HEIGHT - 4))
+           COLUMN=$((0 + 6))
+           printf "\033[${ROW};${COLUMN}H"
+}
 
 # --- HELP FUNCTION ---
 function usage() {
@@ -212,10 +273,41 @@ fi
 
 
 
-while getopts "hxgm:neds12ruba" arg
+while getopts "hvxgm:neds12ruba" arg
 do
     case $arg in
         h) usage
+           ;;
+
+        v) gitcheck
+           while true; do
+               # '-e' enables readline support (arrow keys, backspace works better)
+               H=$(tput lines < /dev/tty)
+               H=$((H - 5))
+               gitstatus
+               #STATUSPROMPT='$(hostname) $(pwd | sed -e 's,^$HOME,~,') \
+               #($(if [ -d '.git' ]; then git branch --show-current 2> /dev/null; fi)) \
+               #($(if [ -d '.git' ]; then git diff --name-only --cached | wc -l; else echo 'n'; fi),$(if [ -d '.git' ]; then git status --porcelain | wc -l; else echo 'n'; fi)) >> "
+
+               STATUSPROMPT="Run>> "
+               STATUSPROMPT="$(hostname) $(pwd)"
+               BRANCHPROMPT="($(if [ -d '.git' ]; then git branch --show-current 2> /dev/null; fi))"
+               SP="($(if [ -d '.git' ]; then git diff --name-only --cached | wc -l; else echo 'n'; fi),$(if [ -d '.git' ]; then git status --porcelain | wc -l; else echo 'n'; fi))"
+               posi -r $H  -c 1 "" 
+               read -e -p "$STATUSPROMPT $BRANCHPROMPT$SP >> " cmd
+
+               # Skip loop if input is empty
+               [[ -z "$cmd" ]] && continue
+
+               # Break loop if input is 'exit'
+               [[ "$cmd" == "exit" ]] && break
+               # Break loop if input is 'q'
+               [[ "$cmd" == "q" ]] && break
+
+               # Execute command (redirecting stderr to stdout so you see errors)
+               eval "$cmd"
+           done
+           exit 0
            ;;
         x) gitcheck
            echo ""
@@ -408,69 +500,8 @@ do
            exit 0
            ;;
 
-        s)  
-           shopt -s dotglob
-           gitcheck
-           is -l *                                     | posi -x -c 6   -r 4
-           is -u *                                     | posi    -c 54  -r 4
-           ansiGreen
-           echo "  Repository Name   " "$REPO_NAME"      | posi    -c 102 -r 4
-           echo "  Remote Origin     " "$REMOTE_URL"     | posi -p -c 102 
-           echo "  Remote Origin     " "$HTTPS_URL"      | posi -p -c 102 
-           echo "  Production Branch " "$MASTER_BRANCH"  | posi -p -c 102 
-           echo "  Current Branch    " "$CURRENT_BRANCH" | posi -p -c 102 
-           ansiReset
-           echo ""                                    | posi
-           git branch                                 | posi
-           echo ""                                    | posi
-           echo "---------------------------------"   | posi
-           echo "  Changes"                           | posi
-           git status -s | gawk '
-           /^ M/ {
-               print "✅ " $2
-           }
-           /^[?][?]/ {
-               print "❌  " $2
-           }' | gawk '{print "    " $0}'    | posi
-           echo ""                                    | posi
-           echo "  Staged"                           | posi
-           git diff --name-only --cached | gawk '
-           {
-               print "✅ " $0
-           }' | gawk '{print "    " $0}'    | posi
-           echo "---------------------------------"   | posi
-
-
-           #  git diff --name-only HEAD | gawk '{print "    " $0}'    | posi
-           #  git status --porcelain                     | gawk '{print "  " $2}' | posi
-           
-
-
-           echo ""                                    | posi
-           if [ -f ".vim.vimsession" ]; then
-               echo ""                                | posi 
-               echo ""                                | posi 
-               cat .vim.vimsession                    | gawk '{print "  " $0}' | posi 
-           fi
-
-           echo "" | posi
-           echo  "  GitFlow Divergence" | posi
-
-               # Calculate divergence
-               BEHIND=$(git rev-list --count "develop..$MASTER_BRANCH")
-               AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
-               echo "" | posi
-               echo -e "  ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
-               echo -e "  ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
-           shopt -u dotglob
-
-           WIDTH=$(tput cols < /dev/tty)
-           HEIGHT=$(tput lines < /dev/tty)
-           ROW=$((HEIGHT - 4))
-           COLUMN=$((0 + 6))
-           printf "\033[${ROW};${COLUMN}H"
-
-
+        s) gitcheck
+           gitstatus
            exit 0
            ;;
         u) gitcheck
