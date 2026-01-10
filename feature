@@ -222,32 +222,32 @@ function git_branch() {
 #         echo "Error: Required dependency '$CMD' is not installed or not in PATH." >&2
 #         exit 1
 # fi
-ORIGIN_REACHABLE="NO"
-# 1. Check if the current directory is a git repository
-if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    echo "Error: Not inside a Git repository."
-    exit 1
-fi
-
-# 2. Check if a remote named 'origin' actually exists in the config
-if ! git config remote.origin.url >/dev/null 2>&1; then
-    echo "Error: No remote named 'origin' configured."
-    exit 1
-fi
-
-echo "Checking connectivity to 'origin'..."
-
-# 3. Attempt to contact the remote
-# We use 'git ls-remote' with exit code checking.
-# 'HEAD' limits output to just the default branch to save bandwidth.
-if git ls-remote origin HEAD >/dev/null 2>&1; then
-    echo "✅ Success: Remote 'origin' is reachable."
-    ORIGIN_REACHABLE="YES"
-else
-    echo "❌ Failure: Remote 'origin' is NOT reachable."
-    echo "   (Possible causes: Network down, VPN required, bad credentials, or repo deleted)"
-fi
-
+#   ORIGIN_REACHABLE="NO"
+#   # 1. Check if the current directory is a git repository
+#   if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+#       echo "Error: Not inside a Git repository."
+#       exit 1
+#   fi
+#   
+#   # 2. Check if a remote named 'origin' actually exists in the config
+#   if ! git config remote.origin.url >/dev/null 2>&1; then
+#       echo "Error: No remote named 'origin' configured."
+#       exit 1
+#   fi
+#   
+#   echo "Checking connectivity to 'origin'..."
+#   
+#   # 3. Attempt to contact the remote
+#   # We use 'git ls-remote' with exit code checking.
+#   # 'HEAD' limits output to just the default branch to save bandwidth.
+#   if git ls-remote origin HEAD >/dev/null 2>&1; then
+#       echo "✅ Success: Remote 'origin' is reachable."
+#       ORIGIN_REACHABLE="YES"
+#   else
+#       echo "❌ Failure: Remote 'origin' is NOT reachable."
+#       echo "   (Possible causes: Network down, VPN required, bad credentials, or repo deleted)"
+#   fi
+#   
 
 
 ITEM=""
@@ -561,16 +561,27 @@ do
            exit 0
            ;;
         f) filename="$OPTARG"
+           if ssh -o ConnectTimeout=2 $USER@terra exit; then
+               echo ""
+               echo "terra Alamo Server is up and SSH is working."
+               echo ""
+               echo "scp"
+               echo "    $filename"
+               echo "    $USER@terra:/home/$USER/Alamo/FILES/$filename"
+               scp "$filename" "$USER@terra:/home/$USER/Alamo/FILES/$filename"
+           else
+               echo "terra Alamo Server is down or unreachable."
+           fi
            if ssh -o ConnectTimeout=2 $USER@tower exit; then
                echo ""
-               echo "Alamo Server is up and SSH is working."
+               echo "tower Alamo Server is up and SSH is working."
                echo ""
                echo "scp"
                echo "    $filename"
                echo "    $USER@tower:/home/$USER/Alamo/FILES/$filename"
                scp "$filename" "$USER@tower:/home/$USER/Alamo/FILES/$filename"
            else
-               echo "AlamoServer is down or unreachable."
+               echo "tower Alamo Server is down or unreachable."
            fi
            echo ""
            exit 0
