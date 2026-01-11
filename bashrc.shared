@@ -1,0 +1,46 @@
+# *********************************************************DATEOMATIC: Sat May 24 09:55:12 EDT 2025
+# *********************************************************HASHOMATIC: 54a9bc07a629dfb2173395753b1dd926
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+#export PS1='$(collapse_hostname)$(collapse_pwd)$(git_origin)$(git_branch)\n>> '
+#export PS1='$(git_origin)$(git_branch)\n$(collapse_hostname)$(collapse_pwd)>> '
+#export PS1='$(collapse_hostname) $(collapse_pwd) ($(git_toplevel):$(git_branch):$(git_originsync))>> '
+
+alias ls='ls -t'
+alias scm='cd /etc/scm'
+alias center='cd /etc/center'
+alias cgi='cd /var/www/cgi'
+alias grep='grep --color=never'
+alias qgrep='grep -nHP --color=none'
+alias qg='grep -nHP --color=none'
+alias fullpath='find . -type f 2>/dev/null | sed "s#^.#$(pwd)#"'
+alias fullpathd='find . -type d 2>/dev/null | sed "s#^.#$(pwd)#"'
+
+export FC1="~/1.fc"
+export FC2="~/2.fc"
+export FC3="~/applog"
+export FC4="~/vimlog"
+export FC5="./notes"
+export VIMSESSIONDEFAULT=~/.vimsessiondefault
+# Just the name part here
+export VIMSESSION=.vim
+export VIMWINDOW=.vim
+export VIMSPLIT=.vim
+export VIMWINDOWS=.vimwindows
+export VIMLAYOUT=.vimlayout
+export VIMNOSPLITS=.vimnosplits
+export VIMSPLITCMDS="vsplit | split | vertical resize 53"
+export VIMTEMPLATES="~/TPLS/"
