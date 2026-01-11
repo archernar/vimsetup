@@ -34,6 +34,16 @@ print_kv() {
     printf "${BOLD}%-25s${RESET} %s\n" "$1:" "$2"
 }
 
+pause() {
+    # -n 1 : Wait for exactly 1 character
+    # -s   : Silent mode (don't echo the character to screen)
+    # -r   : Raw input (don't interpret backslashes)
+    # -p   : Prompt message
+    # "${1:-...}" : Uses the first argument if provided, otherwise uses default text
+    read -n 1 -s -r -p "${1:-Press any key to continue...}"
+    echo # Output a new line so subsequent text doesn't appear on the same line
+}
+
 check_dependency() {
     if ! command -v "$1" &> /dev/null; then
         echo -e "${RED}Error: Required command '$1' not found.${RESET}"
@@ -304,6 +314,12 @@ do
 
                # Execute command (redirecting stderr to stdout so you see errors)
                eval "$cmd"
+               if [[ "$cmd" =~ ^(vim|vi|apple|banana|cherry)$ ]]; then
+                   NOTHING=0
+               else
+                   pause
+               fi
+
            done
            exit 0
            ;;
