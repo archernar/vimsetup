@@ -90,7 +90,7 @@ function gitstatus() {
            git branch                                 | posi
            echo ""                                    | posi
            echo "---------------------------------"   | posi
-           echo "  Changes"                           | posi
+           echo "Changes"                           | posi
            git status -s | gawk '
            /^ M/ {
                print "✅ " $2
@@ -99,7 +99,7 @@ function gitstatus() {
                print "❌  " $2
            }' | gawk '{print "    " $0}'    | posi
            echo ""                                    | posi
-           echo "  Staged"                           | posi
+           echo "Staged"                           | posi
            git diff --name-only --cached | gawk '
            {
                print "✅ " $0
@@ -112,20 +112,18 @@ function gitstatus() {
            
 
 
-           echo ""                                    | posi
+           echo "" | posi
+           echo "Vim Session"                         | posi
            if [ -f ".vim.vimsession" ]; then
-               echo ""                                | posi 
-               echo ""                                | posi 
                cat .vim.vimsession                    | gawk '{print "  " $0}' | posi 
            fi
 
            echo "" | posi
-           echo  "  GitFlow Divergence" | posi
+           echo  "GitFlow Divergence" | posi
 
                # Calculate divergence
                BEHIND=$(git rev-list --count "develop..$MASTER_BRANCH")
                AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
-               echo "" | posi
                echo -e "  ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
                echo -e "  ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
            shopt -u dotglob
