@@ -1,0 +1,3735 @@
+# *********************************************************DATEOMATIC: Wed Jul 16 08:01:02 EDT 2025
+# *********************************************************HASHOMATIC: 67817db0b105b003b3de4912be9a6cd7
+# ##END
+DEBUG=1
+DEBUGLEVEL=1
+function set_cursor_color_black() {
+  echo -e "\033[30m"
+}
+function set_cursor_color_white() {
+  echo -e "\033[37m"
+}
+# To reset the color (important!):
+function reset_terminal_color() {
+  echo -e "\033[0m"
+}
+function uppercaseallfiles() {
+         local void=0;                          # Bash-Function-Args
+    for file in *; do mv "$file" "$(echo ${file:0:1} | tr '[:lower:]' '[:upper:]')${file:1}"; done
+}
+function filepath_hygene() {
+         local fn="$1"    # Bash-Function-Args
+         local lfn=""
+         local ldn=""
+  local tmp1=$(mktemp)
+  local tmp2=$(mktemp)
+  rm -f "$tmp1" >/dev/null 2>&1
+  rm -f "$tmp2" >/dev/null 2>&1
+  while IFS= read -r line; do
+    echo "$line" | gawk '{
+        sz=$0
+        sub(/\/[^/]*$/, "", sz);
+        n=split($0,A,"/");
+        if (A[n] ~ /.+[.]pdf$/) {
+            print $0;
+        }
+    }'
+  done < "$fn" > "$tmp1"
+  cp "$tmp1" "$fn"
+
+  rm -f "$tmp1" >/dev/null 2>&1
+  rm -f "$tmp2" >/dev/null 2>&1
+}
+
+# ----------------------------------------------------------------------------------------------------
+# CONOUT: 
+# ----------------------------------------------------------------------------------------------------
+function u.put() {
+         local sz="$1"    # Bash-Function-Args
+    printf "%s\n" "$msg"
+}
+function u.putln() {
+         local sz="$1"    # Bash-Function-Args
+    printf "%s\n" "$msg"
+}
+function dprint() {
+         local msg="$1"    # Bash-Function-Args
+    local sz=""
+    local w=$(TCOLSACTUAL)
+    ((w=w-DBPRINTCOL-5))
+    printf "\x1b[s"   # Saves the current cursor position.
+    sz="$(echo "$msg" | gawk -v w="$w" '{print substr($0,1,w)}')"
+    add_element "$sz"
+    render_array
+    printf "\x1b[u"   # Restores the cursor to the last saved position.
+}
+# ----------------------------------------------------------------------------------------------------
+# SZCOLOR: 
+# ----------------------------------------------------------------------------------------------------
+function szcolor() {
+         local sz="$1"; local color="$2"    # Bash-Function-Args
+        case "$color" in
+            black)   echo "$(szblack   "$sz")"  ;;
+            red)     echo "$(szred     "$sz")"  ;;
+            green)   echo "$(szgreen   "$sz")"  ;;
+            yellow)  echo "$(szyellow  "$sz")"  ;;
+            blue)    echo "$(szblue    "$sz")"  ;;
+            magenta) echo "$(szmagenta "$sz")"  ;;
+            cyan)    echo "$(szcyan    "$sz")"  ;;
+            white)   echo "$(szwhite   "$sz")"  ;;
+            default) echo "$(szwhite   "$sz")"  ;;
+        esac
+}
+function szblack() {
+         local msg="$1"    # Bash-Function-Args
+    echo "$(printf "\033[1;%sm%s\033[0m" "30" "$msg")"
+}
+function szred() {
+         local msg="$1"    # Bash-Function-Args
+    echo "$(printf "\033[1;%sm%s\033[0m" "31" "$msg")"
+}
+function szgreen() {
+         local msg="$1"    # Bash-Function-Args
+    echo "$(printf "\033[1;%sm%s\033[0m" "32" "$msg")"
+}
+function szyellow() {
+         local msg="$1"    # Bash-Function-Args
+    echo "$(printf "\033[1;%sm%s\033[0m" "33" "$msg")"
+}
+function szblue() {
+         local msg="$1"    # Bash-Function-Args
+    echo "$(printf "\033[1;%sm%s\033[0m" "34" "$msg")"
+}
+function szmagenta() {
+         local msg="$1"    # Bash-Function-Args
+    echo "$(printf "\033[1;%sm%s\033[0m" "35" "$msg")"
+}
+function szcyan() {
+         local msg="$1"    # Bash-Function-Args
+    echo "$(printf "\033[1;%sm%s\033[0m" "36" "$msg")"
+}
+function szwhite() {
+         local msg="$1"    # Bash-Function-Args
+    echo "$(printf "\033[1;%sm%s\033[0m" "37" "$msg")"
+}
+function szflag() {
+         local msg="$1"    # Bash-Function-Args
+    local t=$(mktemp)
+    echo "" > $t
+    echo "************************************************" >> $t
+    echo "** $msg"  >> $t
+    echo "************************************************" >> $t
+    echo "" >> $t
+    cat $t
+    rm $t
+    sleep 0.33
+}
+
+
+
+
+
+function check_command() {
+         local thecommand="$1"             # Bash-Function-Args
+#        Usage: check_command ping
+#
+    if ! command -v "$thecommand" >/dev/null 2>&1; then
+        echo "Error: Required command '$thecommand' is not installed.  Exiting."
+        exit 1
+    fi
+}
+function paramsf() {
+         local filename="$1"             # Bash-Function-Args
+  if [ $# -eq 0 ]; then
+    printFatal "Error: Filename not provided." 2
+    exit 1
+  fi
+  if [[ -z "$filename" ]]; then
+    printFatal "Error: Filename not provided." 2
+    exit 1
+  fi
+  if [[ ! -f "$filename" ]]; then
+    printFatal "Error: File '$filename' not found." 2
+    exit 1
+  fi
+  return 0
+}
+
+function mecho() {
+         local sz="$1"    # Bash-Function-Args
+    echo ""
+    echo "$sz"
+}
+function necho() {
+         local sz="$1"    # Bash-Function-Args
+    echo "$sz"
+}
+function eecho() {
+         local sz="$1"    # Bash-Function-Args
+    echo "$sz"
+}
+
+function alpha_normal5() {
+         local filename="$1"    # Bash-Function-Args
+  local tmp1=$(mktemp)
+  local tmp2=$(mktemp)
+  local tmp3=$(mktemp)
+  local tmp4=$(mktemp)
+  local tmp5=$(mktemp)
+  rm -f "$tmp1" >/dev/null 2>&1
+  rm -f "$tmp2" >/dev/null 2>&1
+  rm -f "$tmp3" >/dev/null 2>&1
+  rm -f "$tmp4" >/dev/null 2>&1
+  rm -f "$tmp5" >/dev/null 2>&1
+
+  if [[ -z "$filename" ]]; then
+    fecho "Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    fecho "Error: File '$filename' not found."
+    return 1
+  fi
+
+cat "$filename" | sort | uniq > "$tmp1"
+N=`wc -l "$tmp1" | gawk '{print $1}'`
+M=$((N % 4));
+if [ "$M" == "0" ]; then                                                                                               
+    NOTHING=0
+fi
+if [ "$M" == "4" ]; then                                                                                               
+    printAdvice "Adding 1 functions"
+    echo "zzzone()" >> "$tmp1"
+fi
+if [ "$M" == "3" ]; then                                                                                               
+    printAdvice "Adding 2 functions"
+    echo "zzzone()" >> "$tmp1"
+    echo "zzztwo()" >> "$tmp1"
+fi
+if [ "$M" == "2" ]; then                                                                                               
+    printAdvice "Adding 3 functions"
+    echo "zzzone()" >> "$tmp1"
+    echo "zzztwo()" >> "$tmp1"
+    echo "zzzthree()" >> "$tmp1"
+fi
+if [ "$M" == "1" ]; then                                                                                               
+    printAdvice "Adding 4 functions"
+    echo "zzzone()" >> "$tmp1"
+    echo "zzztwo()" >> "$tmp1"
+    echo "zzzthree()" >> "$tmp1"
+    echo "zzzfour()" >> "$tmp1"
+fi
+
+cat "$tmp1" | sort | uniq > "$tmp2"; cp "$tmp2" "$tmp1"
+N=`wc -l "$tmp1" | gawk '{print $1}'`
+N=$((N / 5));
+rm -f sfa*  >/dev/null 2>&1
+sed -i 's/zzz.*$/\&nbsp;/g' "$tmp1"
+
+split -l $N "$tmp1" sf
+paste -d'\n' sfaa sfab sfac sfad sfae> "$tmp1"
+
+cp "$tmp1" "$filename"
+rm -f sfaa sfab sfac sfad sfae
+
+}
+function alpha_normal4() {
+         local filename="$1"    # Bash-Function-Args
+  local tmp1=$(mktemp)
+  local tmp2=$(mktemp)
+  local tmp3=$(mktemp)
+  local tmp4=$(mktemp)
+  rm -f "$tmp1" >/dev/null 2>&1
+  rm -f "$tmp2" >/dev/null 2>&1
+  rm -f "$tmp3" >/dev/null 2>&1
+  rm -f "$tmp4" >/dev/null 2>&1
+
+  if [[ -z "$filename" ]]; then
+    fecho "Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    fecho "Error: File '$filename' not found."
+    return 1
+  fi
+
+cat "$filename" | sort | uniq > "$tmp1"
+N=`wc -l "$tmp1" | gawk '{print $1}'`
+M=$((N % 4));
+if [ "$M" == "0" ]; then                                                                                               
+    NOTHING=0
+fi
+if [ "$M" == "3" ]; then                                                                                               
+    printInfo "Adding 1 functions"
+    echo "zzzone()" >> "$tmp1"
+fi
+if [ "$M" == "2" ]; then                                                                                               
+    printInfo "Adding 2 functions"
+    echo "zzzone()" >> "$tmp1"
+    echo "zzztwo()" >> "$tmp1"
+fi
+if [ "$M" == "1" ]; then                                                                                               
+    printInfo "Adding 3 functions"
+    echo "zzzone()" >> "$tmp1"
+    echo "zzztwo()" >> "$tmp1"
+    echo "zzzthree()" >> "$tmp1"
+fi
+
+cat "$tmp1" | sort | uniq > "$tmp2"; cp "$tmp2" "$tmp1"
+N=`wc -l "$tmp1" | gawk '{print $1}'`
+N=$((N / 4));
+rm -f sfa*  >/dev/null 2>&1
+sed -i 's/zzz.*$/\&nbsp;/g' "$tmp1"
+
+split -l $N "$tmp1" sf
+paste -d'\n' sfaa sfab sfac sfad> "$tmp1"
+
+cp "$tmp1" "$filename"
+rm -f sfaa sfab sfac sfad
+
+}
+function alpha_normal2() {
+         local filename="$1"    # Bash-Function-Args
+  local tmp1=$(mktemp)
+  local tmp2=$(mktemp)
+  rm -f "$tmp1" >/dev/null 2>&1
+  rm -f "$tmp2" >/dev/null 2>&1
+
+  if [[ -z "$filename" ]]; then
+    fecho "Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    fecho "Error: File '$filename' not found."
+    return 1
+  fi
+
+cat "$filename" | sort | uniq > "$tmp1"
+N=`wc -l "$tmp1" | gawk '{print $1}'`
+M=$((N % 2));
+if [ "$M" == "0" ]; then                                                                                               
+    NOTHING=0
+fi
+if [ "$M" == "2" ]; then                                                                                               
+    printInfo "Adding 1 function"
+    echo "zzzone()" >> "$tmp1"
+fi
+if [ "$M" == "1" ]; then                                                                                               
+    printInfo "Adding 1 functions"
+    echo "zzzone()" >> "$tmp1"
+fi
+
+cat "$tmp1" | sort | uniq > "$tmp2"; cp "$tmp2" "$tmp1"
+N=`wc -l "$tmp1" | gawk '{print $1}'`
+N=$((N / 2));
+rm -f sfa*  >/dev/null 2>&1
+sed -i 's/zzz.*$/\&nbsp;/g' "$tmp1"
+
+split -l $N "$tmp1" sf
+paste -d'\n' sfaa sfab > "$tmp1"
+
+cp "$tmp1" "$filename"
+rm -f sfaa sfab
+
+}
+
+function repeat_char() {
+         local char="$1"; local count="$2" # Bash-Function-Args
+  local result=""
+
+  if [[ -z "$char" || -z "$count" ]]; then
+    echo "Usage: repeat_char <character> <count>" >&2
+    return 1
+  fi
+
+  if [[ "$count" -lt 0 ]]; then
+    echo "Count must be a non-negative integer." >&2
+    return 1
+  fi
+
+  for ((i = 0; i < count; i++)); do
+    result+="$char"
+  done
+
+  echo "$result"
+}
+function longest_string_length() {
+  local max_length=0
+  local current_length
+  local line
+
+  while IFS= read -r line; do
+    current_length=${#line}
+    if [[ $current_length -gt $max_length ]]; then
+      max_length=$current_length
+    fi
+  done
+
+  echo "$max_length"
+}
+function fecho() {
+  echo "$FUNCNAME : $1 $2 $3 $4 $5"
+}
+function fdebug() {
+    if [ "$DEBUGLEVEL" -gt "0" ]; then
+        echo "DBG $FUNCNAME : $1 $2 $3 $4 $"
+    fi
+}
+
+function backup_file() {
+         local filename="$1"; local backup_dir="$2"   # Bash-Function-Args
+  local timestamp=$(date +%Y%m%d%H%M%S)
+  local backup_filename="${filename##*/}.backup.${timestamp}" # Extract filename only
+  local backup_path="${backup_dir}/${backup_filename}"
+
+  if [ -f "$filename" ]; then
+    if [ -d "$backup_dir" ]; then # Check if backup directory exists
+      cp "$filename" "$backup_path"
+      echo "File '$filename' backed up to '$backup_path'."
+    else
+      echo "Error: Backup directory '$backup_dir' does not exist."
+      return 1
+    fi
+
+  else
+    echo "Error: File '$filename' not found."
+    return 1
+  fi
+}
+
+# ====================================================================================================
+# ====================================================================================================
+
+# --- String Manipulation ---
+
+# Trims leading and trailing whitespace from a string.
+function trim() {
+         local str="$1";  # Bash-Function-Args
+  printf "%s" "${str#"${str%%[![:space:]]*}"}" "${str%"${str##*[![:space:]]}"}"
+}
+function remove_leading_whitespace() {
+         local input="$1"       # Bash-Function-Args
+  local output="${input#"${input%%[![:space:]]*}"}"
+  echo "$output"
+}
+
+# Checks if a string starts with a given prefix.
+function starts_with() {
+         local string="$1";local prefix="$2"  # Bash-Function-Args
+  [[ "$string" == "$prefix"* ]]
+}
+
+# Checks if a string ends with a given suffix.
+function ends_with() {
+         local string="$1";local suffix="$2"  # Bash-Function-Args
+  [[ "$string" == *"$suffix" ]]
+}
+
+# Checks if a string contains a substring.
+function contains() {
+         local string="$1";local substring="$2"  # Bash-Function-Args
+  [[ "$string" == *"$substring"* ]]
+}
+
+# Replaces all occurrences of a substring in a string.
+function replace() {
+         local string="$1";local old="$2";local new="$3"  # Bash-Function-Args
+  printf "%s\n" "${string//$old/$new}"
+}
+
+# Extracts a substring based on start and end indices. (1-based indexing)
+function substring() {
+         local string="$1";local start="$2";local length="$3"  # Bash-Function-Args
+  if [[ -z "$length" ]]; then
+    printf "%s\n" "${string:$((start - 1))}"
+  else
+    printf "%s\n" "${string:$((start - 1)):$length}"
+  fi
+}
+
+# --- File and Directory Operations ---
+
+# Creates a directory if it doesn't exist.
+function mkdir_p() {
+         local void="11";                          # Bash-Function-Args
+  mkdir -p "$1"
+}
+
+# Checks if a file or directory exists.
+function exists() {
+         local void="11";                          # Bash-Function-Args
+  [[ -e "$1" ]]
+}
+
+# Checks if a file exists.
+function is_file() {
+         local void="11";                          # Bash-Function-Args
+  [[ -f "$1" ]]
+}
+
+# Checks if a directory exists.
+function is_dir() {
+         local void="11";                          # Bash-Function-Args
+  [[ -d "$1" ]]
+}
+
+# Gets the absolute path of a file or directory.
+function abspath() {
+         local path="$1";                          # Bash-Function-Args
+  if [[ -z "$path" ]]; then
+    pwd
+  else
+    realpath "$path"
+  fi
+}
+
+# Gets the filename from a path.
+function basename() {
+         local path="$1";                          # Bash-Function-Args
+  printf "%s\n" "$(basename "$path")"
+}
+
+# Gets the directory from a path.
+function dirname() {
+         local path="$1";                          # Bash-Function-Args
+  printf "%s\n" "$(dirname "$path")"
+}
+
+# Gets the file extension from a path.
+function extension() {
+         local path="$1";                          # Bash-Function-Args
+  printf "%s\n" "${path##*.}"
+}
+
+# Copies a file or directory recursively.
+function cp_r() {
+         local filename1="$1";local filename2="$2";      # Bash-Function-Args
+  cp -r "$filename1" "$filename2"
+}
+
+# Moves a file or directory.
+function mv_f() {
+         local filename1="$1";local filename2="$2";      # Bash-Function-Args
+  mv -f "$filename1" "$filename2"
+}
+
+# Removes a file or directory recursively.
+function rm_rf() {
+         local filename="$1";      # Bash-Function-Args
+  rm -rf "$filename"
+}
+# Removes a file or directory recursively, silently.
+function rm_rf_silent() {
+         local filename="$1";      # Bash-Function-Args
+  rm -rf "$filename" >/dev/null 2>&1;
+}
+
+# --- System and Process Utilities ---
+
+# Checks if a command is available.
+function command_exists() {
+         local command="$1";      # Bash-Function-Args
+  command -v "$command" &> /dev/null
+}
+
+# Gets the process ID (PID) of a process by name.
+function pidof_name() {
+         local name="$1"               # Bash-Function-Args
+  pidof "$name"
+}
+
+# Kills a process by name.
+function kill_name() {
+         local name="$1"               # Bash-Function-Args
+  pkill "$name"
+}
+
+# Kills a process by PID.
+function kill_pid() {
+         local pid="$1"               # Bash-Function-Args
+  kill "$pid"
+}
+
+# Runs a command and returns its exit code.
+function run_and_exit_code() {
+         local command="$1";      # Bash-Function-Args
+  "$@"
+  echo $?
+}
+
+# Runs a command and returns its output.
+function run_and_output() {
+         local command="$1";      # Bash-Function-Args
+  "$@"
+}
+
+#Runs a command and returns its error.
+function run_and_error() {
+         local command="$1";      # Bash-Function-Args
+  "$@" 2>&1 >/dev/null
+}
+# --- Array Manipulation ---
+
+# Checks if an array contains a value.
+function array_contains() {
+         local needle="$1"               # Bash-Function-Args
+  shift
+  local haystack=("${@}")
+  local found=0
+  for item in "${haystack[@]}"; do
+    if [[ "$item" == "$needle" ]]; then
+      found=1
+      break
+    fi
+  done
+  if [[ $found -eq 1 ]]; then
+    return 0 # True
+  else
+    return 1 # False
+  fi
+}
+
+# Joins array elements with a delimiter.
+function array_join() {
+         local delimiter="$1"               # Bash-Function-Args
+  shift
+  local array=("${@}")
+  local IFS="$delimiter"
+  echo "${array[*]}"
+}
+
+# --- Networking ---
+
+# Checks if a host is reachable.
+function is_reachable() {
+         local hostname="$1"               # Bash-Function-Args
+  ping -c 1 -W 1 "$hostname" &> /dev/null
+}
+
+# Checks if a port is open.
+# is_port_open() {
+#   timeout 1 bash -c '</dev/tcp/'"$1"'/'"$2" 2>/dev/null'
+# }
+
+# --- Input/Output ---
+# --- Input/Output and Logging ---
+ 
+# Prints a message to stderr.
+function eprint() {
+  echo "$1" >&2
+}
+
+# Reads a line from stdin with a prompt.
+function read_prompt() {
+  read -p "$1" "$2"
+}
+
+# Print an informational message with a timestamp
+infocounter=0
+function infoc() {
+         local msg="$1"                 # Bash-Function-Args
+         local ts;
+  ts=$(date "+%Y-%m-%d %H:%M:%S")
+  ((infocounter++))
+  if (( infocounter % 200 == 0)); then
+      echo "$ts  INFO: $msg  ($infocounter)"
+  fi
+
+}
+            # Bash-Function-Args
+# Print an informational message with a timestamp
+function info() {
+         local msg="$1"                 # Bash-Function-Args
+         local ts;
+  ts=$(date "+%Y-%m-%d %H:%M:%S")
+  echo "$ts  INFO: $msg"
+}
+
+# Print a warning message with a timestamp
+function warn() {
+         local msg="$1"                 # Bash-Function-Args
+  date "+%Y-%m-%d %H:%M:%S"
+  echo "WARN: $msg" >&2
+}
+
+# Print an error message with a timestamp
+function error() {
+         local msg="$1"                 # Bash-Function-Args
+  date "+%Y-%m-%d %H:%M:%S"
+  echo "ERROR: $msg" >&2
+}
+
+# Prompt the user for input with a default value
+function prompter() {
+         local question="$1";local default="${2:-}";         # Bash-Function-Args
+  read -p "$question (default: $default): " response
+  if [ -z "$response" ]; then
+    echo "$default"
+  else
+    echo "$response"
+  fi
+}
+# --- Time and Date ---
+
+# Gets the current timestamp in milliseconds.
+function timestamp_ms() {
+         local void="11";                          # Bash-Function-Args
+  date +%s%3N
+}
+
+# Get the current date and time in a specific format
+function current_timestamp() {
+         local void="11";                          # Bash-Function-Args
+  date "+%Y%m%d_%H%M%S"
+}
+function isSameHash() {
+    local filename="$1"               # Bash-Function-Args
+    local tmp=/tmp/HASHCHECK_$$
+    local CH=$(md5sum "$filename" | awk '{print $1}')
+    if [[ "$CH" == "$OH" ]]; then
+        echo "1"
+    else
+        echo "0"
+    fi
+}
+
+
+function padout_file_lines() {
+         local filename="$1"    # Bash-Function-Args
+  local tmp1=$(mktemp)
+  local tmp2=$(mktemp)
+  rm -f "$tmp1" >/dev/null 2>&1
+  rm -f "$tmp2" >/dev/null 2>&1
+
+  if [[ -z "$filename" ]]; then
+    fecho "Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    fecho "Error: File '$filename' not found."
+    return 1
+  fi
+
+  sed 's/[[:space:]]*$//' "$filename"  > "$tmp1"
+  max_len=$(wc -L "$tmp1" | awk '{print $1}')
+  padding_length=$((max_len + 0))
+
+  # Iterate through each line of the file and pad it
+  rm -f "$tmp2" >/dev/null 2>&1
+  while IFS= read -r line; do
+    printf "%-${padding_length}s\n" "$line" >> "$tmp2" # Pad to the right
+  done < "$tmp1"
+
+  mv "$tmp2" "$filename"
+
+  rm -f "$tmp1" >/dev/null 2>&1
+  rm -f "$tmp2" >/dev/null 2>&1
+  return 0
+}
+
+
+# Example usage (if you want to run it directly from the script):
+# if [[ "$0" == "$BASH_SOURCE" ]]; then
+#   if [[ $# -eq 1 ]]; then
+#     scan_for_secrets "$1"
+#   else
+#     echo "Usage: $0 <file>"
+#     exit 1
+#   fi
+# fi
+
+# Function to split a file into N files
+function split_file_n() {
+         local input_file="$1";local num_files="$2" # Bash-Function-Args
+  local prefix="${3:-split_}" # Default prefix is "split_"
+
+  if [[ -z "$input_file" || -z "$num_files" ]]; then
+    echo "Usage: split_file_n <input_file> <number_of_files> [prefix]"
+    return 1
+  fi
+
+  if [[ ! -f "$input_file" ]]; then
+    echo "Error: Input file '$input_file' not found."
+    return 1
+  fi
+
+  if ! [[ "$num_files" =~ ^[0-9]+$ ]]; then
+      echo "Error: Number of files must be a positive integer."
+      return 1
+  fi
+
+  local total_lines=$(wc -l < "$input_file")
+  local lines_per_file=$((total_lines / num_files))
+  local remainder=$((total_lines % num_files))
+
+  local start_line=1
+  for ((i=1; i<=num_files; i++)); do
+    local output_file="${prefix}${i}"
+    local current_lines=$lines_per_file
+
+    if [[ $i -le $remainder ]]; then
+      ((current_lines++)) # Distribute remainder lines
+    fi
+
+    head -n "$((start_line + current_lines - 1))" "$input_file" | tail -n "$current_lines" > "$output_file"
+
+    ((start_line += current_lines))
+  done
+}
+
+# Example usage (if you want to test it from the script itself):
+# if [[ "$0" == "$BASH_SOURCE" ]]; then
+#   if [[ $# -ge 2 ]]; then
+#     split_file_n "$1" "$2" "${3:-split_}"
+#   else
+#     echo "Usage: $0 <input_file> <number_of_files> [prefix]"
+#   fi
+# fi
+
+function truncate_file_lines() {
+         local filename="$1";local num_chars="$2" # Bash-Function-Args
+
+  if [[ -z "$filename" ]]; then
+    echo "Truncate Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    echo "Truncate Error: File '$filename' not found."
+    return 1
+  fi
+
+  if [[ -z "$num_chars" ]]; then
+    echo "Truncate Error: Number of characters not provided."
+    return 1
+  fi
+
+  if ! [[ "$num_chars" =~ ^[0-9]+$ ]]; then
+    echo "Truncate Error: Number of characters must be a positive integer."
+    return 1
+  fi
+  if [[ "$num_chars" == "0" ]]; then
+    return 0
+  fi
+
+  local temp_file=$(mktemp)
+
+  while IFS= read -r line; do
+    printf "%.${num_chars}s\n" "$line" >> "$temp_file"
+  done < "$filename"
+
+  mv "$temp_file" "$filename"
+
+  return 0
+}
+
+function string_before_file_lines() {
+         local filename="$1";local str="$2" # Bash-Function-Args
+
+  if [[ -z "$filename" ]]; then
+    echo "string_before Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    echo "string_before Error: File '$filename' not found."
+    return 1
+  fi
+
+  if [[ -z "$str" ]]; then
+    echo "string_before Error: Number of characters not provided."
+    return 1
+  fi
+
+  local temp_file=$(mktemp)
+
+  while IFS= read -r line; do
+    printf "${str}%s\n" "$line" >> "$temp_file"
+  done < "$filename"
+
+  mv "$temp_file" "$filename"
+
+  return 0
+}
+function string_after_file_lines() {
+         local filename="$1";local str="$2" # Bash-Function-Args
+
+  if [[ -z "$filename" ]]; then
+    echo "string_before Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    echo "string_before Error: File '$filename' not found."
+    return 1
+  fi
+
+  if [[ -z "$str" ]]; then
+    echo "string_before Error: Number of characters not provided."
+    return 1
+  fi
+
+  local temp_file=$(mktemp)
+
+  while IFS= read -r line; do
+    printf "%s${str}\n" "$line" >> "$temp_file"
+  done < "$filename"
+
+  mv "$temp_file" "$filename"
+
+  return 0
+}
+
+function sort_file() {
+         local filename="$1"; local str="$2" # Bash-Function-Args
+
+  if [[ -z "$filename" ]]; then
+    fecho "Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    fecho "Error: File '$filename' not found."
+    return 1
+  fi
+  if [[ -z "$str" ]]; then
+    fecho "Error: Control word not provided."
+    return 1
+  fi
+
+  if [[ "$str" == "" ]]; then
+      NOTHING=0
+  else
+      local tmp1=$(mktemp)
+      cat "$filename" | sort > "$tmp1"
+      mv "$tmp1" "$filename"
+  fi
+
+  return 0
+}
+
+function justify_line() {
+         local str="$1"; local num="$2"; # Bash-Function-Args
+
+    local tmp1=$(mktemp)
+    echo "$1" | gawk -v num=$2 '
+        function justify(szIn,  l,n,i,sz,m,k,A, flag) {
+            sz = "";
+            n =  split(szIn,A," ");
+            r = 1
+            delim = ""
+            flag=0
+            for (i=1; i<=n; i++) {
+                sz = delim sz A[i] " ";
+                delim = ""
+                l = l + length(A[i] " ");
+                if (l > (num*r)) {
+                    r=r+1;
+                    sz = sz "\n"
+                    flag=1
+                    delim = ""
+                }
+            }
+            if (flag == 1)  sz = sz "\n"
+            return sz;
+        }
+        {
+            print justify($0);
+        }' > "$tmp1"
+
+    cat "$tmp1"
+    rm -f "$tmp1" >/dev/null 2>&1
+}
+function justify_file() {
+         local filename="$1";local num="$2"; # Bash-Function-Args
+
+  if [[ -z "$filename" ]]; then
+    echo "Truncate Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    echo "Truncate Error: File '$filename' not found."
+    return 1
+  fi
+
+  if [[ -z "$num" ]]; then
+    echo "Truncate Error: Number of characters not provided."
+    return 1
+  fi
+
+  if ! [[ "$num" =~ ^[0-9]+$ ]]; then
+    echo "Truncate Error: Number of characters must be a positive integer."
+    return 1
+  fi
+  if [[ "$num" == "0" ]]; then
+    return 0
+  fi
+
+  local temp_file=$(mktemp)
+
+  while IFS= read -r line; do
+    justify_line "$line" "$num" >> "$temp_file"
+  done < "$filename"
+
+  mv "$temp_file" "$filename"
+
+  return 0
+}
+
+function indent_file() {
+         local filename="$1"   # Bash-Function-Args
+
+  if [[ -z "$filename" ]]; then
+    fecho "Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    fecho "Error: File '$filename' not found."
+    return 1
+  fi
+
+  local temp_file=$(mktemp)
+
+  while IFS= read -r line; do
+    echo "    $line" >> "$temp_file"
+  done < "$filename"
+
+  mv "$temp_file" "$filename"
+
+  return 0
+}
+function trim_leading_whitespace_file() {
+         local filename="$1"            # Bash-Function-Args
+  local sz=""
+
+  if [[ -z "$filename" ]]; then
+    fecho "Error: Filename not provided."
+    return 1
+  fi
+
+  if [[ ! -f "$filename" ]]; then
+    fecho "Error: File '$filename' not found."
+    return 1
+  fi
+
+  local temp_file=$(mktemp)
+
+  while IFS= read -r line; do
+    remove_leading_whitespace "$line" >> "$temp_file"
+  done < "$filename"
+
+  mv "$temp_file" "$filename"
+
+  return 0
+}
+function create_simple_table4() {
+         local input_file="$1"                  # Bash-Function-Args
+  local tmp=$(mktemp)
+  local LEN=""
+  local STRING=""
+
+  # Check if the input file exists
+  if [[ ! -f "$input_file" ]]; then
+    fecho "Error: Input file '$input_file' not found."
+    return 1
+  fi
+
+  LEN=`longest_string_length < "$input_file"`
+  STRING=`repeat_char "-" "24"`
+  cat "$input_file" |gawk '{n=split($0,A,"/");sub(/[.]html$/, "", A[n]);print A[n];}' | gawk '
+      { 
+          if (NR % 4 == 1) { 
+              printf "%-30s", $0 
+              }
+          else 
+              if (NR % 4 == 2) {
+                   printf "%-30s", $0 
+              }
+              else
+                   if (NR % 4 == 3) {i
+                        printf "%-30s", $0
+                   }
+                   else {
+                        printf "%-30s\n", $0
+                   }
+     }' > "$tmp"
+
+  cat "$tmp" > "$input_file"
+  
+}
+
+function create_markdown_table_slice_2level() {
+         local input_file="$1";local str="$2";local szslice="$3"      # Bash-Function-Args
+  local tmp=$(mktemp)
+  local LEN=""
+  local STRING=""
+  local label=""
+
+  # Check if the input file exists
+  if [[ ! -f "$input_file" ]]; then
+    fecho "Error: Input file '$input_file' not found."
+    return 1
+  fi
+
+  LEN=`longest_string_length < "$input_file"`
+  STRING=`repeat_char " " "24"`
+
+  rm -f "$tmp" >/dev/null 2>&1
+  if [[ "$str" == "MAKELINKS" ]]; then
+      cat "$input_file" |gawk '
+                         BEGIN {
+                                NOTHING=0;
+                         }
+                         {
+                             n=split($0,A,"/");
+                             nme=A[n-1] "-" A[n];
+                             sub(/[.]html$/, "", nme);
+                             sub(/[.]pdf/,"",nme); 
+                             nme=substr(nme,1,52);
+                             gsub(/_/," ",nme);
+                             gsub(/Programming/,"Prog",nme);
+                             gsub(/Architecture/,"Arch",nme);
+                             print "[" nme "](" $0 ")";
+                         }' > $tmp
+  else
+      cat "$input_file"  > $tmp
+  fi
+
+  cat $tmp >> tmp.csv
+
+  # Read lines from the file and create table rows
+  local line_count=0
+  local row=""
+  local first_row=1
+  echo "# $szslice"
+  echo " "
+  while IFS= read -r line; do
+    if [[ $line_count -eq 0 ]]; then
+      if [[ $first_row -eq 1 ]]; then
+          # echo "| $STRING | $STRING | $STRING | $STRING |"
+          # echo "|----------|----------|----------|----------|"
+          # echo "| $STRING | $STRING | $STRING | $STRING | $STRING | $STRING | $STRING | $STRING |"
+          # echo "|----------|----------|----------|----------|----------|----------|----------|----------|"
+          # echo "| $STRING | $STRING | $STRING | $STRING |"
+          # echo "|----------|----------|----------|----------|"
+          echo "| $STRING | $STRING | $STRING | $STRING | $STRING |"
+          echo "|----------|----------|----------|----------|----------|"
+          first_row=0
+      fi
+    fi
+
+    row+="| $line "
+
+    line_count=$((line_count + 1))
+
+    if [[ $line_count -eq 5 ]]; then
+      echo "$row|"
+      row=""
+      line_count=0
+    fi
+  done < "$tmp"
+
+  # Handle remaining lines if the total line count is not a multiple of 5
+  if [[ $line_count -gt 0 ]]; then
+    for ((i = line_count; i < 5; i++)); do
+        row+="|  "
+    done
+    echo "$row|"
+  fi
+}
+function create_markdown_table_slice() {
+         local input_file="$1";local str="$2";local szslice="$3"      # Bash-Function-Args
+  local tmp=$(mktemp)
+  local LEN=""
+  local STRING=""
+  local label=""
+
+  # Check if the input file exists
+  if [[ ! -f "$input_file" ]]; then
+    fecho "Error: Input file '$input_file' not found."
+    return 1
+  fi
+
+  LEN=`longest_string_length < "$input_file"`
+  STRING=`repeat_char " " "24"`
+
+  rm -f "$tmp" >/dev/null 2>&1
+  if [[ "$str" == "MAKELINKS" ]]; then
+      cat "$input_file" |gawk '
+                         BEGIN {
+                                NOTHING=0;
+                         }
+                         {
+                             n=split($0,A,"/");
+                             nme=A[n];
+                             sub(/[.]html$/, "", nme);
+                             sub(/[.]pdf/,"",nme); 
+                             nme=substr(nme,1,52);
+                             gsub(/_/," ",nme);
+                             gsub(/Programming/,"Prog",nme);
+                             gsub(/Architecture/,"Arch",nme);
+                             print "[" nme "](" $0 ")";
+                         }' > $tmp
+  else
+      cat "$input_file"  > $tmp
+  fi
+
+  # Read lines from the file and create table rows
+  local line_count=0
+  local row=""
+  local first_row=1
+  echo "# $szslice"
+  echo " "
+  while IFS= read -r line; do
+    if [[ $line_count -eq 0 ]]; then
+      if [[ $first_row -eq 1 ]]; then
+          # echo "| $STRING | $STRING | $STRING | $STRING |"
+          # echo "|----------|----------|----------|----------|"
+          # echo "| $STRING | $STRING | $STRING | $STRING | $STRING | $STRING | $STRING | $STRING |"
+          # echo "|----------|----------|----------|----------|----------|----------|----------|----------|"
+          # echo "| $STRING | $STRING | $STRING | $STRING |"
+          # echo "|----------|----------|----------|----------|"
+          echo "| $STRING | $STRING | $STRING | $STRING | $STRING |"
+          echo "|----------|----------|----------|----------|----------|"
+          first_row=0
+      fi
+    fi
+
+    row+="| $line "
+
+    line_count=$((line_count + 1))
+
+    if [[ $line_count -eq 5 ]]; then
+      echo "$row|"
+      row=""
+      line_count=0
+    fi
+  done < "$tmp"
+
+  # Handle remaining lines if the total line count is not a multiple of 5
+  if [[ $line_count -gt 0 ]]; then
+    for ((i = line_count; i < 5; i++)); do
+        row+="|  "
+    done
+    echo "$row|"
+  fi
+}
+
+
+
+
+
+
+
+
+
+function create_markdown_table4() {
+         local input_file="$1";local str="$2"                   # Bash-Function-Args
+  local tmp=$(mktemp)
+  local LEN=""
+  local STRING=""
+
+  # Check if the input file exists
+  if [[ ! -f "$input_file" ]]; then
+    fecho "Error: Input file '$input_file' not found."
+    return 1
+  fi
+
+  LEN=`longest_string_length < "$input_file"`
+  STRING=`repeat_char "-" "24"`
+
+  rm -f "$tmp" >/dev/null 2>&1
+  rm -f "frost" >/dev/null 2>&1
+  if [[ "$str" == "MAKELINKS" ]]; then
+      cat "$input_file" |gawk '{n=split($0,A,"/");sub(/[.]html$/, "", A[n]);print "[" A[n] "](" $0 ")";}' > $tmp
+      cat "$input_file" |gawk '{n=split($0,A,"/");sub(/[.]html$/, "", A[n]);print A[n];}' >> frost
+  else
+      cat "$input_file"  > $tmp
+      cat "$input_file"  > frost
+  fi
+
+  # Read lines from the file and create table rows
+  local line_count=0
+  local row=""
+  local first_row=1
+
+  while IFS= read -r line; do
+    if [[ $line_count -eq 0 ]]; then
+      if [[ $first_row -eq 1 ]]; then
+#           echo "| $STRING | $STRING | $STRING | $STRING |"
+#           echo "|----------|----------|----------|----------|"
+          echo "| $STRING | $STRING | $STRING | $STRING | $STRING |"
+          echo "|----------|----------|----------|----------|----------|"
+          first_row=0
+      fi
+    fi
+
+    row+="| $line "
+
+    line_count=$((line_count + 1))
+
+    if [[ $line_count -eq 5 ]]; then
+      echo "$row|"
+      row=""
+      line_count=0
+    fi
+  done < "$tmp"
+
+  # Handle remaining lines if the total line count is not a multiple of 5
+  if [[ $line_count -gt 0 ]]; then
+    for ((i = line_count; i < 5; i++)); do
+        row+="|  "
+    done
+    echo "$row|"
+  fi
+}
+create_markdown_table() {
+  local input_file="$1"
+
+  # Check if the input file exists
+  if [[ ! -f "$input_file" ]]; then
+    echo "Error: Input file '$input_file' not found."
+    return 1
+  fi
+
+  # Read lines from the file and create table rows
+  local line_count=0
+  local row=""
+  local first_row=1
+
+  while IFS= read -r line; do
+    if [[ $line_count -eq 0 ]]; then
+      if [[ $first_row -eq 1 ]]; then
+          #echo "| Column 1 | Column 2 | Column 3 | Column 4 | Column 5 | Column 6 |"
+          echo "|    A     |    B     |    C     |    D     |    E     |"
+          echo "|----------|----------|----------|----------|----------|"
+          first_row=0
+      fi
+    fi
+
+    row+="| $line "
+
+    line_count=$((line_count + 1))
+
+    if [[ $line_count -eq 5 ]]; then
+      echo "$row|"
+      row=""
+      line_count=0
+    fi
+  done < "$input_file"
+
+  # Handle remaining lines if the total line count is not a multiple of 5
+  if [[ $line_count -gt 0 ]]; then
+    for ((i = line_count; i < 5; i++)); do
+        row+="|  "
+    done
+    echo "$row|"
+  fi
+}
+
+# Example usage (if you want to test it with a file named "input.txt"):
+# create_markdown_table "input.txt"
+function create_markdown_table2() {
+         local input_file="$1";local str="$2"                   # Bash-Function-Args
+  local tmp=$(mktemp)
+  local LEN=""
+  local STRING=""
+
+  # Check if the input file exists
+  if [[ ! -f "$input_file" ]]; then
+    fecho "Error: Input file '$input_file' not found."
+    return 1
+  fi
+
+  LEN=`longest_string_length < "$input_file"`
+  STRING=`repeat_char "-" "40"`
+
+  rm -f "$tmp" >/dev/null 2>&1
+  if [[ "$str" == "MAKELINKS" ]]; then
+      cat "$input_file" |gawk '{n=split($0,A,"/");print "[" A[n] "](" $0 ")";}' > $tmp
+  else
+      cat "$input_file" > $tmp
+  fi
+
+  # Read lines from the file and create table rows
+  local line_count=0
+  local row=""
+  local first_row=1
+
+  while IFS= read -r line; do
+    if [[ $line_count -eq 0 ]]; then
+      if [[ $first_row -eq 1 ]]; then
+          echo "| $STRING | $STRING |"
+          echo "|----------|----------|"
+          first_row=0
+      fi
+    fi
+
+    row+="| $line "
+
+    line_count=$((line_count + 1))
+
+    if [[ $line_count -eq 2 ]]; then
+      echo "$row|"
+      row=""
+      line_count=0
+    fi
+  done < "$tmp"
+
+  # Handle remaining lines if the total line count is not a multiple of 5
+  if [[ $line_count -gt 0 ]]; then
+    for ((i = line_count; i < 2; i++)); do
+        row+="|  "
+    done
+    echo "$row|"
+  fi
+}
+
+function create_markdown_table3() {
+         local input_file="$1";local str="$2"                   # Bash-Function-Args
+  local tmp=$(mktemp)
+  local LEN=""
+  local STRING=""
+
+  # Check if the input file exists
+  if [[ ! -f "$input_file" ]]; then
+    fecho "Error: Input file '$input_file' not found."
+    return 1
+  fi
+
+  LEN=`longest_string_length < "$input_file"`
+  STRING=`repeat_char "-" "24"`
+
+  rm -f "$tmp" >/dev/null 2>&1
+  if [[ "$str" == "MAKELINKS" ]]; then
+      cat "$input_file" |gawk '{n=split($0,A,"/");print "[" A[n] "](" $0 ")";}' > $tmp
+  else
+      cat "$input_file" > $tmp
+  fi
+
+  # Read lines from the file and create table rows
+  local line_count=0
+  local row=""
+  local first_row=1
+
+  while IFS= read -r line; do
+    if [[ $line_count -eq 0 ]]; then
+      if [[ $first_row -eq 1 ]]; then
+          echo "| $STRING | $STRING | $STRING |"
+          echo "|----------|----------|----------|"
+          first_row=0
+      fi
+    fi
+
+    row+="| $line "
+
+    line_count=$((line_count + 1))
+
+    if [[ $line_count -eq 3 ]]; then
+      echo "$row|"
+      row=""
+      line_count=0
+    fi
+  done < "$tmp"
+
+  # Handle remaining lines if the total line count is not a multiple of 5
+  if [[ $line_count -gt 0 ]]; then
+    for ((i = line_count; i < 3; i++)); do
+        row+="|  "
+    done
+    echo "$row|"
+  fi
+}
+
+function examplesComparison() {
+    local local str="$2"                   # Bash-Function-Args
+
+    # String Comparisons
+
+    if [ "$string1" == "$string3" ]; then
+      echo "string1 and string3 are equal"
+    fi
+
+    if [ "$string1" != "$string2" ]; then
+      echo "string1 and string2 are not equal"
+    fi
+
+    if [ "$string1" = "$string3" ]; then
+      echo "string1 and string3 are also equal"
+    fi
+
+    if [ -z "$empty_string" ]; then
+      echo "empty_string is empty"
+    fi
+
+    if [ -n "$non_empty_string" ]; then
+      echo "non_empty_string is not empty"
+    fi
+
+    if [ ! "$empty_string" ]; then
+      echo "empty_string is empty (using negation)"
+    fi
+
+
+    # Numeric Comparisons
+
+    if [ "$num1" -eq "$num3" ]; then
+      echo "$num1 is equal to $num3"
+    fi
+
+    if [ "$num1" -ne "$num2" ]; then
+      echo "$num1 is not equal to $num2"
+    fi
+
+    if [ "$num1" -lt "$num2" ]; then
+      echo "$num1 is less than $num2"
+    fi
+
+    if [ "$num2" -gt "$num1" ]; then
+      echo "$num2 is greater than $num1"
+    fi
+
+    if [ "$num1" -le "$num3" ]; then
+      echo "$num1 is less than or equal to $num3"
+    fi
+
+    if [ "$num2" -ge "$num1" ]; then
+      echo "$num2 is greater than or equal to $num1"
+    fi
+
+    echo ""
+
+    # File Comparisons
+    ddecho "--- File Comparisons ---"
+
+    touch my_file.txt
+    mkdir my_directory
+    chmod +x my_file.txt # Make it executable for -x test
+
+    if [ -e "my_file.txt" ]; then
+      echo "my_file.txt exists"
+    fi
+
+    if [ -f "my_file.txt" ]; then
+      echo "my_file.txt is a regular file"
+    fi
+
+    if [ -d "my_directory" ]; then
+      echo "my_directory is a directory"
+    fi
+
+    if [ -r "my_file.txt" ]; then
+      echo "my_file.txt is readable"
+    fi
+
+    if [ -w "my_file.txt" ]; then
+      echo "my_file.txt is writable"
+    fi
+
+    if [ -x "my_file.txt" ]; then
+      echo "my_file.txt is executable"
+    fi
+
+    if [ -s "my_file.txt" ]; then
+      echo "my_file.txt exists and is not empty"
+    fi
+}
+# ====================================================================================================
+# Core                                              ==================================================
+# ====================================================================================================
+function core._should_print_color() {
+		return 0
+}
+# @description Use when a serious fault occurs. It will print the current ERR (if it exists)
+function core.panic() {
+         local arg1="$1";local arg2="$2"    # Bash-Function-Args
+	local code='1'
+	if [[ $arg1 =~ [0-9]+ ]]; then
+		code=$1
+	elif [ -n "$arg1" ]; then
+		if [ -n "$arg2" ]; then
+			code=$arg2
+		fi
+		if core._should_print_color 2; then
+			printf "\033[1;31m\033[4m%s:\033[0m %s\n" 'Panic' "$arg1" >&2
+		else
+			printf "%s: %s\n" 'Panic' "$arg1" >&2
+		fi
+	fi
+
+	if core.err_exists; then
+		printf '%s\n' 'Error found:' >&2
+		printf '%s\n' "  ERRCODE: $ERRCODE" >&2
+		printf '%s\n' "  ERR: $ERR" >&2
+	fi
+
+	printStackTrace
+	exit "$code"
+}
+function stacktracetest() {
+    stacktracetest1
+}
+function stacktracetest1() {
+    stacktracetest2
+}
+function stacktracetest2() {
+    stacktracetest3
+}
+function stacktracetest3() {
+    printStackTrace
+}
+# @description Prints stacktrace
+# @noargs
+# @example
+#  err_handler() {
+#    local exit_code=$1 # Note that this isn't `$?`
+#    printStackTrace
+#    
+#    # Note that we're not doing `exit $exit_code` because
+#    # that is handled automatically
+#  }
+#  core.trap_add 'err_handler' ERR
+function printStackTrace() {
+	printf '%s\n' 'Stacktrace:'
+
+	local old_cd="$PWD" cd_failed='no'
+	local i=
+	for ((i=0; i<${#FUNCNAME[@]}-1; ++i)); do
+		local file="${BASH_SOURCE[$i]}"
+
+		# If the 'cd' has previous failed, then do not attempt to 'cd' as the current
+		# directory is not in '$old_cd' (so the 'cd' will almost certainly fail)
+		if [ "$cd_failed" = 'no' ]; then
+			# shellcheck disable=SC1007
+			if CDPATH= cd -- "${file%/*}"; then
+				file="$PWD/${file##*/}"
+			else
+				cd_failed='yes'
+			fi
+		fi
+
+		printf '%s\n' "  in ${FUNCNAME[$i]} ($file:${BASH_LINENO[$i-1]})"
+
+		# shellcheck disable=SC1007
+		if ! CDPATH= cd -- "$old_cd"; then
+			cd_failed='yes'
+		fi
+	done; unset -v i
+
+	if [ "$cd_failed" = 'yes' ]; then
+		# Do NOT 'core.panic'
+		printError "A 'cd' failed, so the stacktrace may include relative paths"
+	fi
+} >&2
+
+# printFatal "${FUNCNAME[1]}()${msg:+": "}$msg"
+
+
+
+# ----------------------------------------------------------------------------------------------------
+# FSET: core.print
+# ----------------------------------------------------------------------------------------------------
+#  VT100_RESET="\x1b[0m"
+#  VT100_BOLD="\x1b[1m"
+#  VT100_DIM="\x1b[2m"
+#  VT100_ITALIC="\x1b[3m"
+#  VT100_UNDERLINE="\x1b[4m"
+#  VT100_BLINK="\x1b[5m"
+#  VT100_RAPID_BLINK="\x1b[6m"
+#  VT100_REVERSE_VIDEO="\x1b[7m"
+#  VT100_INVISIBLE="\x1b[8m"
+#  VT100_STRIKETHROUGH="\x1b[9m"
+#  
+#  VT100_FG_BLACK="\x1b[30m"
+#  VT100_FG_RED="\x1b[31m"
+#  VT100_FG_GREEN="\x1b[32m"
+#  VT100_FG_YELLOW="\x1b[33m"
+#  VT100_FG_BLUE="\x1b[34m"
+#  VT100_FG_MAGENTA="\x1b[35m"
+#  VT100_FG_CYAN="\x1b[36m"
+#  VT100_FG_WHITE="\x1b[37m"
+#  
+#  VT100_BG_BLACK="\x1b[40m"
+#  VT100_BG_RED="\x1b[41m"
+#  VT100_BG_GREEN="\x1b[42m"
+#  VT100_BG_YELLOW="\x1b[43m"
+#  VT100_BG_BLUE="\x1b[44m"
+#  VT100_BG_MAGENTA="\x1b[45m"
+#  VT100_BG_CYAN="\x1b[46m"
+#  VT100_BG_WHITE="\x1b[47m"
+
+function gitadd() {
+         local filename="$1"             # Bash-Function-Args
+         paramsf "$filename"
+  printAdvice "git add $filename"
+  git add "$filename"
+  return 0
+}
+  
+function util.silencer() {
+    if [[ -v SILENT ]]; then
+        if [[ "$SILENT" -gt 0 ]]; then
+            cat /dev/stdin >/dev/null 2>&1;
+        else
+            cat /dev/stdin
+        fi
+    fi
+}
+# Foreground Colors
+# BLACK_FG=$'\e[30m'
+# RED_FG=$'\e[31m'
+# GREEN_FG=$'\e[32m'
+# YELLOW_FG=$'\e[33m'
+# BLUE_FG=$'\e[34m'
+# MAGENTA_FG=$'\e[35m'
+# CYAN_FG=$'\e[36m'
+# WHITE_FG=$'\e[37m'
+
+function util.putln() {
+         local color="$1"; local sz="$2"    # Bash-Function-Args
+    printf "\033[1;%sm%s\033[0m\n" "$color" "$msg"
+}
+function util.put() {
+         local color="$1"; local sz="$2"    # Bash-Function-Args
+    printf "\033[1;%sm%s\033[0m" "$color" "$msg"
+}
+function u.putc() {
+         local color="$1"; local sz="$2"    # Bash-Function-Args
+    printf "\033[1;%sm%s\033[0m" "$color" "$msg"
+}
+function util.posprint() {
+         local row="$1";local col="$2";local msg="$3";local n="$4"    # Bash-Function-Args
+         if [ "$n" == "" ]; then                                                                                               
+             n=1
+         fi
+    ansi.move "$row" "$col"; 
+    for ((i=0; i<$n; i++)); do
+        printf "%s" "$msg"
+    done
+}
+function util.pprint() {
+         local row="$1";local col="$2";local msg="$3";local n="$4"    # Bash-Function-Args
+         local sz="";
+         if [ "$n" == "" ]; then                                                                                               
+             n=1
+         fi
+    ansi.move "$row" "$col"; 
+    for ((i=0; i<$n; i++)); do
+        sz="$sz$msg"
+    done
+    printf "%s" "$sz"
+}
+# ----------------------------------------------------------------------------------------------------
+# FLOG: core.print
+# ----------------------------------------------------------------------------------------------------
+#          Log Level
+LL5=5   # debug
+LL4=4   # info
+LL3=3   # advice
+LL2=2   # alert
+LL1=1   # error
+LL0=0   # critical
+LL0=0   # fatal
+
+
+LL5A=5   # debug
+LL4A=4   # info
+LL3A=3   # advice
+LL2A=2   # alert
+LL1A=1   # error
+LL0A=0   # critical
+LL0A=0   # fatal
+BGWW="\033[47m"  # white
+BGBB="\033[40m"  # black
+
+function core.loglevels() {
+         local void=0    # Bash-Function-Args
+    printAdvice "LL5A=5   # debug"
+    printAdvice "LL4A=4   # info"
+    printAdvice "LL3A=3   # advice"
+    printAdvice "LL2A=2   # alert"
+    printAdvice "LL1A=1   # error"
+    printAdvice "LL0A=0   # critical"
+    printAdvice "LL0A=0   # fatal"
+}
+#          black) printf "\033[40m" ;;
+#          red) printf "\033[41m" ;;
+#          green) printf "\033[42m" ;;
+#          yellow) printf "\033[43m" ;;
+#          blue) printf "\033[44m" ;;
+#          magenta) printf "\033[45m" ;;
+#          cyan) printf "\033[46m" ;;
+#          white) printf "\033[47m" ;;
+#          default) printf "\033[49m" ;; # Use 49 for default
+export DEFLOGLEVEL=5
+export STACKTRACEDEPTH=1
+export LOGLEVEL=5
+
+function core.stacktracedepth(){
+         local depth=$1    # Bash-Function-Args
+         STACKTRACEDEPTH=$depth
+}
+function panel() {
+         local CORNER="+"
+         VAR_HLINE_SINGLE=$'\u2500' # '─'
+# Vertical line
+         VAR_VLINE_SINGLE=$'\u2502' # '│'
+# Corners
+         VAR_CORNER_TL_SINGLE=$'\u250C' # '┌' (Top-Left)
+         VAR_CORNER_TR_SINGLE=$'\u2510' # '┐' (Top-Right)
+         VAR_CORNER_BL_SINGLE=$'\u2514' # '└' (Bottom-Left)
+         VAR_CORNER_BR_SINGLE=$'\u2518' # '┘' (Bottom-Right)
+         local SIDE="|"
+         SIDE=VAR_HLINE_SINGLE=$'\u2500' # '─'
+         local TOP="-"
+         local BOTTOM="-"
+         local R=$1;C=$2;L=$3;W=$4;M=$5      # Bash-Function-Args
+         local RPLUS=$((R+1))
+         local CPLUS=$((C+1))
+         local RPLUS2=$((R+2))
+         local CPLUS2=$((C+2))
+         local RPLUS3=$((R+3))
+         local CPLUS3=$((C+3))
+         local REND=$((R+L+1))
+         local CEND=$((C+W+1))
+         local TR=$(TROWS)
+         local FROW=$((R+1))
+         local LROW=$((R+L))
+         local FCOL=$((C+1))
+         local LCOL=$((C+1))
+         local TRE=$((TR-1))
+         local TC=$(TCOLS)
+         local E=0
+         printInfo "PANEL: $R $C $L $W FROW=$FROW LROW=$LROW FCOL=$FCOL LCOL=$LCOL TROWS=$TR TCOLS=$TC TRE=$TRE CEND=$CEND REND=$REND"
+    if [ $REND -ge $TRE ]; then
+        printCritical "PANEL FAIL:  $R $C $L $W (REND=$REND exceeds TRE=$TRE)"
+        return
+    fi
+    if [ $CEND -gt $(TCOLS) ]; then
+        printCritical "PANEL FAIL:  $R $C $L $W (CEND=$CEND exceeds TCOLS=$TC)"
+        return
+    fi
+    if [ $R -lt 2 ]; then
+        R=2
+    fi
+    if [ $C -lt 3 ]; then
+        C=4
+    fi
+    if [ $W -lt 3 ]; then
+        W=4
+    fi
+    if [ $L -lt 3 ]; then
+        L=4
+    fi
+        
+    ((WH = W/2))
+    ((HH = L/2))
+
+    util.pprint $R $C     "$CORNER" 1;
+    util.pprint $R $CPLUS "$TOP" $((W));
+    util.pprint $R $CEND  "$CORNER" 1
+
+    local ct=1;
+    local ROW=$((R+i))
+    ((E=L+1))
+    while [ $ct -lt $E ]; do
+      ROW=$((R+ct))
+      util.pprint $ROW $C     "$SIDE" 1;
+      util.pprint $ROW $CPLUS " " $((W));
+      util.pprint $ROW $CEND  "$SIDE" 1
+      ((ct=ct+1))
+      #echo $ct
+    done
+
+    util.pprint $REND $C "$CORNER" 1;util.pprint $REND $CPLUS "$BOTTOM" $((W));util.pprint $REND $CEND "$CORNER" 1
+#     util.pprint $RPLUS $CPLUS "$L/$W" 1
+#     util.pprint $RPLUS2 $CPLUS "$(TROWS)" 1
+#     util.pprint $RPLUS3 $CPLUS "$(TCOLS)" 1
+
+
+
+
+#     util.pprint $((R+HH)) $((C+WH)) "$W" 1
+#     echo "PANEL OK  :  $R $C $L $W" >> /tmp/err
+    ansi.gutteractual
+
+}
+
+function core.print.alltest() {
+
+       local void=0    # Bash-Function-Args
+
+       local ct=1;
+       local sz="";
+       local r=0;
+       local m=0;
+       local n=0;
+       local o=0;
+       local p=0;
+       local i=0;
+       local w=0; local x=0; local y=0; local z=0;
+       local q1=0; local q2=0; local q3=0; local q4=0;
+initialize_empty_array
+D=`date`
+stack_init
+console.rulers
+ansi.gutteractual
+       ct=6
+       while [ $ct -lt 16 ]; do
+           panel $ct $ct 5 5
+           ((ct=ct+2))
+       done
+       ansi.gutteractual
+}
+
+
+function logdebug() {
+         local void=0    # Bash-Function-Args
+    export LOGLEVEL=$LL5
+}
+function loginfo() {
+         local void=0    # Bash-Function-Args
+    export LOGLEVEL=$LL4
+}
+function logadvice() {
+         local void=0    # Bash-Function-Args
+    export LOGLEVEL=$LL3
+}
+function logalert() {
+         local void=0    # Bash-Function-Args
+    export LOGLEVEL=$LL2
+}
+function logerror() {
+         local void=0    # Bash-Function-Args
+    export LOGLEVEL=$LL1
+}
+function logcritical() {
+         local void=0    # Bash-Function-Args
+    export LOGLEVEL=$LL0
+}
+function logreset() {
+         local void=0    # Bash-Function-Args
+    export LOGLEVEL=$DEFLOGLEVEL
+}
+function logset() {
+         local level="$1" # Bash-Function-Args
+   #LOGLEVEL=$level
+}
+
+
+function util.set_background() {
+    local color=$1    # Bash-Function-Args
+    case "$color" in
+        black) printf "\033[40m";; 
+        red) printf "\033[41m" ;;
+        green) printf "\033[42m" ;;
+        yellow) printf "\033[43m" ;;
+        blue) printf "\033[44m" ;;
+        magenta) printf "\033[45m" ;;
+        cyan) printf "\033[46m" ;;
+        white) printf "\033[47m" ;;
+        default) printf "\033[49m" ;; # Use 49 for default
+        *) echo "Invalid color: $color" >&2; return 1 ;;
+    esac
+}
+function util.print() {
+         local msg="$1"    # Bash-Function-Args
+    echo -n "$msg"
+}
+function util.println() {
+         local msg="$1"    # Bash-Function-Args
+    echo "$msg"
+}
+function util.print.color() {
+         local color=$1; local sz="$2"    # Bash-Function-Args
+         LASTCONSOLEMESSAGE="$2"
+    if core._should_print_color 1; then
+        case "$color" in
+            black)   echo "$(szblack   "$sz")"  ;;
+            red)     echo "$(szred     "$sz")"  ;;
+            green)   echo "$(szgreen   "$sz")"  ;;
+            yellow)  echo "$(szyellow  "$sz")"  ;;
+            blue)    echo "$(szblue    "$sz")"  ;;
+            magenta) echo "$(szmagenta "$sz")"  ;;
+            cyan)    echo "$(szcyan    "$sz")"  ;;
+            white)   echo "$(szwhite   "$sz")"  ;;
+            default) echo "$(szwhite   "$sz")"  ;;
+            *) echo "Invalid color: $color" >&2; return 1 ;;
+        esac
+    else
+        echo "$(szwhite   "$sz")"
+    fi
+}
+
+function core.print.stackline() {
+         local msg="$1"    # Bash-Function-Args
+         LASTCONSOLEMESSAGE="$1"
+    local ff=$(printf "%-32s\n" "${FUNCNAME[1]}")
+    local sz="$(printf "%s %s: %s %s" "Stck" "$SILENT" "" "$msg")"
+    if [ "$LOGLEVEL" -gt $LL3A ]; then
+        echo "$(szblue "$sz")"
+    fi
+}
+function printAtLevel() {
+         local msg="$1";local lvl=$2;local label="$3"; local color=$4; local flag=$5    # Bash-Function-Args
+         LASTCONSOLEMESSAGE="$1"
+    local ff=$(printf "%-12s\n" "${FUNCNAME[2]}")
+    local sz="$(printf "%s %s: %s %s" "$label $lvl/$LOGLEVEL" "$SILENT" "$ff" "$msg")"
+    if [ $lvl -ge $LOGLEVEL ]; then
+
+        if [[ "$flag" == "flag" ]]; then
+          sz="== $sz"
+          dprint $(repeat_char "=" ${#sz})
+        fi 
+
+        dprint "$(szcolor "$sz" $color)"
+
+        if [[ "$flag" == "flag" ]]; then
+          dprint $(repeat_char "=" ${#sz})
+        fi 
+    fi
+#         if core._should_print_color 1; then
+#             echo "$(szmagenta "$sz")"
+#         else
+#             echo "$(szwhite "$sz")"
+#         fi
+}
+#     if [[ "$#" -gt 0 ]]; then
+#     else
+#         while IFS= read -r msg; do
+#         done
+#     fi
+function printAlways() {
+         local msg="$1"    # Bash-Function-Args
+    if [[ "$#" -gt 0 ]]; then
+        printAtLevel "$msg" $LL0 "    " yellow
+    else
+        while IFS= read -r msg; do
+            printAtLevel "$msg" $LL0 "    " yellow
+        done
+    fi
+}
+function printDebug() {
+         local msg="$1"    # Bash-Function-Args
+    if [[ "$#" -gt 0 ]]; then
+         printAtLevel "$msg" $LL5 "DBUG" yellow
+    else
+        while IFS= read -r msg; do
+            printAtLevel "$msg" $LL5 "DBUG" yellow
+        done
+    fi
+}
+function uppercase_stdin() {
+  while IFS= read -r line; do
+    echo "$line" | tr '[:lower:]' '[:upper:]'
+  done
+}
+function printInfo() {
+         local msg="$1"; local flag="$2"    # Bash-Function-Args
+    if [[ "$#" -gt 0 ]]; then
+        printAtLevel "$msg" $LL4 "INFO" green $flag
+    else
+        while IFS= read -r line; do
+            printAtLevel "$line" $LL4 "INFO" green $flag
+        done
+    fi
+}
+function printAdvice() {
+         local msg="$1"    # Bash-Function-Args
+    if [[ "$#" -gt 0 ]]; then
+         printAtLevel "$msg" $LL3 "ADVC" blue
+    else
+        while IFS= read -r msg; do
+            printAtLevel "$msg" $LL3 "ADVC" blue
+        done
+    fi
+}
+function printWarning() {
+         local msg="$1"    # Bash-Function-Args
+    if [[ "$#" -gt 0 ]]; then
+         printAtLevel "$msg" $LL3 "WARN" blue
+    else
+        while IFS= read -r msg; do
+            printAtLevel "$msg" $LL3 "WARN" blue
+        done
+    fi
+}
+function printAlert() {
+         local msg="$1"    # Bash-Function-Args
+    if [[ "$#" -gt 0 ]]; then
+         printAtLevel "$msg" $LL2 "ALRT" magenta
+    else
+        while IFS= read -r msg; do
+            printAtLevel "$msg" $LL2 "ALRT" magenta
+        done
+    fi
+}
+function printError() {
+         local msg="$1"    # Bash-Function-Args
+    if [[ "$#" -gt 0 ]]; then
+        printAtLevel "$msg" $LL1 "ERRR" cyan
+    else
+        while IFS= read -r msg; do
+            printAtLevel "$msg" $LL1 "ERRR" cyan
+        done
+    fi
+}
+function printCritical() {
+         local msg="$1"; local ctrl=$2    # Bash-Function-Args
+    if [[ "$#" -gt 0 ]]; then
+        printAtLevel "$msg" $LL0 "CRIT" red
+    else
+        while IFS= read -r msg; do
+            printAtLevel "$msg" $LL0 "CRIT" red
+        done
+    fi
+}
+
+
+
+function printFatal() {
+         local msg="$1"; local ctrl=$2    # Bash-Function-Args
+         LASTCONSOLEMESSAGE="$1"
+         local lvl=$LL0
+    local dex=0     
+    if [[ -z "$ctrl" ]]; then
+        dex=1
+    else
+        dex=ctrl
+    fi
+
+    local ff=$(printf "%-32s\n" "${FUNCNAME[dex]}")
+    local sz="$(printf "%s %s: %s %s" "FATL $lvl" "$SILENT" "$ff" "$msg")"
+    if [ $LOGLEVEL -ge $lvl ]; then
+        util.print.color red "$sz"
+
+        local sz=""
+        local delim=""
+        local length=${#FUNCNAME[@]}
+        length=$((length - 1))
+        for ((i=$length; i>0; i--)); do
+            core.print.stackline "----  ${FUNCNAME[$i]}"
+            delim=", "
+        done
+    fi
+}
+function core.print.flag() {
+         local void=0;    # Bash-Function-Args
+    local msg="************************"
+    local f=${FUNCNAME[1]}
+    if [ "$DEBUG" -gt 0 ]; then
+        if core._should_print_color 1; then
+            printf "\033[1;32m%s: %s:\033[0m %s\n" "$f" 'Info' "$msg"
+            printf "\033[1;32m%s: %s:\033[0m %s\n" "$f" 'Info' "$msg"
+            printf "\033[1;32m%s: %s:\033[0m %s\n" "$f" 'Info' "$msg"
+        else
+            printf "%s: %s: %s\n" 'Info' "$f" "$msg"
+            printf "%s: %s: %s\n" 'Info' "$f" "$msg"
+            printf "%s: %s: %s\n" 'Info' "$f" "$msg"
+        fi
+    fi
+}
+function right_pad_limited() {
+         local string="$1";local width="$2"     # Bash-Function-Args
+  local max_length=$((width - 1))
+  local truncated_string="${string:0:$max_length}" # Truncate if longer than max_length
+  local current_length="${#truncated_string}"
+  local padding_length=$((width - current_length))
+
+  if (( padding_length > 0 )); then
+    printf "%-${width}s" "$truncated_string"
+  else
+    printf "%s" "$truncated_string" # String is already at or wider than the width
+  fi
+}
+
+
+# Function to get the length of a string
+function core.string.length() {
+         local str="$1";  # Bash-Function-Args
+  echo "${#str}"
+}
+
+# Function to check if a string is empty
+function core.string.isempty() {
+         local str="$1";  # Bash-Function-Args
+  if [ -z "$str" ]; then
+    echo 0 # True (empty)
+  else
+    echo 1 # False (not empty)
+  fi
+}
+
+# Function to check if a string contains a substring
+function core.string.contains() {
+         local str="$1"; local sub="$2";   # Bash-Function-Args
+  if [[ "$str" == *"$sub"* ]]; then
+    echo 0 # True (contains)
+  else
+    echo 1 # False (does not contain)
+  fi
+}
+
+# Function to get a substring from a string (starting at index, length)
+function core.string.substring() {
+         local str="$1"; local start="$2"; local len="$3";  # Bash-Function-Args
+
+  # Adjust start index for bash's 0-based indexing
+  local adjusted_start=$((start - 1))
+
+  # Handle potential negative or zero length
+  if [[ "$len" -le 0 ]]; then
+    echo ""
+    return 0
+  fi
+
+  # Check if the starting index is within bounds
+  if [[ "$adjusted_start" -lt 0 || "$adjusted_start" -ge "${#str}" ]]; then
+    echo ""
+    return 1 # Indicate error: invalid starting index
+  fi
+
+  echo "${str:$adjusted_start:$len}"
+}
+
+# Function to find the index of the first occurrence of a substring
+function core.string.indexof() {
+         local str="$1"; local sub="$2";   # Bash-Function-Args
+  local index
+
+  if [[ -z "$sub" ]]; then
+    echo 0 # Empty substring found at the beginning
+    return 0
+  fi
+
+  index=$(expr index "$str" "$sub")
+  if [[ "$index" -gt 0 ]]; then
+    echo $((index - 1)) # Adjust to 0-based indexing
+    return 0
+  else
+    echo -1 # Substring not found
+    return 1
+  fi
+}
+
+# Function to replace the first occurrence of a substring
+function core.string.replacefirst() {
+         local str="$1"; local old="$2"; local new="$3";  # Bash-Function-Args
+
+  if [[ -z "$old" ]]; then
+    echo "$str"
+    return 0
+  fi
+
+  echo "${str/$old/$new}"
+}
+
+# Function to replace all occurrences of a substring
+function core.string.replace.all() {
+         local str="$1"; local old="$2"; local new="$3";  # Bash-Function-Args
+
+  if [[ -z "$old" ]]; then
+    echo "$str"
+    return 0
+  fi
+
+  echo "${str//$old/$new}"
+}
+
+# Function to convert a string to uppercase
+function core.string.toupper() {
+         local str="$1"     # Bash-Function-Args
+  echo "${str^^}"
+}
+
+# Function to convert a string to lowercase
+function core.string.tolower() {
+         local str="$1"     # Bash-Function-Args
+  echo "${str,,}"
+}
+
+# Function to split a string into an array using a delimiter
+function core.string.split() {
+         local str="$1";local delim="$2"     # Bash-Function-Args
+  local -n array_name="$3" # Name of the array to store the result
+
+  IFS="$delim" read -ra array_name <<< "$str"
+}
+
+# --- String Padding Functions ---
+
+# Function to pad a string on the left with a specified character to a target length
+function core.string.padleft() {
+         local str="$1";local len="$2"     # Bash-Function-Args
+  local pad_char="${3:- }" # Default padding character is space
+  local current_length=$(string_length "$str")
+  local padding_length=$((len - current_length))
+  local padding=""
+
+  if [[ "$padding_length" -gt 0 ]]; then
+    for ((i=0; i<padding_length; i++)); do
+      padding+="$pad_char"
+    done
+    echo "$padding$str"
+  else
+    echo "$str" # No padding needed
+  fi
+}
+
+# Function to pad a string on the right with a specified character to a target length
+function core.string.padright() {
+         local str="$1";local len="$2"     # Bash-Function-Args
+  local pad_char="${3:- }" # Default padding character is space
+  local current_length=$(string_length "$str")
+  local padding_length=$((len - current_length))
+  local padding=""
+
+  if [[ "$padding_length" -gt 0 ]]; then
+    for ((i=0; i<padding_length; i++)); do
+      padding+="$pad_char"
+    done
+    echo "$str$padding"
+  else
+    echo "$str" # No padding needed
+  fi
+}
+
+# Function to center a string within a specified width using a padding character
+function core.string.padcenter() {
+         local str="$1";local width="$2"     # Bash-Function-Args
+  local pad_char="${3:- }" # Default padding character is space
+  local current_length=$(string_length "$str")
+
+  if [[ "$width" -le "$current_length" ]]; then
+    echo "$str" # No padding needed
+    return 0
+  fi
+
+  local left_padding_length=$(( (width - current_length) / 2 ))
+  local right_padding_length=$(( width - current_length - left_padding_length ))
+  local left_padding=""
+  local right_padding=""
+
+  for ((i=0; i<left_padding_length; i++)); do
+    left_padding+="$pad_char"
+  done
+  for ((i=0; i<right_padding_length; i++)); do
+    right_padding+="$pad_char"
+  done
+
+  echo "$left_padding$str$right_padding"
+}
+
+# # Example usage (including padding functions):
+# if [[ "$0" == "$BASH_SOURCE" ]]; then
+#   my_string="Hello"
+#   substring="World"
+# 
+#   echo "--- Basic String Operations ---"
+#   echo "Original string: '$my_string'"
+#   echo "Length: $(string_length "$my_string")"
+#   echo "Is empty? $(string_is_empty "$my_string")"
+#   echo "Contains '$substring'? $(string_contains "$my_string" "$substring")"
+#   echo "Substring from index 2, length 3: '$(string_substring "$my_string" 2 3)'"
+#   echo "Index of 'll': $(string_index_of "$my_string" "ll")"
+#   echo "Replace first 'l' with '*': '$(string_replace_first "$my_string" "l" "*")'"
+#   echo "Replace all 'l' with '*': '$(string_replace_all "$my_string" "l" "*")'"
+#   echo "Uppercase: '$(string_to_upper "$my_string")'"
+#   echo "Lowercase: '$(string_to_lower "$my_string")'"
+# 
+#   my_string_to_split="one,two,three"
+#   local -a parts
+#   string_split "$my_string_to_split" "," parts
+#   echo "Split string into array: ${parts[@]}"
+# 
+#   echo ""
+#   echo "--- String Padding Operations ---"
+#   text_to_pad="Test"
+#   target_length=10
+#   padding_char="*"
+# 
+#   padded_left=$(string_pad_left "$text_to_pad" "$target_length" "$padding_char")
+#   echo "Padded left ('$padding_char', length $target_length): '$padded_left'"
+# 
+#   padded_right=$(string_pad_right "$text_to_pad" "$target_length" "$padding_char")
+#   echo "Padded right ('$padding_char', length $target_length): '$padded_right'"
+# 
+#   centered=$(string_pad_center "$text_to_pad" "$target_length" "_")
+#   echo "Centered ('_', width $target_length): '$centered'"
+# 
+#   centered_even=$(string_pad_center "Even" 10 "#")
+#   echo "Centered 'Even' (width 10, '#'): '$centered_even'"
+# fi
+
+# Function to check for duplicate lines in a file.
+# It uses associative arrays (supported in Bash 4.0+) for efficiency.
+#
+# Usage:
+#   check_for_duplicates "filename"
+#
+# Arguments:
+#   $1: The name of the file to check.
+#
+# Returns:
+#   0 if no duplicates are found.
+#   1 if duplicates are found.
+#   2 if the file does not exist or is not readable.
+#
+# Output:
+#   If duplicates are found, the function prints each duplicate line
+#   along with the number of times it appears.  The output is sent to
+#   stderr, so it can be redirected separately from the standard output
+#   of a script that uses this function.
+
+
+function core.dumpfile.info() {
+         local filename="$1"     # Bash-Function-Args
+  local line
+
+  # Check if the file exists and is readable.
+  if [[ ! -r "$filename" ]]; then
+    printf "Error: File '%s' does not exist or is not readable.\n" "$filename" >&2
+    return 2
+  fi
+
+  if [ "$DEBUGLEVEL" -ge 5 ]; then
+      # Read the file line by line.
+      while IFS= read -r line; do
+          printInfo "$line"
+      done < "$filename"
+  fi
+}
+
+
+function core.check_for_duplicates() {
+         local filename="$1"     # Bash-Function-Args
+  local -A lines  # Declare an associative array to store line counts.
+  local line
+  local duplicate_found=0
+
+  # Check if the file exists and is readable.
+  if [[ ! -r "$filename" ]]; then
+    printf "Error: File '%s' does not exist or is not readable.\n" "$filename" >&2
+    return 2
+  fi
+
+  # Read the file line by line.
+  while IFS= read -r line; do
+    # If the line exists as a key in the associative array, increment its count.
+    if [[ -v lines["$line"] ]]; then
+      ((lines["$line"]++))
+      # Check if this is the first time we've seen this duplicate.
+      if ((lines["$line"] == 2)); then
+        duplicate_found=1 # Set the flag when the first duplicate is found
+        printf "Duplicate line found:\n" >&2 # print this only once
+      fi
+    else
+      # Otherwise, add the line to the array with a count of 1.
+      lines["$line"]=1
+    fi
+  done < "$filename"
+
+  # Print the duplicate lines and their counts.
+  if ((duplicate_found)); then
+    for line in "${!lines[@]}"; do # loop through the keys of the array
+      if ((lines["$line"] > 1)); then
+        printf "  \"%s\": %d times\n" "$line" "${lines["$line"]}" >&2
+      fi
+    done
+    return 1 # Return 1 to indicate duplicates were found.
+  else
+    return 0 # Return 0 to indicate no duplicates were found.
+  fi
+}
+
+# Example usage (demonstration):
+# Create a test file (if it doesn't exist).
+# test_file="test_duplicates.txt"
+# if [[ ! -f "$test_file" ]]; then
+#   cat > "$test_file" <<EOF
+# This is line 1.
+# This is line 2.
+# This is line 1.
+# This is line 3.
+# This is line 2.
+# This is line 1.
+# EOF
+# fi
+# 
+# # Call the function and check the return code.
+# check_for_duplicates "$test_file"
+# return_code=$?
+# 
+# if ((return_code == 0)); then
+#   echo "No duplicate lines found in '$test_file'."
+# elif ((return_code == 1)); then
+#   echo "Duplicate lines found in '$test_file' (see stderr for details)."
+# elif ((return_code == 2)); then
+#   echo "Error: File '$test_file' not found or not readable."
+# fi
+# 
+# # Example of calling the function with a non-existent file:
+# check_for_duplicates "nonexistent_file.txt"
+# return_code=$?
+# if ((return_code == 2)); then
+#   echo "Function correctly handled the non-existent file."
+# fi
+# 
+
+
+
+# ----------------------------------------------------------------------------------------------------
+# ANSISET: 
+# ----------------------------------------------------------------------------------------------------
+function ansi.constants() {
+         local void=1    # Bash-Function-Args
+# ANSI Color Codes
+
+# Foreground Colors
+export BLACK_FG=$'\e[30m'
+export RED_FG=$'\e[31m'
+export GREEN_FG=$'\e[32m'
+export YELLOW_FG=$'\e[33m'
+export BLUE_FG=$'\e[34m'
+export MAGENTA_FG=$'\e[35m'
+export CYAN_FG=$'\e[36m'
+export WHITE_FG=$'\e[37m'
+export DEFAULT_FG=$'\e[39m' # Resets to default
+
+# Bright Foreground Colors
+export BRIGHT_BLACK_FG=$'\e[90m'
+export BRIGHT_RED_FG=$'\e[91m'
+export BRIGHT_GREEN_FG=$'\e[92m'
+export BRIGHT_YELLOW_FG=$'\e[93m'
+export BRIGHT_BLUE_FG=$'\e[94m'
+export BRIGHT_MAGENTA_FG=$'\e[95m'
+export BRIGHT_CYAN_FG=$'\e[96m'
+export BRIGHT_WHITE_FG=$'\e[97m'
+
+# Background Colors
+export BLACK_BG=$'\e[40m'
+export RED_BG=$'\e[41m'
+export GREEN_BG=$'\e[42m'
+export YELLOW_BG=$'\e[43m'
+export BLUE_BG=$'\e[44m'
+export MAGENTA_BG=$'\e[45m'
+export CYAN_BG=$'\e[46m'
+export WHITE_BG=$'\e[47m'
+export DEFAULT_BG=$'\e[49m' # Resets to default
+
+# Bright Background Colors
+export BRIGHT_BLACK_BG=$'\e[100m'
+export BRIGHT_RED_BG=$'\e[101m'
+export BRIGHT_GREEN_BG=$'\e[102m'
+export BRIGHT_YELLOW_BG=$'\e[103m'
+export BRIGHT_BLUE_BG=$'\e[104m'
+export BRIGHT_MAGENTA_BG=$'\e[105m'
+export BRIGHT_CYAN_BG=$'\e[106m'
+export BRIGHT_WHITE_BG=$'\e[107m'
+
+# Text Effects
+export RESET=$'\e[0m'    # Reset all styles
+export BOLD=$'\e[1m'     # Bold/Bright
+export DIM=$'\e[2m'      # Dim
+export ITALIC=$'\e[3m'   # Italic
+export UNDERLINE=$'\e[4m'# Underline
+export BLINK=$'\e[5m'     # Blink
+export RAPID_BLINK=$'\e[6m' # Rapid Blink
+export REVERSE=$'\e[7m'   # Reverse video (swap foreground and background)
+export HIDDEN=$'\e[8m'    # Hidden
+export STRIKETHROUGH=$'\e[9m' # Strikethrough
+
+# Example usage (within a script):
+# echo -e "${RED_FG}This is red text${RESET} and this is normal."
+# echo -e "${GREEN_FG}${BOLD}This is bold green text${RESET}"
+# echo -e "${BLUE_BG}${WHITE_FG}Blue background with white text${RESET}"
+# echo -e "${YELLOW_FG}${UNDERLINE}Yellow underlined text${RESET}"
+# printf "${MAGENTA_FG}Magenta text, no newline"
+# printf "  ${CYAN_BG}${BLACK_FG}on cyan background${RESET}\n"
+
+# Note:  The $'' quoting allows the escape sequences to be interpreted.
+#        Using "" would require double escapes (e.g., \\e).
+
+}
+
+
+
+function rename_dot_file() {
+         local filename="$1"             # Bash-Function-Args
+  if [[ "$filename" == .* ]]; then
+    echo "dot_${filename:1}"
+  else
+    echo "$filename"
+  fi
+}
+function renamecopy_dot_file() {
+         local filename="$1"             # Bash-Function-Args
+  MODIFIEDFILENAME=""
+  if [[ "$filename" == .* ]]; then
+    cp "$filename" "dot_${filename:1}"
+    MODIFIEDFILENAME="dot_${filename:1}"
+  fi
+}
+function is_hidden_file() {
+         local filename="$1"             # Bash-Function-Args
+  if [[ "$filename" == .* ]]; then
+    echo "true"
+  else
+    echo "false"
+  fi
+}
+
+# Example usage:
+#if is_hidden_file "$file1"; then
+#
+#
+# this nexted function is bad
+function hashomatic() {
+         local filename="$1"             # Bash-Function-Args
+  local tmp1=$(mktemp)
+  if [[ -z "$filename" ]]; then
+    fecho "Error: Filename not provided."
+    return 1
+  fi
+  if [[ ! -f "$filename" ]]; then
+    fecho "Error: File '$filename' not found."
+    return 1
+  fi
+  printCritical "HashoMatic $filename"
+  if [ $(isSameHash "$filename") == "0" ]; then
+    IHASH=$(md5sum "$tmp1" | awk '{print $1}')
+    cat $tmp1  > "$filename"
+    git add "$filename"
+    rm -f "$tmp1" >/dev/null 2>&1
+  fi
+}
+
+# Function to move files older than a specified number of days
+# to a destination directory.
+#
+# Parameters:
+#   $1: The source directory to check for old files.
+#   $2: The destination directory to move the old files to.
+#   $3: (Optional) The number of days.  Defaults to 60 if not provided.
+#
+# Returns:
+#   0 if the operation was successful.
+#   1 if the source directory does not exist.
+#   2 if the destination directory does not exist or is not a directory.
+#   3 if no files were moved (but no errors occurred).
+#   4 if an error occurred during the move operation.
+#
+# Usage:
+#   move_old_files "/path/to/source/directory" "/path/to/destination/directory" 90
+#
+move_old_files() {
+  local source_dir="$1"
+  local dest_dir="$2"
+  local days="${3:-60}" # Default to 60 days if not provided.
+  local moved_files=0
+  local file
+  local current_time_seconds
+  local file_modified_time_seconds
+  local seconds_in_a_day=86400 # 60 * 60 * 24
+  local szOut
+
+  # Check if the source directory exists.
+  if ! [ -d "$source_dir" ]; then
+    echo "Error: Source directory '$source_dir' does not exist." >&2
+    return 1
+  fi
+
+  # Check if the destination directory exists and is a directory.
+  if ! [ -d "$dest_dir" ]; then
+    echo "Error: Destination directory '$dest_dir' does not exist or is not a directory." >&2
+    return 2
+  fi
+
+  # Get the current time in seconds since the Epoch.
+  current_time_seconds=$(date +%s)
+
+  # Find files in the source directory and process them.
+  find "$source_dir" -type f -print0 | while IFS= read -r -d $'\0' file; do
+    # Get the file's last modification time in seconds since the Epoch.
+    file_modified_time_seconds=$(stat -c %Y "$file")
+
+    # Calculate the age of the file in seconds.
+    local file_age_seconds=$((current_time_seconds - file_modified_time_seconds))
+
+    # Check if the file is older than the specified number of days.
+    if [ "$file_age_seconds" -gt $((days * seconds_in_a_day)) ]; then
+      # Construct the destination path.  Preserve directory structure.
+      local dest_file="$dest_dir$(echo "$file" | sed "s|^$source_dir||")"
+      printAdvice "OK for $dest_file"
+
+      # Create any necessary subdirectories in the destination.
+      #local dest_dir_path=$(dirname "$dest_file")
+      #if ! [ -d "$dest_dir_path" ]; then
+      #  mkdir -p "$dest_dir_path"
+      #fi
+      # Attempt to move the file.
+      szOut="$szOut$file "
+
+      if mv "$file" "$dest_file"; then
+        printAdvice "Moved: '$file' to '$dest_file'"
+        moved_files=$((moved_files + 1))
+      else
+        echo "Error: Failed to move '$file' to '$dest_file'" >&2
+        return 4 # Return error code for move failure.
+      fi
+    fi
+  done
+
+  # Check if any files were moved.
+  if [ "$moved_files" -eq 0 ]; then
+    printAdvice "No files older than $days days found in '$source_dir'."
+    return 3 # Return specific code for no files moved.
+  fi
+
+  printAdvice "$szOut Files Moved"
+  return 0 # Return success.
+}
+
+# Example usage (you can uncomment this to test the function):
+# Create dummy directories and files for testing.
+# mkdir -p /tmp/source_dir /tmp/dest_dir
+# touch -d "2024-01-01" /tmp/source_dir/file1.txt  # Older than 60 days (as of 2024-03-04)
+# touch -d "2024-03-01" /tmp/source_dir/file2.txt  # Newer than 60 days (as of 2024-03-04)
+# touch -d "2024-01-15" /tmp/source_dir/subdir/file3.txt # Test subdirectory handling
+# mkdir /tmp/source_dir/empty_dir
+#
+# # Run the function.
+# move_old_files "/tmp/source_dir" "/tmp/dest_dir" 60
+#
+# # Check the results.
+# ls -l /tmp/dest_dir
+# ls -l /tmp/dest_dir/subdir
+# ls -l /tmp/source_dir
+#
+# # Clean up the dummy directories and files.
+# rm -rf /tmp/source_dir /tmp/dest_dir
+#  :set iskeyword=@,48-57,_,192-255,.
+
+
+# This script defines a function to get the number of rows and columns in the terminal.
+function odd_or_less() {
+         local num=$1    # Bash-Function-Args
+  if [[ ! "$num" =~ ^[0-9]+$ ]]; then
+    echo "XXXX Error: Input must be a non-negative integer." >&2
+    echo "[$num]" >&2
+    exit 1
+    return 1
+  fi
+  if (( num % 2 != 0 )); then
+    echo "$num"
+  else
+    echo $((num - 1))
+  fi
+}
+function get_terminal_size() {
+         local void=1    # Bash-Function-Args
+  # Use the 'tput' command to get the number of rows and columns.
+  local rows=$(tput lines) # Use 'local' to keep variables within the function's scope.
+  local cols=$(tput cols) # Use 'local' to keep variables within the function's scope.
+  echo "$rows $cols" # Return the values, space-separated.  Simplifies parsing.
+}
+function TROWSACTUAL() {
+         local void=1    # Bash-Function-Args
+  local rows=$(tput lines)
+  echo "$rows"
+}
+
+function vROWS() {
+    local r=0
+    if [ $# -eq 0 ]; then
+        r=$(tput lines)
+    else
+        if [$1 -gt 0 ]; then
+            r=$1
+        else
+            r=$(tput lines)
+        fi
+    fi
+    echo $r
+}
+function vCOLS() {
+    local c=0
+    c=$(tput cols)
+    if [ $# -gt 0 ]; then
+        c=$1
+    fi
+    echo $c
+}
+
+function TROWS() {
+         local offset=$1    # Bash-Function-Args
+  local r=$(vROWS)
+  local rows=$(odd_or_less $r) # Use 'local' to keep variables within the function's scope.
+  #local rows=$(odd_or_less $(tput lines)) # Use 'local' to keep variables within the function's scope.
+  (( rows= rows + offset ))
+  echo "$rows"
+}
+function TCOLS() {
+         local offset=$1    # Bash-Function-Args
+  local c=$(vCOLS)
+  local cols=$(odd_or_less $c) # Use 'local' to keep variables within the function's scope.
+  #local cols=$(odd_or_less $(tput cols)) # Use 'local' to keep variables within the function's scope.
+  (( cols = cols + offset ))
+  echo "$cols"
+}
+function TCOLSACTUAL() {
+         local void=0    # Bash-Function-Args
+  local cols=$(odd_or_less $(tput cols)) # Use 'local' to keep variables within the function's scope.
+  echo "$cols"
+}
+function HALFTROWS() {
+         local void=1    # Bash-Function-Args
+  local rows=$(odd_or_less $(tput lines)) # Use 'local' to keep variables within the function's scope.
+  (( rows = rows / 2 ))
+  echo "$rows"
+}
+function HALFTCOLS() {
+         local void=1    # Bash-Function-Args
+  local cols=$(odd_or_less $(tput cols)) # Use 'local' to keep variables within the function's scope.
+  (( cols = cols / 2 ))
+  echo "$cols"
+}
+function QTRTROWS() {
+         local void=1    # Bash-Function-Args
+  local rows=$(odd_or_less $(tput lines)) # Use 'local' to keep variables within the function's scope.
+  (( rows = rows / 4 ))
+  echo "$rows"
+}
+function QTRTCOLS() {
+         local void=1    # Bash-Function-Args
+  local cols=$(odd_or_less $(tput cols)) # Use 'local' to keep variables within the function's scope.
+  (( cols = cols / 4 ))
+  echo "$cols"
+}
+function EIGTHTROWS() {
+         local void=1    # Bash-Function-Args
+  local rows=$(odd_or_less $(tput lines)) # Use 'local' to keep variables within the function's scope.
+  (( rows = rows / 8 ))
+  echo "$rows"
+}
+function EIGTHTCOLS() {
+         local void=1    # Bash-Function-Args
+  local cols=$(odd_or_less $(tput cols)) # Use 'local' to keep variables within the function's scope.
+  (( cols = cols / 8 ))
+  echo "$cols"
+}
+
+# Call the function and store the output.
+# output=$(get_terminal_size)
+# Use read to parse the space-separated output into separate variables.
+# read rows cols <<< "$output"
+
+function ansi.save.cursor {
+    echo -ne "\033[6n"            # ask the terminal for the position
+    read -s -d\[ garbage          # discard the first part of the response
+    read -s -d R SAVECURSOR       # store the position in bash variable 'foo'
+    SAVECURSOR_ROW=`echo $SAVECURSOR | sed 's/;.*$//'`
+    SAVECURSOR_COL=`echo $SAVECURSOR | sed 's/^.*;//'`
+}
+function ansi.restore.cursor {
+    if [ "$SAVECURSOR_ROW" == "" ]; then                                                                                               
+        SAVECURSOR_ROW="0"
+    fi
+    if [ "$SAVECURSOR_COL" == "" ]; then                                                                                               
+        SAVECURSOR_COL="0"
+    fi
+    ansi.move "$SAVECURSOR_ROW" "$SAVECURSOR_COL"
+}
+function ansi.getcursor {
+    echo -ne "\033[6n"            # ask the terminal for the position
+    read -s -d\[ garbage          # discard the first part of the response
+    read -s -d R CURSOR           # store the position in bash variable
+    CURSOR_ROW=`echo $CURSOR | sed 's/;.*$//'`
+    CURSOR_COL=`echo $CURSOR | sed 's/^.*;//'`
+}
+function ansi.clear() {
+         local void=1    # Bash-Function-Args
+    printf "\033[2J\033[H"
+}
+function ansi.clearEOL() {
+         local void=1    # Bash-Function-Args
+    printf "\033[K"
+}
+function ansi.clearline() {
+         local void=1    # Bash-Function-Args
+    printf "\033[K"
+}
+function ansi.gutteractual() {
+         local void=1    # Bash-Function-Args
+    printf "\033[$(TROWSACTUAL);1H"
+}
+function ansi.gutter() {
+         local void=1    # Bash-Function-Args
+    #printf "\033[$(HALFTROWS);$(HALFTCOLS)H"
+    printf "\033[$(TROWS -1);1H"
+}
+function ansi.gutter2 {
+         local void=1    # Bash-Function-Args
+    printf "\033[$(TROWS -2);1H"
+}
+function ansi.home() {
+         local void=1    # Bash-Function-Args
+    #printf "\033[$(HALFTROWS);$(HALFTCOLS)H"
+    printf "\033[$(TROWS);1H"
+}
+function ansi.move() {
+    local row=$1; local column=$2;    # Bash-Function-Args
+#   row,col: 1-based.
+    printf "\033[${row};${column}H"
+}
+function ansi.pos() {
+    local row=$1; local column=$2;    # Bash-Function-Args
+#   row,col: 1-based.
+    printf "\033[${row};${column}H"
+}
+function ansi.savepos() {
+         local void=1    # Bash-Function-Args
+    printf "\033[s"
+}
+function ansi.restorepos() {
+         local void=1    # Bash-Function-Args
+    printf "\033[u"
+}
+function ansi.moveup() {
+    local count=$1    # Bash-Function-Args
+    printf "\033[${count}A"
+}
+function ansi.movedown() {
+    local count=$1    # Bash-Function-Args
+    printf "\033[${count}B"
+}
+function ansi.moveright() {
+    local count=$1    # Bash-Function-Args
+    printf "\033[${count}C"
+}
+function ansi.moveleft() {
+    local count=$1    # Bash-Function-Args
+    printf "\033[${count}D"
+}
+function ansi.attributes() {
+    local attribute=$1    # Bash-Function-Args
+#   attribute: The attribute name (e.g., bold, underline).
+    case "$attribute" in
+        normal)     printf "\033[0m" ;;
+        bold)       printf "\033[1m" ;;
+        dim)        printf "\033[2m" ;;
+        underline)  printf "\033[4m" ;;
+        blink)      printf "\033[5m" ;;
+        reverse)    printf "\033[7m" ;;
+        hidden)     printf "\033[8m" ;;
+        *) echo "Invalid attribute: $attribute" >&2; return 1 ;;
+    esac
+}
+function ansi.resetattributes() {
+         local void=1    # Bash-Function-Args
+    printf "\033[0m"
+}
+function ansi.textcolor() {
+    local color=$1    # Bash-Function-Args
+#   color: The color name (e.g., red, blue, green).
+    case "$color" in
+        black)      printf "\033[30m" ;;
+        red)        printf "\033[31m" ;;
+        green)      printf "\033[32m" ;;
+        yellow)     printf "\033[33m" ;;
+        blue)       printf "\033[34m" ;;
+        magenta)    printf "\033[35m" ;;
+        cyan)       printf "\033[36m" ;;
+        white)      printf "\033[37m" ;;
+        default)    printf "\033[39m" ;; # Use 39 for default
+        *) echo "Invalid color: $color" >&2; return 1 ;;
+    esac
+}
+function ansi.backgroundcolor() {
+    local color=$1    # Bash-Function-Args
+#   color: The color name (e.g., black, red, green).
+    case "$color" in
+        black)      printf "\033[40m" ;;
+        red)        printf "\033[41m" ;;
+        green)      printf "\033[42m" ;;
+        yellow)     printf "\033[43m" ;;
+        blue)       printf "\033[44m" ;;
+        magenta)    printf "\033[45m" ;;
+        cyan)       printf "\033[46m" ;;
+        white)      printf "\033[47m" ;;
+        default)    printf "\033[49m" ;; # Use 49 for default
+        *) echo "Invalid color: $color" >&2; return 1 ;;
+    esac
+}
+
+function lookup_dns_record() {
+         local domain="$1"; local record_type="$2"                 # Bash-Function-Args
+
+  # Use dig to query the DNS record, include error handling
+  if ! dig "$domain" "$record_type" +short >/dev/null 2>&1; then
+    echo "Error: Could not retrieve $record_type records for $domain"
+    return 1 # Return a non-zero exit code to indicate failure
+  fi
+
+  # added the check to make sure the output is printed only if the command was successful
+  dig "$domain" "$record_type" +short
+}
+function get_name_servers() {
+         local domain="$1";                 # Bash-Function-Args
+
+  # Check if a domain is provided
+  if [ -z "$domain" ]; then
+    echo "Error: Please provide a domain name."
+    return 1 # Return an error code
+  fi
+
+  # Use 'dig' command to query for name server (NS) records
+  dig_output=$(dig +short NS "$domain")
+
+  # Check if the 'dig' command was successful
+  if [ $? -ne 0 ]; then
+    echo "Error: Failed to retrieve name server information for $domain."
+    return 1 # Return an error code
+  fi
+
+  # Print the name servers
+  if [ -z "$dig_output" ]; then
+    echo "No name server records found for $domain"
+    return 1
+   else
+    echo "Name servers for $domain:"
+    echo "$dig_output"
+  fi
+  return 0 # Return success code
+}
+
+function rints() {
+  local min=$1; local max=$2;  # Bash-Function-Args
+  local range=$((max - min + 1))
+  R1=$((RANDOM % range + min))
+  R2=$((RANDOM % range + min))
+}
+function rrints() {
+  local min=$1; local max=$2;  # Bash-Function-Args
+  local range=$((max - min + 1))
+  RR1=$((RANDOM % range + min))
+  RR2=$((RANDOM % range + min))
+}
+function rrrints() {
+  local min=$1
+  local max=$2
+  local range=$((max - min + 1))
+  RRR1=$((RANDOM % range + min))
+  RRR2=$((RANDOM % range + min))
+}
+function rrrrints() {
+  local min=$1
+  local max=$2
+  local range=$((max - min + 1))
+  RRRR1=$((RANDOM % range + min))
+  RRRR2=$((RANDOM % range + min))
+}
+function die() {
+  local min=1
+  local max=6
+  random_integer $min $max; DIE1=$?
+  random_integer $min $max; DIE2=$?
+}
+function dice() {
+  local min=1
+  local max=12
+  random_integer $min $max; DIE1=$?
+  random_integer $min $max; DIE2=$?
+}
+function tensided() {
+  local min=1
+  local max=10
+  random_integer $min $max; DIE1=$?
+  random_integer $min $max; DIE2=$?
+}
+function twosided() {
+  local min=1
+  local max=2
+  random_integer $min $max; DIE1=$?
+  random_integer $min $max; DIE2=$?
+}
+function binarysided() {
+  local min=0
+  local max=1
+  random_integer $min $max; DIE1=$?
+  random_integer $min $max; DIE2=$?
+}
+
+
+
+function random_integer() {
+  local min=$1
+  local max=$2
+
+  # Check if the input is valid.
+  if ! [[ "$min" =~ ^-?[0-9]+$ ]] || ! [[ "$max" =~ ^-?[0-9]+$ ]]; then
+    echo "Error: Both arguments must be integers." >&2
+    return 1
+  fi
+
+  # Check if min is less than or equal to max.
+  if (( min > max )); then
+    echo "Error: Minimum value must be less than or equal to maximum value." >&2
+    return 1
+  fi
+
+  # Calculate the range.
+  local range=$((max - min + 1))
+
+  # Generate a random number within the range using $RANDOM.
+  # $RANDOM generates a pseudo-random integer between 0 and 32767 (inclusive).
+  local random=$((RANDOM % range + min))
+
+  # Output the random number.  The function's return value is used to pass the random number.
+  return $random
+}
+
+function console.rulers() {
+         local void=0    # Bash-Function-Args
+       local ct=1;
+       local sz="";
+       local ct=1;
+       local n=1;
+       sz="";
+       sz2="";
+       while [ $ct -lt $(TCOLS) ]; do
+           sz2="$sz2         $n"
+           sz="1234567890$sz"
+           ((ct=ct+10))
+           ((n=n+1))
+           if [ $n -gt "9" ]; then
+               n=0
+           fi
+       done
+       util.pprint 2 1 "$sz" 1
+       util.pprint 1 1 "$sz2" 1
+       ansi.gutter
+       ct=3;
+       while [ $ct -lt $(TROWS) ]; do
+           util.pprint $ct 1 "$ct" 1
+           ((ct=ct+1))
+       done
+       ansi.gutter
+}
+
+# Function to calculate the sine of a number using 'bc'
+# Usage: calculate_sin <number>
+# Arguments:
+#   number: The input value for which to calculate the sine (in radians).
+function calculate_sin() {
+  # Check if a number is provided as an argument
+  if [ -z "$1" ]; then
+    echo "Error: Please provide a number to calculate its sine."
+    echo "Usage: calculate_sin <number>"
+    return 1
+  fi
+
+  # Use 'bc -l' to load the math library and calculate the sine
+  # 's()' is the sine function in bc
+  # The input to bc's s() function is expected to be in radians.
+  result=$(echo "s($1)" | bc -l)
+
+  # Print the calculated sine value
+  echo "$result"
+}
+
+
+
+# Function to return +1 or -1 based on a sine wave and a given period
+#
+# Arguments:
+#   $1: The period of the sine wave in seconds (can be a floating-point number).
+#
+# Returns:
+#   Prints +1 or -1 to standard output.
+#
+# Example Usage:
+#   sign_from_sine 10   # Returns +1 or -1 based on a 10-second period
+#   sign_from_sine 0.5  # Returns +1 or -1 based on a 0.5-second period
+#
+sign_from_sine() {
+    local period="$1"
+    local current_time_ns=$(date +%s%N) # Current time in nanoseconds
+    local pi="3.1415926535"
+
+    # Calculate the sine value using awk
+    # The formula is sin(2 * PI * time / period)
+    # We convert nanoseconds to seconds by dividing by 1,000,000,000
+    local sine_value=$(awk -v time_ns="$current_time_ns" -v period="$period" -v pi="$pi" 'BEGIN {
+        time_s = time_ns / 1000000000;
+        arg = (2 * pi * time_s) / period;
+        print sin(arg);
+    }')
+
+    # Check the sign of the sine_value and print +1 or -1
+    if (( $(echo "$sine_value >= 0" | bc -l) )); then
+        echo "+1"
+    else
+        echo "-1"
+    fi
+}
+
+# Here is a set of Bash functions that implement a basic stack data structure.
+# The stack uses a global array __bash_stack to store its elements.
+# Global array to hold stack elements
+declare -ga __bash_stack=()
+
+# Function: stack_init
+# Description: Initializes or clears the stack.
+# Usage: stack_init
+function stack_init() {
+    __bash_stack=()
+}
+
+# Function: stack_push
+# Description: Pushes an element onto the top of the stack.
+# Arguments:
+#   $1 - The element to push.
+# Usage: stack_push "my_element"
+function stack_push() {
+    if [ -z "$1" ]; then
+        echo "Error: stack_push requires an argument (element to push)." >&2
+        return 1
+    fi
+    __bash_stack+=("$1")
+    #echo "Pushed: '$1'"
+    return 0
+}
+
+# Function: stack_pop
+# Description: Pops the top element from the stack and prints it.
+#              Returns 0 on success, 1 if the stack is empty.
+# Usage: stack_pop
+function stack_pop() {
+    if stack_isEmpty; then
+        echo "Error: Stack is empty. Cannot pop." >&2
+        return 1
+    fi
+    local last_index=$(( ${#__bash_stack[@]} - 1 ))
+    local popped_element="${__bash_stack[$last_index]}"
+    unset '__bash_stack[last_index]'
+    # Re-index the array to avoid sparse array issues, important for future pushes
+    __bash_stack=("${__bash_stack[@]}")
+    echo "Popped: '$popped_element'"
+    return 0
+}
+
+# Function: stack_peek
+# Description: Returns the top element of the stack without removing it.
+#              Returns 0 on success, 1 if the stack is empty.
+# Usage: stack_peek
+function stack_peek() {
+    if stack_isEmpty; then
+        echo "Error: Stack is empty. Cannot peek." >&2
+        return 1
+    fi
+    local last_index=$(( ${#__bash_stack[@]} - 1 ))
+    local top_element="${__bash_stack[$last_index]}"
+    echo "Peek: '$top_element'"
+    return 0
+}
+
+# Function: stack_isEmpty
+# Description: Checks if the stack is empty.
+# Usage: if stack_isEmpty; then ... fi
+# Returns: 0 if empty, 1 if not empty.
+function stack_isEmpty() {
+    if [ ${#__bash_stack[@]} -eq 0 ]; then
+        return 0 # True, stack is empty
+    else
+        return 1 # False, stack is not empty
+    fi
+}
+
+# Function: stack_size
+# Description: Returns the number of elements in the stack.
+# Usage: stack_size
+function stack_size() {
+    echo "Size: ${#__bash_stack[@]}"
+    return 0
+}
+
+# Function: stack_display
+# Description: Displays all elements in the stack, from bottom to top.
+# Usage: stack_display
+function stack_display() {
+    if stack_isEmpty; then
+        echo "Stack is empty."
+        return 0
+    fi
+    echo "--- Stack Contents (Bottom to Top) ---"
+    local i
+    for (( i=0; i<${#__bash_stack[@]}; i++ )); do
+        echo "  [${i}]: '${__bash_stack[i]}'"
+    done
+    echo "------------------------------------"
+    return 0
+}
+
+# INIT_DBPRINTCOL=70
+# INIT_DBPRINTROW=3
+# DBPRINTCOL=$INIT_DBPRINTCOL
+# DBPRINTROW=$INIT_DBPRINTROW
+
+function initdbprint() {
+          local row="$1"; local col="$2"    # Bash-Function-Args
+          local r=0; local c=0; local l=0; local w=0;
+          ((r=row-1))
+          ((c=col-2))
+          w=24
+          l=24
+          local REND=$(TROWS)
+          local CEND=$(TCOLS)
+          ((CEND=CEND-1))
+          ((CEND=CEND-c))
+          ((REND=REND-row))
+          ((REND=REND-2))
+export     INIT_DBPRINTCOL=$row
+export     INIT_DBPRINTROW=$col
+export     DBPRINTCOL=$INIT_DBPRINTCOL
+export     DBPRINTROW=$INIT_DBPRINTROW
+#    panel $r $c $REND $CEND
+}
+
+function dbprint() {
+          local msg="$1";    # Bash-Function-Args
+     ((DBPRINTROW=DBPRINTROW+1))
+     ansi.move "$DBPRINTROW" "$DBPRINTCOL"; 
+     ansi.clearEOL
+     ansi.move "$DBPRINTROW" "$DBPRINTCOL"; 
+     printf "%s" "$msg"
+ }
+
+
+
+# echo "--- Demonstrating Stack Functions ---"
+# 
+# stack_init
+# 
+# stack_push "Apple"
+# stack_push "Banana"
+# stack_push "Cherry"
+# 
+# stack_display
+# stack_size
+# 
+# stack_peek
+# 
+# stack_pop
+# stack_display
+# 
+# stack_push "Date"
+# stack_display
+# 
+# stack_pop
+# stack_pop
+# stack_pop # This should make the stack empty
+# 
+# stack_isEmpty # Should return 0 (true)
+# if stack_isEmpty; then
+#     echo "Confirmed: Stack is now empty."
+# fi
+# 
+# stack_pop # This should produce an error
+# stack_peek # This should produce an error
+# 
+# stack_size
+# 
+# echo "--- End of Demonstration ---"
+# 
+#  # Addition
+#  ((sum = a + b))
+#  echo "Sum: $sum"
+#  # Subtraction
+#  ((difference = a - b))
+#  echo "Difference: $difference"
+#  # Multiplication
+#  ((product = a * b))
+#  echo "Product: $product"
+#  # Division (integer division, truncates the decimal)
+#  ((quotient = a / b))
+#  echo "Quotient: $quotient"
+#  # Modulo (remainder)
+#  ((remainder = a % b))
+#  echo "Remainder: $remainder"
+#  # Exponentiation
+#  ((power = a ** b))
+#  echo "Power: $power"
+#  sum=$[x + y]
+#  product=$[x * y]
+#  let "p = p + q"
+#  let "r = p * q"
+#
+#
+
+# ANSI Escape Codes for cursor movement and clearing
+# \033[<L>;<C>H - Move cursor to row L, column C
+# \033[K - Erase line from cursor to end
+# \033[J - Erase screen from cursor to end
+
+# Our "column" data
+column_data=(10 20 30 40 50)
+start_row=5 # Row where the column starts
+start_col=10 # Column where the column starts
+
+function display_column() {
+    local -n arr=$1 # Reference to the array passed in
+    local row=$2
+    local col=$3
+
+    # Clear the area where the column will be
+    # Go to the start of the column area and clear enough lines
+    for (( i=0; i<${#arr[@]}; i++ )); do
+        echo -e "\033[$((row+i));${col}H\033[K" # Move and clear line
+    done
+
+    # Print the column data
+    for (( i=0; i<${#arr[@]}; i++ )); do
+        echo -e "\033[$((row+i));${col}H${arr[i]}"
+    done
+}
+
+function shift_column_up() {
+    local -n arr=$1 # Reference to the array passed in
+    # Remove the first element
+    local first_element="${arr[0]}"
+    arr=("${arr[@]:1}")
+    # Add a blank or specific value at the end
+    arr+=("") # Or whatever you want to appear at the bottom
+}
+
+# Initialize the array
+my_array=()
+
+# Function to display the array
+function tailout() {
+         local msg="$1"
+  echo "TAILOUT:  $msg" >> /tmp/err
+}
+
+# Function to display the array
+function display_array() {
+  echo "Current Array: [${my_array[*]}]"
+}
+
+# ARRAY Function to add an element to the array
+function add_element() {
+  local element_to_add="$1"
+
+  if [[ -z "$element_to_add" ]]; then
+    echo "Usage: add_element <element>"
+    element_to_add="NADA"
+    #return 1
+  fi
+
+  my_array+=("$element_to_add")
+  if [[ ${#my_array[@]} -gt  $(TROWS -3) ]]; then
+    my_array=("${my_array[@]:1}")
+  fi
+  #sleep 0.05
+  #echo "Added '$element_to_add'."
+  #display_array
+}
+
+# Function to delete an element from the array by value
+function delete_element() {
+  local element_to_delete="$1"
+  if [[ -z "$element_to_delete" ]]; then
+    echo "Usage: delete_element <element>"
+    return 1
+  fi
+
+  local new_array=()
+  local found=0
+  for item in "${my_array[@]}"; do
+    if [[ "$item" != "$element_to_delete" ]]; then
+      new_array+=("$item")
+    else
+      found=1
+    fi
+  done
+
+  if [[ "$found" -eq 1 ]]; then
+    my_array=("${new_array[@]}")
+    echo "Deleted '$element_to_delete'."
+  else
+    echo "Element '$element_to_delete' not found."
+  fi
+  display_array
+}
+
+function append_last_element() {
+         local sz="$1"    # Bash-Function-Args
+  local last_element=${my_array[${#my_array[@]}-1]}
+  my_array[${#my_array[@]}-1]="$last_element$sz"
+}
+function update_last_element() {
+         local sz="$1"    # Bash-Function-Args
+  local len=${#my_array[@]}
+  ((len=len-1))
+  my_array[$len]="$sz"
+}
+
+function get_last_element() {
+  local len=${#my_array[@]}
+  ((len=len-1))
+  echo "${my_array[$len]}"
+}
+function get_last_index() {
+  local len=${#my_array[@]}
+  ((len=len-1))
+  echo $len
+}
+
+# Function to delete an element from the array by value
+function render_array() {
+  local found=0
+  local len=${#my_array[@]}
+  local i=0
+
+  DBPRINTCOL=$INIT_DBPRINTCOL
+  DBPRINTROW=$INIT_DBPRINTROW
+  for ((i = 0; i < len; i++)); do
+      item="${my_array[$i]}"
+      #echo "$item" >> /tmp/err
+      dbprint "$item"
+
+#       if [[ $DBPRINTROW -gt 5 ]]; then
+#           DBPRINTROW=0
+#       fi
+  done
+}
+
+# Function to delete an element from the array by index
+function delete_element_by_index() {
+  local index_to_delete="$1"
+  if [[ -z "$index_to_delete" ]]; then
+    echo "Usage: delete_element_by_index <index>"
+    return 1
+  fi
+
+  if [[ "$index_to_delete" =~ ^[0-9]+$ ]] && (( index_to_delete >= 0 && index_to_delete < ${#my_array[@]} )); then
+    unset 'my_array[index_to_delete]'
+    my_array=("${my_array[@]}") # Re-index the array
+    echo "Deleted element at index $index_to_delete."
+  else
+    echo "Invalid index: $index_to_delete."
+  fi
+  display_array
+}
+
+
+# Function to modify an element in the array by its current value
+function modify_element() {
+  local old_value="$1"
+  local new_value="$2"
+  if [[ -z "$old_value" || -z "$new_value" ]]; then
+    echo "Usage: modify_element <old_value> <new_value>"
+    return 1
+  fi
+
+  local found=0
+  for i in "${!my_array[@]}"; do
+    if [[ "${my_array[i]}" == "$old_value" ]]; then
+      my_array[i]="$new_value"
+      found=1
+      echo "Modified '$old_value' to '$new_value'."
+      break
+    fi
+  done
+
+  if [[ "$found" -eq 0 ]]; then
+    echo "Element '$old_value' not found."
+  fi
+  display_array
+}
+
+# Function to modify an element in the array by index
+function modify_element_by_index() {
+  local index="$1"
+  local new_value="$2"
+  if [[ -z "$index" || -z "$new_value" ]]; then
+    echo "Usage: modify_element_by_index <index> <new_value>"
+    return 1
+  fi
+
+  if [[ "$index" =~ ^[0-9]+$ ]] && (( index >= 0 && index < ${#my_array[@]} )); then
+    local old_value="${my_array[index]}"
+    my_array[index]="$new_value"
+    echo "Modified element at index $index from '$old_value' to '$new_value'."
+  else
+    echo "Invalid index: $index."
+  fi
+  display_array
+}
+
+function initialize_empty_array() {
+  my_array=()
+}
+
+# --- Examples of usage ---
+
+# echo "--- Initial Array ---"
+# display_array
+# 
+# echo -e "\n--- Adding elements ---"
+# add_element "grape"
+# add_element "kiwi"
+# 
+# echo -e "\n--- Deleting elements by value ---"
+# delete_element "banana"
+# delete_element "nonexistent"
+# 
+# echo -e "\n--- Deleting elements by index ---"
+# delete_element_by_index 0 # Deletes "cherry" (new index 0 after banana was deleted)
+# delete_element_by_index 99 # Invalid index
+# 
+# echo -e "\n--- Modifying elements by value ---"
+# modify_element "date" "dragonfruit"
+# modify_element "kiwi" "orange"
+# modify_element "nonexistent" "new"
+# 
+# echo -e "\n--- Modifying elements by index ---"
+# modify_element_by_index 1 "fig" # index 1 after deletions and re-indexing
+# modify_element_by_index 99 "test" # Invalid index
+# 
+# echo -e "\n--- Final Array ---"
+# display_array
+# --- Main script ---
+
+# clear # Clear the entire terminal initially
+# echo "Original column:"
+# display_column column_data $start_row $start_col
+# sleep 2
+# 
+# echo -e "\nShifting up..."
+# sleep 1
+# 
+# # Perform the shift
+# shift_column_up column_data
+# 
+# # Redisplay the shifted column
+# display_column column_data $start_row $start_col
+# 
+# sleep 2
+# 
+# echo -e "\nAnother shift up..."
+# sleep 1
+# 
+# # Perform another shift
+# shift_column_up column_data
+# 
+# # Redisplay the shifted column
+# display_column column_data $start_row $start_col
+# 
+# # Reset cursor position at the end
+# echo -e "\033[$((start_row + ${#column_data[@]} + 2));0H"
+
+# ANSI Escape Codes for cursor movement and clearing
+# \033[<L>;<C>H - Move cursor to row L, column C
+# \033[K - Erase line from cursor to end
+# \033[J - Erase screen from cursor to end
+
+# Our "column" data
+column_data=(10 20 30 40 50)
+start_row=5 # Row where the column starts
+start_col=10 # Column where the column starts
+
+display_column() {
+    local -n arr=$1 # Reference to the array passed in
+    local row=$2
+    local col=$3
+
+    # Clear the area where the column will be
+    # Go to the start of the column area and clear enough lines
+    for (( i=0; i<${#arr[@]}; i++ )); do
+        echo -e "\033[$((row+i));${col}H\033[K" # Move and clear line
+    done
+
+    # Print the column data
+    for (( i=0; i<${#arr[@]}; i++ )); do
+        echo -e "\033[$((row+i));${col}H${arr[i]}"
+    done
+}
+
+shift_column_up() {
+    local -n arr=$1 # Reference to the array passed in
+    # Remove the first element
+    local first_element="${arr[0]}"
+    arr=("${arr[@]:1}")
+    # Add a blank or specific value at the end
+    arr+=("") # Or whatever you want to appear at the bottom
+}
+ordinal_to_char() {
+  local ordinal=$1
+
+  # Check if the input is a valid integer.
+  if ! [[ "$ordinal" =~ ^[0-9]+$ ]]; then
+    echo "Error: Input must be a positive integer." >&2
+    return 1
+  fi
+
+  # Check if the ordinal is within a typical ASCII range (0-127).
+  # While bash's printf can handle broader ranges, focusing on ASCII.
+  if (( ordinal < 0 || ordinal > 127 )); then
+    echo "Warning: Ordinal $ordinal is outside typical ASCII range (0-127). Attempting conversion." >&2
+  fi
+
+  # Use printf with the %b (backlash-escaped characters) and \x (hexadecimal) format
+  # to convert the decimal ordinal to its character.
+  # First, convert the decimal ordinal to its hexadecimal equivalent.
+  # Then, printf interprets \x followed by hex as the character.
+  printf \\x$(printf %x "$ordinal")
+}
+function asciiTable() {
+  echo "--- ASCII Table (Printable Characters) ---"
+  echo "DEC HEX CHAR"
+  echo "----------------------------------------"
+
+  for i in $(seq 32 200); do
+    printf "%3d %3x %s\n" "$i" "$i" "$(printf '\\x%x' "$i")"
+  done
+
+  echo "----------------------------------------"
+}
+
+# --- Main script ---
+
+# clear # Clear the entire terminal initially
+# echo "Original column:"
+# display_column column_data $start_row $start_col
+# sleep 2
+# 
+# echo -e "\nShifting up..."
+# sleep 1
+# 
+# # Perform the shift
+# shift_column_up column_data
+# 
+# # Redisplay the shifted column
+# display_column column_data $start_row $start_col
+# 
+# sleep 2
+# 
+# echo -e "\nAnother shift up..."
+# sleep 1
+# 
+# # Perform another shift
+# shift_column_up column_data
+# 
+# # Redisplay the shifted column
+# display_column column_data $start_row $start_col
+# 
+# # Reset cursor position at the end
+# echo -e "\033[$((start_row + ${#column_data[@]} + 2));0H"dbprint "123456"
