@@ -9,6 +9,9 @@ trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
 rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
 
+ALAMOHOSTA="terra"
+ALAMOHOSTB="tower"
+
 # --- Colors for formatting ---
 BOLD="\033[1m"
 RED="\033[31m"
@@ -539,9 +542,9 @@ do
                tar cf $filename .
                cp $filename ~/GITSTAGE
                gzip -9 $filename
-               if ssh -o ConnectTimeout=2 $USER@tower exit; then
+               if ssh -o ConnectTimeout=2 $USER@$ALAMOHOSTB exit; then
                    echo "Alamo Server is up and SSH is working."
-                   scp $filename.gz $USER@tower:/home/$USER/Alamo
+                   scp $filename.gz $USER@$ALAMOHOSTB:/home/$USER/Alamo
                else
                    echo "AlamoServer is down or unreachable."
                fi
@@ -553,49 +556,47 @@ do
            fi
            exit 0
            ;;
-        a)     mkdir -p ~/BACKUPS
-               filename="$(pwd | sed 's/[/ .]/_/g' | tr -d '/')_$(date +%Y%m%d_%H%M%S)"
-               filename="$(echo $filename | sed 's/^_//g')"
-               filename="$(echo $filename | sed 's/__/_/g')"
-               filename=~/BACKUPS/$(hostname)_$filename.tar
-               tar cf $filename .
-               gzip -9 $filename
-               if ssh -o ConnectTimeout=2 $USER@tower exit; then
-                   echo "Alamo Server is up and SSH is working."
-                   scp $filename.gz $USER@tower:/home/$USER/Alamo
-               else
-                   echo "AlamoServer is down or unreachable."
-               fi
-
-               echo ""
-               ls -lh  $filename.gz
-               rm -f $filename.gz
-
-               echo ""
+        a) mkdir -p ~/BACKUPS
+           filename="$(pwd | sed 's/[/ .]/_/g' | tr -d '/')_$(date +%Y%m%d_%H%M%S)"
+           filename="$(echo $filename | sed 's/^_//g')"
+           filename="$(echo $filename | sed 's/__/_/g')"
+           filename=~/BACKUPS/$(hostname)_$filename.tar
+           tar cf $filename .
+           gzip -9 $filename
+           if ssh -o ConnectTimeout=2 $USER@$ALAMOHOSTB exit; then
+               echo "Alamo Server is up and SSH is working."
+               scp $filename.gz $USER@$ALAMOHOSTB:/home/$USER/Alamo
+           else
+               echo "AlamoServer is down or unreachable."
+           fi
+           echo ""
+           ls -lh  $filename.gz
+           rm -f $filename.gz
+           echo ""
            exit 0
            ;;
         f) filename="$OPTARG"
-           if ssh -o ConnectTimeout=2 $USER@terra exit; then
+           if ssh -o ConnectTimeout=2 $USER@$ALAMOHOSTA exit; then
                echo ""
-               echo "terra Alamo Server is up and SSH is working."
+               echo "$ALAMOHOSTA Alamo Server is up and SSH is working."
                echo ""
                echo "scp"
                echo "    $filename"
-               echo "    $USER@terra:/home/$USER/Alamo/FILES/$filename"
-               scp "$filename" "$USER@terra:/home/$USER/Alamo/FILES/$filename"
+               echo "    $USER@$ALAMOHOSTA:/home/$USER/Alamo/FILES/$filename"
+               scp "$filename" "$USER@$ALAMOHOSTA:/home/$USER/Alamo/FILES/$filename"
            else
-               echo "terra Alamo Server is down or unreachable."
+               echo "$ALAMOHOSTA Alamo Server is down or unreachable."
            fi
-           if ssh -o ConnectTimeout=2 $USER@tower exit; then
+           if ssh -o ConnectTimeout=2 $USER@$ALAMOHOSTB exit; then
                echo ""
-               echo "tower Alamo Server is up and SSH is working."
+               echo "$ALAMOHOSTB Alamo Server is up and SSH is working."
                echo ""
                echo "scp"
                echo "    $filename"
-               echo "    $USER@tower:/home/$USER/Alamo/FILES/$filename"
-               scp "$filename" "$USER@tower:/home/$USER/Alamo/FILES/$filename"
+               echo "    $USER@$ALAMOHOSTB:/home/$USER/Alamo/FILES/$filename"
+               scp "$filename" "$USER@$ALAMOHOSTB:/home/$USER/Alamo/FILES/$filename"
            else
-               echo "tower Alamo Server is down or unreachable."
+               echo "$ALAMOHOSTB Alamo Server is down or unreachable."
            fi
            echo ""
            exit 0
