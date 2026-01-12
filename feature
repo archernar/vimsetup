@@ -9,6 +9,9 @@ trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
 rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
 
+ALAMOHOSTA="terra"
+ALAMOHOSTB="tower"
+
 # --- Colors for formatting ---
 BOLD="\033[1m"
 RED="\033[31m"
@@ -32,6 +35,16 @@ print_header() {
 
 print_kv() {
     printf "${BOLD}%-25s${RESET} %s\n" "$1:" "$2"
+}
+
+pause() {
+    # -n 1 : Wait for exactly 1 character
+    # -s   : Silent mode (don't echo the character to screen)
+    # -r   : Raw input (don't interpret backslashes)
+    # -p   : Prompt message
+    # "${1:-...}" : Uses the first argument if provided, otherwise uses default text
+    read -n 1 -s -r -p "${1:-Press any key to continue...}"
+    echo # Output a new line so subsequent text doesn't appear on the same line
 }
 
 check_dependency() {
@@ -90,7 +103,7 @@ function gitstatus() {
            git branch                                 | posi
            echo ""                                    | posi
            echo "---------------------------------"   | posi
-           echo "  Changes"                           | posi
+           echo "Changes"                           | posi
            git status -s | gawk '
            /^ M/ {
                print "✅ " $2
@@ -99,7 +112,7 @@ function gitstatus() {
                print "❌  " $2
            }' | gawk '{print "    " $0}'    | posi
            echo ""                                    | posi
-           echo "  Staged"                           | posi
+           echo "Staged"                           | posi
            git diff --name-only --cached | gawk '
            {
                print "✅ " $0
@@ -112,20 +125,18 @@ function gitstatus() {
            
 
 
-           echo ""                                    | posi
+           echo "" | posi
+           echo "Vim Session"                         | posi
            if [ -f ".vim.vimsession" ]; then
-               echo ""                                | posi 
-               echo ""                                | posi 
                cat .vim.vimsession                    | gawk '{print "  " $0}' | posi 
            fi
 
            echo "" | posi
-           echo  "  GitFlow Divergence" | posi
+           echo  "GitFlow Divergence" | posi
 
                # Calculate divergence
                BEHIND=$(git rev-list --count "develop..$MASTER_BRANCH")
                AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
-               echo "" | posi
                echo -e "  ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
                echo -e "  ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
            shopt -u dotglob
@@ -306,6 +317,12 @@ do
 
                # Execute command (redirecting stderr to stdout so you see errors)
                eval "$cmd"
+               if [[ "$cmd" =~ ^(vim|vi|apple|banana|cherry)$ ]]; then
+                   NOTHING=0
+               else
+                   pause
+               fi
+
            done
            exit 0
            ;;
@@ -525,9 +542,9 @@ do
                tar cf $filename .
                cp $filename ~/GITSTAGE
                gzip -9 $filename
-               if ssh -o ConnectTimeout=2 $USER@tower exit; then
+               if ssh -o ConnectTimeout=2 $USER@$ALAMOHOSTB exit; then
                    echo "Alamo Server is up and SSH is working."
-                   scp $filename.gz $USER@tower:/home/$USER/Alamo
+                   scp $filename.gz $USER@$ALAMOHOSTB:/home/$USER/Alamo
                else
                    echo "AlamoServer is down or unreachable."
                fi
@@ -539,49 +556,47 @@ do
            fi
            exit 0
            ;;
-        a)     mkdir -p ~/BACKUPS
-               filename="$(pwd | sed 's/[/ .]/_/g' | tr -d '/')_$(date +%Y%m%d_%H%M%S)"
-               filename="$(echo $filename | sed 's/^_//g')"
-               filename="$(echo $filename | sed 's/__/_/g')"
-               filename=~/BACKUPS/$(hostname)_$filename.tar
-               tar cf $filename .
-               gzip -9 $filename
-               if ssh -o ConnectTimeout=2 $USER@tower exit; then
-                   echo "Alamo Server is up and SSH is working."
-                   scp $filename.gz $USER@tower:/home/$USER/Alamo
-               else
-                   echo "AlamoServer is down or unreachable."
-               fi
-
-               echo ""
-               ls -lh  $filename.gz
-               rm -f $filename.gz
-
-               echo ""
+        a) mkdir -p ~/BACKUPS
+           filename="$(pwd | sed 's/[/ .]/_/g' | tr -d '/')_$(date +%Y%m%d_%H%M%S)"
+           filename="$(echo $filename | sed 's/^_//g')"
+           filename="$(echo $filename | sed 's/__/_/g')"
+           filename=~/BACKUPS/$(hostname)_$filename.tar
+           tar cf $filename .
+           gzip -9 $filename
+           if ssh -o ConnectTimeout=2 $USER@$ALAMOHOSTB exit; then
+               echo "Alamo Server is up and SSH is working."
+               scp $filename.gz $USER@$ALAMOHOSTB:/home/$USER/Alamo
+           else
+               echo "AlamoServer is down or unreachable."
+           fi
+           echo ""
+           ls -lh  $filename.gz
+           rm -f $filename.gz
+           echo ""
            exit 0
            ;;
         f) filename="$OPTARG"
-           if ssh -o ConnectTimeout=2 $USER@terra exit; then
+           if ssh -o ConnectTimeout=2 $USER@$ALAMOHOSTA exit; then
                echo ""
-               echo "terra Alamo Server is up and SSH is working."
+               echo "$ALAMOHOSTA Alamo Server is up and SSH is working."
                echo ""
                echo "scp"
                echo "    $filename"
-               echo "    $USER@terra:/home/$USER/Alamo/FILES/$filename"
-               scp "$filename" "$USER@terra:/home/$USER/Alamo/FILES/$filename"
+               echo "    $USER@$ALAMOHOSTA:/home/$USER/Alamo/FILES/$filename"
+               scp "$filename" "$USER@$ALAMOHOSTA:/home/$USER/Alamo/FILES/$filename"
            else
-               echo "terra Alamo Server is down or unreachable."
+               echo "$ALAMOHOSTA Alamo Server is down or unreachable."
            fi
-           if ssh -o ConnectTimeout=2 $USER@tower exit; then
+           if ssh -o ConnectTimeout=2 $USER@$ALAMOHOSTB exit; then
                echo ""
-               echo "tower Alamo Server is up and SSH is working."
+               echo "$ALAMOHOSTB Alamo Server is up and SSH is working."
                echo ""
                echo "scp"
                echo "    $filename"
-               echo "    $USER@tower:/home/$USER/Alamo/FILES/$filename"
-               scp "$filename" "$USER@tower:/home/$USER/Alamo/FILES/$filename"
+               echo "    $USER@$ALAMOHOSTB:/home/$USER/Alamo/FILES/$filename"
+               scp "$filename" "$USER@$ALAMOHOSTB:/home/$USER/Alamo/FILES/$filename"
            else
-               echo "tower Alamo Server is down or unreachable."
+               echo "$ALAMOHOSTB Alamo Server is down or unreachable."
            fi
            echo ""
            exit 0
