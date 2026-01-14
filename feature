@@ -11,15 +11,26 @@ rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 
 ALAMOHOSTA="terra"
 ALAMOHOSTB="tower"
-
+# https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 # --- Colors for formatting ---
 BOLD="\033[1m"
-RED="\033[31m"
-GREEN="\033[32m"
-YELLOW="\033[33m"
-BLUE="\033[34m"
-CYAN="\033[36m"
 RESET="\033[0m"
+
+RED="\033[31m"
+BOLDRED="$BOLD$RED"
+GREEN="\033[32m"
+BOLDGREEN="$BOLD$GREEN"
+YELLOW="\033[33m"
+BOLDYELLOW="$BOLD$YELLOW"
+BLUE="\033[34m"
+BOLDBLUE="$BOLD$BLUE"
+CYAN="\033[36m"
+BOLDCYAN="$BOLD$CYAN"
+
+
+# --- Icons ---
+CHECKICON="✅"
+EXICON="❌"
 
 # --- Functions ---
 ansiGreen() {
@@ -52,6 +63,25 @@ check_dependency() {
         echo -e "${RED}Error: Required command '$1' not found.${RESET}"
         exit 1
     fi
+}
+
+# -c 1: Send only 1 packet
+# -W 1: Wait max 1 second for a response (can use decimal 0.2 on some versions)
+# -q:   Quiet output
+function is_online() {
+    ping -c 1 -W 1 -q 8.8.8.8 &> /dev/null
+
+    if [ $? -eq 0 ]; then
+        return 0 # Online
+    else
+        return 1 # Offline
+    fi
+#   ALTERNATIVE -  Timeout is set to 0.1 seconds for extreme speed
+#   if timeout 0.1 bash -c 'true &> /dev/tcp/8.8.8.8/53'; then
+#       return 0 # Online
+#   else
+#       return 1 # Offline
+#   fi
 }
 
 # --- Main Execution ---
@@ -90,10 +120,15 @@ function gitcheck() {
 }
 function gitstatus() {
            shopt -s dotglob
-           is -l *                                     | posi -x -c 6   -r 4
-           is -u *                                     | posi    -c 54  -r 4
+           is -l *                                       | posi -x -c 6   -r 4
+           is -u *                                       | posi    -c 54  -r 4
+           if is_online; then
+               echo -e "  ${CHECKICON} ${BOLDGREEN}Online ${RESET}"     | posi    -c 102 -r 4
+           else
+               echo -e "  ${EXICON} ${BOLDRED}Offline${RESET}"     | posi    -c 102 -r 4
+           fi
            ansiGreen
-           echo "  Repository Name   " "$REPO_NAME"      | posi    -c 102 -r 4
+           echo "  Repository Name   " "$REPO_NAME"      | posi    -c 102
            echo "  Remote Origin     " "$REMOTE_URL"     | posi -p -c 102 
            echo "  Remote Origin     " "$HTTPS_URL"      | posi -p -c 102 
            echo "  Production Branch " "$MASTER_BRANCH"  | posi -p -c 102 
@@ -139,6 +174,9 @@ function gitstatus() {
                AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
                echo -e "  ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
                echo -e "  ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
+               N=$((BEHIND - AHEAD))
+               if [ $N -ne 0 ]; then echo -e "  ${EXICON} ${BOLDRED}There are Deltas${RESET}"      | posi; fi
+               if [ $N -eq 0 ]; then echo -e "  ${CHECKICON} ${BOLDGREEN}There are No Deltas${RESET}" | posi; fi
            shopt -u dotglob
 
            WIDTH=$(tput cols < /dev/tty)
@@ -284,10 +322,22 @@ fi
 
 
 
-while getopts "hvxgm:neds12rubaf:" arg
+while getopts "hpvxgm:neds12rubaf:" arg
 do
     case $arg in
         h) usage
+           ;;
+
+        p) # Calculate divergence
+           BEHIND=$(git rev-list --count "develop..origin/master")
+           AHEAD=$(git rev-list --count "origin/master..develop")
+           N=$((BEHIND - AHEAD))
+           N="master..origin/master   ";echo -e "${BOLDGREEN}$N  $(git rev-list --count $N)${RESET}"
+           N="origin/master..master   ";echo -e "${BOLDGREEN}$N  $(git rev-list --count $N)${RESET}"
+           N="develop..origin/develop ";echo -e "${BOLDGREEN}$N  $(git rev-list --count $N)${RESET}"
+           N="origin/develop..develop ";echo -e "${BOLDGREEN}$N  $(git rev-list --count $N)${RESET}"
+           git rev-list $N
+           exit 0
            ;;
 
         v) gitcheck
@@ -606,3 +656,100 @@ do
 done
 shift $(($OPTIND - 1))
 
+
+#  # BASH IF-STATEMENT OPERATORS CHEAT SHEET
+#  # ==============================================================================
+#  
+#  # 1. SYNTAX OVERVIEW
+#  # ------------------------------------------------------------------------------
+#  # [ ... ]     : POSIX standard. Strict. Variables should be quoted: "$var"
+#  # [[ ... ]]   : Bash extension. Safer, handles whitespace, supports regex.
+#  # (( ... ))   : Arithmetic only. C-style syntax (no $ needed for vars).
+#  
+#  
+#  # 2. INTEGER OPERATORS
+#  # ------------------------------------------------------------------------------
+#  # Method A: Classic Flags (Use inside [ ] or [[ ]])
+#  # -eq  : Equal
+#  # -ne  : Not Equal
+#  # -gt  : Greater Than
+#  # -ge  : Greater or Equal
+#  # -lt  : Less Than
+#  # -le  : Less or Equal
+#  
+#  if [ "$a" -eq 10 ]; then echo "Equal"; fi
+#  
+#  # Method B: Arithmetic Context (Use inside (( )))
+#  # ==   : Equal
+#  # !=   : Not Equal
+#  # >    : Greater Than
+#  # >=   : Greater or Equal
+#  # <    : Less Than
+#  # <=   : Less or Equal
+#  
+#  if (( a > 10 )); then echo "Greater"; fi
+#  
+#  
+#  # 3. STRING OPERATORS
+#  # ------------------------------------------------------------------------------
+#  # Best used inside [[ ... ]] to handle spaces/empty vars safely.
+#  
+#  # =    : Equal (POSIX standard)
+#  # ==   : Equal (Bash specific, synonym for =)
+#  # !=   : Not Equal
+#  # <    : ASCII alphabetical less than (needs [[ ]])
+#  # >    : ASCII alphabetical greater than (needs [[ ]])
+#  # -z   : String is empty (null/zero length)
+#  # -n   : String is NOT empty (nonzero length)
+#  
+#  if [[ -z "$var" ]]; then echo "Empty"; fi
+#  if [[ "$a" == "$b" ]]; then echo "Match"; fi
+#  
+#  
+#  # 4. FILE TEST OPERATORS
+#  # ------------------------------------------------------------------------------
+#  # Checks the state of files on the filesystem.
+#  
+#  # -e   : Exists
+#  # -f   : Exists and is a regular file
+#  # -d   : Exists and is a directory
+#  # -s   : Exists and size > 0 (not empty)
+#  # -r   : Readable
+#  # -w   : Writable
+#  # -x   : Executable
+#  # -L   : Symbolic Link
+#  
+#  if [[ -f "/path/to/file.txt" ]]; then echo "File found"; fi
+#  if [[ ! -d "/path/to/dir" ]]; then echo "Dir missing"; fi
+#  
+#  
+#  # 5. LOGICAL OPERATORS
+#  # ------------------------------------------------------------------------------
+#  # Combining multiple checks.
+#  
+#  # Inside [[ ... ]] (Recommended):
+#  # &&   : AND
+#  # ||   : OR
+#  # !    : NOT
+#  
+#  if [[ -f "file.txt" && -r "file.txt" ]]; then echo "Exists AND Readable"; fi
+#  
+#  # Inside [ ... ] (Legacy):
+#  # -a   : AND
+#  # -o   : OR
+#  # !    : NOT
+#  
+#  if [ -f "file.txt" -a -r "file.txt" ]; then echo "Legacy Check"; fi
+#  
+#  
+#  # 6. ADVANCED MATCHING ( [[ ... ]] ONLY )
+#  # ------------------------------------------------------------------------------
+#  
+#  # Globbing (Wildcards)
+#  # Use * for any string, ? for any char
+#  if [[ "$filename" == *.jpg ]]; then echo "Is a JPG"; fi
+#  
+#  # Regex (Regular Expressions)
+#  # Use =~ for extended regex matching
+#  # Do not quote the regex pattern on the right side
+#  if [[ "$email" =~ ^.+@.+\..+$ ]]; then echo "Valid Email"; fi 

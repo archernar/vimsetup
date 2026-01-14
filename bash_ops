@@ -1,0 +1,221 @@
+bash_ops() {
+    cat << 'EOF' | less
+
+# BASH Top
+# ==============================================================================
+#!/usr/bin/bash
+# Tmp=/tmp/$$
+# Tmp0=/tmp/$$_$$
+# Tmp1=/tmp/$$_$$_$$
+# Tmp2=/tmp/$$_$$_$$_$$
+# Tmp3=/tmp/$$_$$_$$_$$_$$
+# trap 'exit 0' INT HUP QUIT TERM ALRM USR1
+# trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
+# rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
+# #  >/dev/null 2>&1;
+# 
+# REVERSE="NO"
+# while getopts "bfsmudpirj" arg
+# do
+#     case $arg in
+#         b) REVERSE="YES"
+#            ;;
+#     esac
+# done
+# shift $(($OPTIND - 1))
+# 
+# BASHLIBHOME=..
+# source $BASHLIBHOME/bash.library
+# 
+# if [ "REVERSE" == "YES" ]; then                                                                                               
+#     #echo "Exiting main script."
+# fi
+# 
+# VERSION_FILE="version.txt"
+# if [ ! -f "$VERSION_FILE" ]; then
+#   echo "1.0.0" > "$VERSION_FILE"
+# fi
+# 
+
+# BASH IF-STATEMENT OPERATORS CHEAT SHEET
+# ==============================================================================
+
+# 0. EXAMPLES
+# ------------------------------------------------------------------------------
+
+#     if [ "$#" -eq 0 ]; then
+#         echo "Usage: $0 <vim_files>"
+#         exit 1
+#     fi
+# 
+#     if [ "$string1" == "$string3" ]; then
+#       echo "string1 and string3 are equal"
+#     fi
+# 
+#     if [ "$string1" != "$string2" ]; then
+#       echo "string1 and string2 are not equal"
+#     fi
+# 
+#     if [ "$string1" = "$string3" ]; then
+#       echo "string1 and string3 are also equal"
+#     fi
+# 
+#     if [ -z "$empty_string" ]; then
+#       echo "empty_string is empty"
+#     fi
+# 
+#     if [ -n "$non_empty_string" ]; then
+#       echo "non_empty_string is not empty"
+#     fi
+# 
+#     if [ ! "$empty_string" ]; then
+#       echo "empty_string is empty (using negation)"
+#     fi
+# 
+#     if [ "$num1" -eq "$num3" ]; then
+#       echo "$num1 is equal to $num3"
+#     fi
+# 
+#     if [ "$num1" -ne "$num2" ]; then
+#       echo "$num1 is not equal to $num2"
+#     fi
+# 
+#     if [ "$num1" -lt "$num2" ]; then
+#       echo "$num1 is less than $num2"
+#     fi
+# 
+#     if [ "$num2" -gt "$num1" ]; then
+#       echo "$num2 is greater than $num1"
+#     fi
+# 
+#     if [ "$num1" -le "$num3" ]; then
+#       echo "$num1 is less than or equal to $num3"
+#     fi
+# 
+#     if [ "$num2" -ge "$num1" ]; then
+#       echo "$num2 is greater than or equal to $num1"
+#     fi
+# 
+#     if [ -e "my_file.txt" ]; then
+#       echo "my_file.txt exists"
+#     fi
+# 
+#     if [ -f "my_file.txt" ]; then
+#       echo "my_file.txt is a regular file"
+#     fi
+# 
+#     if [ -d "my_directory" ]; then
+#       echo "my_directory is a directory"
+#     fi
+# 
+#     if [ -r "my_file.txt" ]; then
+#       echo "my_file.txt is readable"
+#     fi
+# 
+#     if [ -w "my_file.txt" ]; then
+#       echo "my_file.txt is writable"
+#     fi
+# 
+#     if [ -x "my_file.txt" ]; then
+#       echo "my_file.txt is executable"
+#     fi
+# 
+#     if [ -s "my_file.txt" ]; then
+#       echo "my_file.txt exists and is not empty"
+#     fi
+
+# 1. SYNTAX OVERVIEW
+# ------------------------------------------------------------------------------
+# [ ... ]     : POSIX standard. Strict. Variables should be quoted: "$var"
+# [[ ... ]]   : Bash extension. Safer, handles whitespace, supports regex.
+# (( ... ))   : Arithmetic only. C-style syntax (no $ needed for vars).
+
+
+# 2. INTEGER OPERATORS
+# ------------------------------------------------------------------------------
+# Method A: Classic Flags (Use inside [ ] or [[ ]])
+# -eq  : Equal
+# -ne  : Not Equal
+# -gt  : Greater Than
+# -ge  : Greater or Equal
+# -lt  : Less Than
+# -le  : Less or Equal
+
+# Example:
+# if [ "$a" -eq 10 ]; then echo "Equal"; fi
+
+# Method B: Arithmetic Context (Use inside (( )))
+# ==   : Equal
+# !=   : Not Equal
+# >    : Greater Than
+# >=   : Greater or Equal
+# <    : Less Than
+# <=   : Less or Equal
+
+# Example:
+# if (( a > 10 )); then echo "Greater"; fi
+
+
+# 3. STRING OPERATORS
+# ------------------------------------------------------------------------------
+# Best used inside [[ ... ]] to handle spaces/empty vars safely.
+
+# =    : Equal (POSIX standard)
+# ==   : Equal (Bash specific, synonym for =)
+# !=   : Not Equal
+# <    : ASCII alphabetical less than (needs [[ ]])
+# >    : ASCII alphabetical greater than (needs [[ ]])
+# -z   : String is empty (null/zero length)
+# -n   : String is NOT empty (nonzero length)
+
+# Example:
+# if [[ -z "$var" ]]; then echo "Empty"; fi
+
+
+# 4. FILE TEST OPERATORS
+# ------------------------------------------------------------------------------
+# Checks the state of files on the filesystem.
+
+# -e   : Exists
+# -f   : Exists and is a regular file
+# -d   : Exists and is a directory
+# -s   : Exists and size > 0 (not empty)
+# -r   : Readable
+# -w   : Writable
+# -x   : Executable
+# -L   : Symbolic Link
+
+# Example:
+# if [[ -f "/path/to/file.txt" ]]; then echo "File found"; fi
+
+
+# 5. LOGICAL OPERATORS
+# ------------------------------------------------------------------------------
+# Combining multiple checks.
+
+# Inside [[ ... ]] (Recommended):
+# &&   : AND
+# ||   : OR
+# !    : NOT
+
+# Example:
+# if [[ -f "file.txt" && -r "file.txt" ]]; then echo "Exists AND Readable"; fi
+
+
+# 6. ADVANCED MATCHING ( [[ ... ]] ONLY )
+# ------------------------------------------------------------------------------
+
+# Globbing (Wildcards)
+# Use * for any string, ? for any char
+# Example:
+# if [[ "$filename" == *.jpg ]]; then echo "Is a JPG"; fi
+
+# Regex (Regular Expressions)
+# Use =~ for extended regex matching
+# Do not quote the regex pattern on the right side
+# Example:
+# if [[ "$email" =~ ^.+@.+\..+$ ]]; then echo "Valid Email"; fi
+EOF
+}
+
+bash_ops
