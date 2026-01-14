@@ -11,17 +11,22 @@ rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 
 ALAMOHOSTA="terra"
 ALAMOHOSTB="tower"
-
+# https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 # --- Colors for formatting ---
 BOLD="\033[1m"
+RESET="\033[0m"
+
 RED="\033[31m"
 BOLDRED="$BOLD$RED"
 GREEN="\033[32m"
 BOLDGREEN="$BOLD$GREEN"
 YELLOW="\033[33m"
+BOLDYELLOW="$BOLD$YELLOW"
 BLUE="\033[34m"
+BOLDBLUE="$BOLD$BLUE"
 CYAN="\033[36m"
-RESET="\033[0m"
+BOLDCYAN="$BOLD$CYAN"
+
 
 # --- Icons ---
 CHECKICON="✅"
