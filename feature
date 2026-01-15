@@ -14,6 +14,7 @@ ALAMOHOSTB="tower"
 # https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 # --- Colors for formatting ---
 BOLD="\033[1m"
+UNDERLINE="\033[4m"
 RESET="\033[0m"
 
 RED="\033[31m"
@@ -33,6 +34,12 @@ CHECKICON="✅"
 EXICON="❌"
 
 # --- Functions ---
+ansi() {
+    echo -e "$1${RESET}"
+}
+ansibold() {
+    echo -e "${BOLD}$1${RESET}"
+}
 ansiGreen() {
     printf "${GREEN}"
 }
@@ -196,13 +203,13 @@ function gitstatus() {
 
 
            echo "" | posi
-           echo "Vim Session"                         | posi
+           ansibold "${UNDERLINE}Vim Session"             | posi
            if [ -f ".vim.vimsession" ]; then
                cat .vim.vimsession                    | gawk '{print "  " $0}' | posi 
            fi
 
            echo "" | posi
-           echo  "GitFlow Divergence" | posi
+           ansibold "${UNDERLINE}GitFlow Divergence" | posi
 
 
 
