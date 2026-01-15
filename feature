@@ -118,6 +118,41 @@ function gitcheck() {
         exit 1
     fi
 }
+function divergence() {
+    # Get the current branch name
+    current_branch=$(git rev-parse --abbrev-ref HEAD)
+    # Handle detached HEAD state
+    if [ "$current_branch" == "HEAD" ]; then
+        echo "Error: You are in a 'detached HEAD' state."
+        exit 1
+    fi
+    # Fetch the latest metadata from origin (quietly)
+    # This ensures we are comparing against the actual state of the remote server
+    git fetch origin -q
+    # Check if the upstream branch exists
+    if ! git rev-parse --verify "origin/$current_branch" > /dev/null 2>&1; then
+        echo "Error: Remote branch 'origin/$current_branch' does not exist or is not tracked."
+        exit 1
+    fi
+    # Count the commits
+    # 'origin..local' counts commits reachable from local but not origin (Ahead)
+    ahead_count=$(git rev-list --count "origin/$current_branch..$current_branch")
+    # 'local..origin' counts commits reachable from origin but not local (Behind)
+    behind_count=$(git rev-list --count "$current_branch..origin/$current_branch")
+
+    # Output the results
+    echo "  $current_branch vs. origin/$current_branch" | posi
+    echo "    Ahead (Needs Push): $ahead_count" | posi
+    echo "    Behind (Needs Pull): $behind_count" | posi
+
+    # Optional: Simple summary
+    if [ "$ahead_count" -eq 0 ] && [ "$behind_count" -eq 0 ]; then
+        echo "    $current_branch is up to date with origin." | posi
+    else
+        echo "    Sync required." | posi
+    fi
+    echo ""                                    | posi
+}
 function gitstatus() {
            shopt -s dotglob
            is -l *                                       | posi -x -c 6   -r 4
@@ -169,14 +204,18 @@ function gitstatus() {
            echo "" | posi
            echo  "GitFlow Divergence" | posi
 
-               # Calculate divergence
-               BEHIND=$(git rev-list --count "develop..$MASTER_BRANCH")
-               AHEAD=$(git rev-list --count "$MASTER_BRANCH..develop")
-               echo -e "  ${BOLD}develop${RESET} ahead of ${BOLD}$MASTER_BRANCH${RESET}: ${GREEN}$AHEAD${RESET} (New features pending release)" | posi
-               echo -e "  ${BOLD}develop${RESET} behind ${BOLD}$MASTER_BRANCH${RESET}: ${RED}$BEHIND${RESET} (Hotfixes missing in develop)" | posi
-               N=$((BEHIND - AHEAD))
-               if [ $N -ne 0 ]; then echo -e "  ${EXICON} ${BOLDRED}There are Deltas${RESET}"      | posi; fi
-               if [ $N -eq 0 ]; then echo -e "  ${CHECKICON} ${BOLDGREEN}There are No Deltas${RESET}" | posi; fi
+
+
+
+this_branch=$(git rev-parse --abbrev-ref HEAD)
+git checkout -q master
+divergence
+git checkout -q develop
+divergence
+git checkout -q $this_branch
+
+
+
            shopt -u dotglob
 
            WIDTH=$(tput cols < /dev/tty)
