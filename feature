@@ -55,6 +55,36 @@ print_kv() {
     printf "${BOLD}%-25s${RESET} %s\n" "$1:" "$2"
 }
 
+get_cursor_pos() {
+    # 1. format the terminal to not echo user input (so the response code isn't printed)
+    local old_stty=$(stty -g)
+    stty -echo
+
+    # 2. Send the request code to the terminal
+    # \033[6n is the ANSI escape code for "Device Status Report"
+    echo -en "\033[6n" > /dev/tty
+
+    # 3. Read the response into variable 'pos'
+    # -s: silent mode
+    # -d R: read until the character 'R' (which ends the response)
+    read -s -d R pos < /dev/tty
+
+    # 4. Restore terminal settings
+    stty "$old_stty"
+
+    # 5. Parse the response
+    # The response format is: ESC [ rows ; cols R
+    # We strip the first 2 characters (ESC and [)
+    pos=${pos:2}
+    
+    # Split the string by the semicolon
+    local row=${pos%;*}
+    local col=${pos#*;}
+
+    echo "Row: $row, Column: $col"
+}
+
+
 pause() {
     # -n 1 : Wait for exactly 1 character
     # -s   : Silent mode (don't echo the character to screen)
@@ -135,7 +165,7 @@ function divergence() {
     fi
     # Fetch the latest metadata from origin (quietly)
     # This ensures we are comparing against the actual state of the remote server
-    git fetch origin -q
+    #git fetch origin -q
     # Check if the upstream branch exists
     if ! git rev-parse --verify "origin/$current_branch" > /dev/null 2>&1; then
         echo "Error: Remote branch 'origin/$current_branch' does not exist or is not tracked."
@@ -175,6 +205,7 @@ function gitstatus() {
            echo "  Remote Origin     " "$HTTPS_URL"      | posi -p -c 102 
            echo "  Production Branch " "$MASTER_BRANCH"  | posi -p -c 102 
            echo "  Current Branch    " "$CURRENT_BRANCH" | posi -p -c 102 
+           echo "  Last Origin Fetch " $(stat -c %y .git/FETCH_HEAD) | posi -p -c 102
            ansiReset
            echo ""                                    | posi
            git branch                                 | posi
@@ -368,12 +399,13 @@ fi
 
 
 
-while getopts "hpvxgm:neds12rubaf:" arg
+while getopts "hopvxgm:neds12rubaf:" arg
 do
     case $arg in
         h) usage
            ;;
-
+        o) git fetch origin -q
+           ;;
         p) # Calculate divergence
            BEHIND=$(git rev-list --count "develop..origin/master")
            AHEAD=$(git rev-list --count "origin/master..develop")
