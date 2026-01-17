@@ -8,6 +8,8 @@ trap 'exit 0' INT HUP QUIT TERM ALRM USR1
 trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
 rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
+THISHOME="$HOME/.vim/vimsetup"
+
 
 ALAMOHOSTA="terra"
 ALAMOHOSTB="tower"
@@ -178,73 +180,74 @@ function divergence() {
     behind_count=$(git rev-list --count "$current_branch..origin/$current_branch")
 
     # Output the results
-    echo "  $current_branch vs. origin/$current_branch" | posi
-    echo "    Ahead (Needs Push): $ahead_count" | posi
-    echo "    Behind (Needs Pull): $behind_count" | posi
+    echo "  $current_branch vs. origin/$current_branch" | $THISHOME/posi
+    echo "    Ahead (Needs Push): $ahead_count" | $THISHOME/posi
+    echo "    Behind (Needs Pull): $behind_count" | $THISHOME/posi
 
     # Optional: Simple summary
     if [ "$ahead_count" -eq 0 ] && [ "$behind_count" -eq 0 ]; then
-        echo "    $current_branch is up to date with origin." | posi
+        echo "    $current_branch is up to date with origin." | $THISHOME/posi
     else
-        echo "    Sync required." | posi
+        echo "    Sync required." | $THISHOME/posi
     fi
-    echo ""                                    | posi
+    echo ""                                    | $THISHOME/posi
 }
 function gitstatus() {
            shopt -s dotglob
-           is -l *                                       | lsgi | posi -x -c 6   -r 4
-           is -u *                                       | lsgi | posi    -c 54  -r 4
+           $THISHOME/is -l `ls|$THISHOME/lsgi`    | $THISHOME/lsgi | $THISHOME/posi -x -c 6   -r 4
+           $THISHOME/is -u `ls|$THISHOME/lsgi`    |  $THISHOME/posi    -c 54  -r 4
            if is_online; then
-               echo -e "  ${CHECKICON} ${BOLDGREEN}Online ${RESET}"     | posi    -c 102 -r 4
+               echo -e "  ${CHECKICON} ${BOLDGREEN}Online ${RESET}"     | $THISHOME/posi    -c 102 -r 4
            else
-               echo -e "  ${EXICON} ${BOLDRED}Offline${RESET}"     | posi    -c 102 -r 4
+               echo -e "  ${EXICON} ${BOLDRED}Offline${RESET}"     | $THISHOME/posi    -c 102 -r 4
            fi
            ansiGreen
-           echo "  Repository Name   " "$REPO_NAME"      | posi    -c 102
-           echo "  Remote Origin     " "$REMOTE_URL"     | posi -p -c 102 
-           echo "  Remote Origin     " "$HTTPS_URL"      | posi -p -c 102 
-           echo "  Production Branch " "$MASTER_BRANCH"  | posi -p -c 102 
-           echo "  Current Branch    " "$CURRENT_BRANCH" | posi -p -c 102 
-           echo "  Last Origin Fetch " $(stat -c %y .git/FETCH_HEAD) | posi -p -c 102
+           echo "  Repository Name   " "$REPO_NAME"      | $THISHOME/posi    -c 102
+           echo "  Remote Origin     " "$REMOTE_URL"     | $THISHOME/posi -p -c 102 
+           echo "  Remote Origin     " "$HTTPS_URL"      | $THISHOME/posi -p -c 102 
+           echo "  Production Branch " "$MASTER_BRANCH"  | $THISHOME/posi -p -c 102 
+           echo "  Current Branch    " "$CURRENT_BRANCH" | $THISHOME/posi -p -c 102 
+           echo "  Last Origin Fetch " $(stat -c %y .git/FETCH_HEAD) | $THISHOME/posi -p -c 102
+           echo "  ThisHome          " "$THISHOME"       |  $THISHOME/posi -p -c 102
            ansiReset
-           echo ""                                    | posi
-           git branch                                 | posi
-           echo ""                                    | posi
-           echo "---------------------------------"   | posi
-           echo "Changes"                           | posi
+           echo ""                                    | $THISHOME/posi
+           git branch                                 | $THISHOME/posi
+           echo ""                                    | $THISHOME/posi
+           echo "---------------------------------"   | $THISHOME/posi
+           echo "Changes"                           | $THISHOME/posi
            git status -s | gawk '
            /^ M/ {
                print $2
-           }' | lsgi | gawk '{ print "    ✅ " $1 }'    | posi
+           }' | $THISHOME/lsgi | gawk '{ print "    ✅ " $1 }'    | $THISHOME/posi
            git status -s | gawk '
            /^[?][?]/ {
                print $2
-           }' | tee zzz |lsgi | gawk '{ print "    ❌ " $1 }'    | posi
+           }' | tee zzz | $THISHOME/lsgi | gawk '{ print "    ❌ " $1 }'    | $THISHOME/posi
 
 
 
-           echo ""                                    | posi
-           echo "Staged"                           | posi
+           echo ""                                    | $THISHOME/posi
+           echo "Staged"                           | $THISHOME/posi
            git diff --name-only --cached | gawk '
            {
                print "✅ " $0
-           }' | gawk '{print "    " $0}'    | posi
-           echo "---------------------------------"   | posi
+           }' | gawk '{print "    " $0}'    | $THISHOME/posi
+           echo "---------------------------------"   | $THISHOME/posi
 
 
-           #  git diff --name-only HEAD | gawk '{print "    " $0}'    | posi
-           #  git status --porcelain                     | gawk '{print "  " $2}' | posi
+           #  git diff --name-only HEAD | gawk '{print "    " $0}'    | $THISHOME/posi
+           #  git status --porcelain                     | gawk '{print "  " $2}' | $THISHOME/posi
            
 
 
-           echo "" | posi
-           ansibold "${UNDERLINE}Vim Session"             | posi
+           echo "" | $THISHOME/posi
+           ansibold "${UNDERLINE}Vim Session"             | $THISHOME/posi
            if [ -f ".vim.vimsession" ]; then
-               cat .vim.vimsession                    | gawk '{print "  " $0}' | posi 
+               cat .vim.vimsession                    | gawk '{print "  " $0}' | $THISHOME/posi 
            fi
 
-           echo "" | posi
-           ansibold "${UNDERLINE}GitFlow Divergence" | posi
+           echo "" | $THISHOME/posi
+           ansibold "${UNDERLINE}GitFlow Divergence" | $THISHOME/posi
 
 
 
@@ -446,7 +449,7 @@ do
                STATUSPROMPT="$(hostname) $(pwd)"
                BRANCHPROMPT="($(if [ -d '.git' ]; then git branch --show-current 2> /dev/null; fi))"
                SP="($(if [ -d '.git' ]; then git diff --name-only --cached | wc -l; else echo 'n'; fi),$(if [ -d '.git' ]; then git status --porcelain | wc -l; else echo 'n'; fi))"
-               posi -r $H  -c 1 "" 
+               $THISHOME/posi -r $H  -c 1 "" 
                read -e -p "$STATUSPROMPT $BRANCHPROMPT$SP >> " cmd
 
                # Skip loop if input is empty
@@ -770,7 +773,7 @@ shift $(($OPTIND - 1))
 #  
 #  # 1. SYNTAX OVERVIEW
 #  # ------------------------------------------------------------------------------
-#  # [ ... ]     : POSIX standard. Strict. Variables should be quoted: "$var"
+#  # [ ... ]     : posix standard. Strict. Variables should be quoted: "$var"
 #  # [[ ... ]]   : Bash extension. Safer, handles whitespace, supports regex.
 #  # (( ... ))   : Arithmetic only. C-style syntax (no $ needed for vars).
 #  
