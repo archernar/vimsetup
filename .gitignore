@@ -4,6 +4,8 @@ install
 .vim.*
 tags
 .posi
+.posirow
+.posicol
 zed
 zzed
 fed
@@ -13,4 +15,12 @@ qqed
 xx
 xxx
 xxxx
+y
+yy
+yyy
+yyyy
+z
+zz
+zzz
+zzzz
 NOTES
