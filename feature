@@ -192,8 +192,8 @@ function divergence() {
 }
 function gitstatus() {
            shopt -s dotglob
-           is -l *                                       | posi -x -c 6   -r 4
-           is -u *                                       | posi    -c 54  -r 4
+           is -l *                                       | lsgi | posi -x -c 6   -r 4
+           is -u *                                       | lsgi | posi    -c 54  -r 4
            if is_online; then
                echo -e "  ${CHECKICON} ${BOLDGREEN}Online ${RESET}"     | posi    -c 102 -r 4
            else
@@ -214,11 +214,15 @@ function gitstatus() {
            echo "Changes"                           | posi
            git status -s | gawk '
            /^ M/ {
-               print "✅ " $2
-           }
+               print $2
+           }' | lsgi | gawk '{ print "    ✅ " $1 }'    | posi
+           git status -s | gawk '
            /^[?][?]/ {
-               print "❌  " $2
-           }' | gawk '{print "    " $0}'    | posi
+               print $2
+           }' | tee zzz |lsgi | gawk '{ print "    ❌ " $1 }'    | posi
+
+
+
            echo ""                                    | posi
            echo "Staged"                           | posi
            git diff --name-only --cached | gawk '
@@ -263,34 +267,44 @@ git checkout -q $this_branch
            printf "\033[${ROW};${COLUMN}H"
 }
 
+
 # --- HELP FUNCTION ---
 function usage() {
-    echo "Usage: $(basename "$0") [OPTIONS]"
+    echo -e "\n${BOLD}Usage: $(basename "$0") [OPTIONS]${RESET}"
+    echo -e "A GitFlow helper, backup utility, and status dashboard."
     echo ""
-    echo "A helper script for managing feature branches, releases, and hotfixes."
+    
+    echo -e "${UNDERLINE}${BOLD}General & Status${RESET}"
+    echo -e "  ${BOLDGREEN}-h${RESET}          Show this help message."
+    echo -e "  ${BOLDGREEN}-s${RESET}          Status: Show git status and list branches."
+    echo -e "  ${BOLDGREEN}-v${RESET}          Dashboard: Enter interactive Git status loop."
+    echo -e "  ${BOLDGREEN}-o${RESET}          Fetch: Quietly fetch from origin."
+    echo -e "  ${BOLDGREEN}-p${RESET}          Divergence: Calculate ahead/behind counts for master/develop."
+    echo -e "  ${BOLDGREEN}-g${RESET}          Gource: Visualize project history."
     echo ""
-    echo "Options:"
-    echo "  -h          Show this help message."
-    echo "  -m <msg>    Set a custom message for merges or commits (Default: 'Merge Without Message')."
-    echo "  -s          Status: Show git status and list all branches."
-    echo "  -u          Update: Stage all modified files (git add -u) and commit with message 'Update'."
-    echo "  -g          Run Gource."
-    echo "  -a          Backup the current folder."
-    echo "  -b          Backup .git folder."
+
+    echo -e "${UNDERLINE}${BOLD}Feature Workflow${RESET} (Hardcoded: 'feature/my-new-feature')"
+    echo -e "  ${BOLDGREEN}-n${RESET}          New: Update develop, then create/checkout the feature branch."
+    echo -e "  ${BOLDGREEN}-e${RESET}          End: Merge feature into develop, push, and delete local branch."
+    echo -e "  ${BOLDGREEN}-d${RESET}          Delete: Force delete the feature branch without merging."
+    echo -e "  ${BOLDGREEN}-u${RESET}          Update: Commit tracked files with message 'Update'."
+    echo -e "  ${BOLDGREEN}-m <msg>${RESET}    Message: Set custom merge/commit message (Default: '$MSG')."
     echo ""
-    echo "Feature Workflow (Hardcoded to 'feature/my-new-feature'):"
-    echo "  -n          New Feature: Checkout develop, pull, and create/checkout 'feature/my-new-feature'."
-    echo "  -e          End Feature: Merge 'feature/my-new-feature' into develop, push, and delete local branch."
-    echo "  -d          Delete Feature: Force delete 'feature/my-new-feature' without merging."
+
+    echo -e "${UNDERLINE}${BOLD}Release & Hotfix${RESET}"
+    echo -e "  ${BOLDGREEN}-r${RESET}          Release: Increment minor ver, merge to master/develop, and tag."
+    echo -e "  ${BOLDGREEN}-1${RESET}          Hotfix Start: Increment patch ver, checkout 'hotfix/<ver>'."
+    echo -e "  ${BOLDGREEN}-2${RESET}          Hotfix Finish: Merge 'release/1.0.0' into master/develop."
     echo ""
-    echo "Release & Hotfix Workflow:"
-    echo "  -r          Release Start: Increment minor version, create release branch, commit, merge to master/develop, and tag."
-    echo "  -1          Hotfix Start: Increment version, update version.txt, and checkout 'hotfix/<version>'."
-    echo "  -2          Hotfix Finish: Merge 'release/1.0.0' (hardcoded) into master/develop and tag."
+
+    echo -e "${UNDERLINE}${BOLD}Maintenance & Backups${RESET}"
+    echo -e "  ${BOLDGREEN}-a${RESET}          Archive: Tar/Gzip current folder and SCP to Alamo host."
+    echo -e "  ${BOLDGREEN}-b${RESET}          Backup: Archive .git folder specifically."
+    echo -e "  ${BOLDGREEN}-f <file>${RESET}   File Transfer: SCP a specific file to Alamo hosts."
+    echo -e "  ${BOLDGREEN}-g <file>${RESET}   File Transfer: SCP a specific file from Alamo hosts."
+    echo -e "  ${BOLDGREEN}-x${RESET}          ${BOLDRED}Reset:${RESET} Hard reset develop/master to match origin (Destructive)."
     echo ""
-    echo "Examples:"
-    echo "  $(basename "$0") -n           # Start a new feature"
-    echo "  $(basename "$0") -m \"Fix\" -u  # Update tracked files with message 'Fix'"
+    
     exit 0
 }
 
@@ -399,7 +413,7 @@ fi
 
 
 
-while getopts "hopvxgm:neds12rubaf:" arg
+while getopts "hopvxm:neds12rubaf:g:y" arg
 do
     case $arg in
         h) usage
@@ -469,7 +483,7 @@ do
            fi
            exit 0
            ;;
-        g) proceed
+        y) proceed
            GOURCEVIDEO="NO"
            if [[ "$GOURCEVIDEO" != "YES" ]]; then                                                                                               
                gource \
@@ -725,6 +739,22 @@ do
                scp "$filename" "$USER@$ALAMOHOSTB:/home/$USER/Alamo/FILES/$filename"
            else
                echo "$ALAMOHOSTB Alamo Server is down or unreachable."
+           fi
+           echo ""
+           exit 0
+           ;;
+        g) filename="$OPTARG"
+           if ssh -o ConnectTimeout=2 $USER@$ALAMOHOSTA exit; then
+               echo ""
+               echo "$ALAMOHOSTA Alamo Server is up and SSH is working."
+               echo ""
+               echo "scp"
+               echo "    $USER@$ALAMOHOSTA:/home/$USER/Alamo/FILES/$filename"
+               echo "    XFR/$filename"
+               mkdir -p ./XFR
+               scp "$USER@$ALAMOHOSTA:/home/$USER/Alamo/FILES/$filename" "XFR/$filename"
+           else
+               echo "$ALAMOHOSTA Alamo Server is down or unreachable."
            fi
            echo ""
            exit 0
