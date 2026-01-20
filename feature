@@ -8,17 +8,28 @@ trap 'exit 0' INT HUP QUIT TERM ALRM USR1
 trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
 rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
+
 THISHOME="$HOME/.vim/vimsetup"
+# #####################################################
+# What is in .feature
+# ALAMOHOSTA=""
+# ALAMOHOSTB=""
+# #####################################################
+if [[ -f "$THISHOME/.feature" ]]; then
+    source "$THISHOME/.feature"
+else
+    echo "$THISHOME/.feature does not exist"
+    exit 1
+fi
 
-
-ALAMOHOSTA="terra"
-ALAMOHOSTB="tower"
 # https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 # --- Colors for formatting ---
 BOLD="\033[1m"
 UNDERLINE="\033[4m"
 RESET="\033[0m"
 
+BLACK="\033[30m"
+BOLDBLACK="$BOLD$BLACK"
 RED="\033[31m"
 BOLDRED="$BOLD$RED"
 GREEN="\033[32m"
@@ -27,8 +38,12 @@ YELLOW="\033[33m"
 BOLDYELLOW="$BOLD$YELLOW"
 BLUE="\033[34m"
 BOLDBLUE="$BOLD$BLUE"
+MAGENTA="\033[35m"
+BOLDMAGENTA="$BOLDA$MAGENTA"
 CYAN="\033[36m"
 BOLDCYAN="$BOLD$CYAN"
+WHITE="\033[36m"
+BOLDWHITE="$BOLD$WHITE"
 
 
 # --- Icons ---
@@ -123,6 +138,14 @@ function is_online() {
 #   fi
 }
 
+function isa_gitrepo() {
+    if [[ -d ".git" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # --- Main Execution ---
 
 check_dependency git
@@ -130,7 +153,7 @@ check_dependency awk
 check_dependency sed
 
 function gitcheck() {
-    if [ ! -d ".git" ]; then
+    if ! isa_gitrepo; then
          echo "Not a Git Repo"
          exit 1
     fi
@@ -276,6 +299,7 @@ function usage() {
     echo -e "\n${BOLD}Usage: $(basename "$0") [OPTIONS]${RESET}"
     echo -e "A GitFlow helper, backup utility, and status dashboard."
     echo ""
+    echo ""
     
     echo -e "${UNDERLINE}${BOLD}General & Status${RESET}"
     echo -e "  ${BOLDGREEN}-h${RESET}          Show this help message."
@@ -286,7 +310,7 @@ function usage() {
     echo -e "  ${BOLDGREEN}-g${RESET}          Gource: Visualize project history."
     echo ""
 
-    echo -e "${UNDERLINE}${BOLD}Feature Workflow${RESET} (Hardcoded: 'feature/my-new-feature')"
+    echo -e "${UNDERLINE}${BOLD}Feature Workflow${RESET} (Hardcoded: '$WORKING_BRANCH_NAME')"
     echo -e "  ${BOLDGREEN}-n${RESET}          New: Update develop, then create/checkout the feature branch."
     echo -e "  ${BOLDGREEN}-e${RESET}          End: Merge feature into develop, push, and delete local branch."
     echo -e "  ${BOLDGREEN}-d${RESET}          Delete: Force delete the feature branch without merging."
@@ -353,7 +377,7 @@ function proceed() {
 }
 function git_branch() {
          local void="11";                          # Bash-Function-Args
-     if [ -d ".git" ]; then
+    if isa_gitrepo; then
          git branch --show-current 2> /dev/null 
      else
          exit 1
@@ -400,7 +424,7 @@ MSG="Merge Without Message"
 VERSION_FILE="version.txt"
 # Added gource
 
-if [ -d ".git" ]; then
+if isa_gitrepo; then
     REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
     MASTER_BRANCH="master"
     # Detect Master/Main
@@ -530,22 +554,22 @@ do
                    echo "+++++++++++++++++++++++====="
                fi
 
-           BRANCH_NAME="feature/my-new-feature"
-           if git rev-parse --verify "$BRANCH_NAME" >/dev/null 2>&1; then
-               echo "Branch '$BRANCH_NAME' exists locally."
-               git checkout feature/my-new-feature
+           BRANCH_NAME="$WORKING_BRANCH_NAME"
+           if git rev-parse --verify "$WORKING_BRANCH_NAME" >/dev/null 2>&1; then
+               echo "Branch '$WORKING_BRANCH_NAME' exists locally."
+               git checkout "$WORKING_BRANCH_NAME"
                exit 0
            else
-               echo "Branch '$BRANCH_NAME' does not exist locally."
-               git checkout -b feature/my-new-feature
+               echo "Branch '$WORKING_BRANCH_NAME' does not exist locally."
+               git checkout -b "$WORKING_BRANCH_NAME"
            fi
 
            exit 0
            ;;
         e) gitcheck
            git checkout develop
-           git merge --no-ff  feature/my-new-feature -m "$MSG"
-           git branch -d      feature/my-new-feature
+           git merge --no-ff  "$WORKING_BRANCH_NAME" -m "$MSG"
+           git branch -d      "$WORKING_BRANCH_NAME"
            if git remote | grep -q "^origin$"; then
                git push origin develop
            fi
@@ -554,8 +578,8 @@ do
            ;;
         d) gitcheck
            git checkout develop
-           if git rev-parse --verify feature/my-new-feature >/dev/null 2>&1; then
-               git branch -D  feature/my-new-feature
+           if git rev-parse --verify "$WORKING_BRANCH_NAME"  >/dev/null 2>&1; then
+               git branch -D  "$WORKING_BRANCH_NAME"
            fi
            exit 0
            ;;
@@ -667,8 +691,8 @@ do
            exit 0
            ;;
         u) gitcheck
-           if [ "$(git branch --show-current)" != "feature/my-new-feature" ]; then
-               echo "Not on 'feature/my-new-feature' branch."
+           if [ "$(git branch --show-current)" != "$WORKING_BRANCH_NAME" ]; then
+               echo "Not on '$WORKING_BRANCH_NAME' branch."
                exit 1
                exit 1
            fi
