@@ -299,6 +299,7 @@ function usage() {
     echo -e "\n${BOLD}Usage: $(basename "$0") [OPTIONS]${RESET}"
     echo -e "A GitFlow helper, backup utility, and status dashboard."
     echo ""
+    echo ""
     
     echo -e "${UNDERLINE}${BOLD}General & Status${RESET}"
     echo -e "  ${BOLDGREEN}-h${RESET}          Show this help message."
