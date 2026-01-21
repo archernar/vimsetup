@@ -546,13 +546,13 @@ do
            ;;
         n) gitcheck
            git checkout develop
+           if is_online; then
                if git remote | grep -q "^origin$"; then
                    git pull origin develop
-               else
-                   echo "+++++++++++++++++++++++====="
-                   echo "+++++++++++++++++++++++====="
-                   echo "+++++++++++++++++++++++====="
                fi
+           else
+               echo -e "${RED}remote/origin is not online.${RESET}"
+           fi
 
            BRANCH_NAME="$WORKING_BRANCH_NAME"
            if git rev-parse --verify "$WORKING_BRANCH_NAME" >/dev/null 2>&1; then
@@ -570,8 +570,12 @@ do
            git checkout develop
            git merge --no-ff  "$WORKING_BRANCH_NAME" -m "$MSG"
            git branch -d      "$WORKING_BRANCH_NAME"
-           if git remote | grep -q "^origin$"; then
-               git push origin develop
+           if is_online; then
+               if git remote | grep -q "^origin$"; then
+                   git push origin develop
+               fi
+           else
+               echo -e "${RED}remote/origin is not online.${RESET}"
            fi
            exit 0
 
@@ -625,8 +629,12 @@ do
            git checkout develop
            git merge --no-ff release/1.0.0
            git branch -d release/1.0.0
-           if git remote | grep -q "^origin$"; then
-               git push origin master develop --tags
+           if is_online; then
+               if git remote | grep -q "^origin$"; then
+                   git push origin master develop --tags
+               fi
+           else
+               echo -e "${RED}remote/origin is not online.${RESET}"
            fi
            exit 0
            ;;
@@ -677,11 +685,15 @@ do
 
            
            git branch -d release/$new_version
-           git push origin develop --tags
-           git push origin master --tags
+           if is_online; then
+               git push origin develop --tags
+               git push origin master --tags
 
-           git pull origin develop
-           git pull origin master
+               git pull origin develop
+               git pull origin master
+           else
+               echo -e "${RED}remote/origin is not online.${RESET}"
+           fi
 
            exit 0
            ;;
