@@ -555,6 +555,7 @@ do
            fi
 
            BRANCH_NAME="$WORKING_BRANCH_NAME"
+           BRANCH_NAME="$WORKING_BRANCH_NAME"
            if git rev-parse --verify "$WORKING_BRANCH_NAME" >/dev/null 2>&1; then
                echo "Branch '$WORKING_BRANCH_NAME' exists locally."
                git checkout "$WORKING_BRANCH_NAME"
