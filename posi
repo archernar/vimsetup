@@ -1,5 +1,27 @@
 #!/usr/bin/bash
 
+# --- Colors for formatting ---
+BOLD="\033[1m"
+UNDERLINE="\033[4m"
+RESET="\033[0m"
+
+BLACK="\033[30m"
+BOLDBLACK="$BOLD$BLACK"
+RED="\033[31m"
+BOLDRED="$BOLD$RED"
+GREEN="\033[32m"
+BOLDGREEN="$BOLD$GREEN"
+YELLOW="\033[33m"
+BOLDYELLOW="$BOLD$YELLOW"
+BLUE="\033[34m"
+BOLDBLUE="$BOLD$BLUE"
+MAGENTA="\033[35m"
+BOLDMAGENTA="$BOLDA$MAGENTA"
+CYAN="\033[36m"
+BOLDCYAN="$BOLD$CYAN"
+WHITE="\033[36m"
+BOLDWHITE="$BOLD$WHITE"
+
 # Function: move_cursor <row> <col>
 # move_cursor 2 10
 move_cursor() {
@@ -20,6 +42,8 @@ HEIGHT=$(tput lines < /dev/tty)
 START_COL=$((WIDTH / 2))
 PROMPT_ROW=$((HEIGHT - 4))
 PROMPT_COLUMN=$((0 + 4))
+MSG_ROW=$((HEIGHT - 2))
+MSG_COLUMN=$((0 + 4))
 
 START_ROW=1
 REMROW=$START_ROW
@@ -35,15 +59,32 @@ if [ -f ".posicol" ]; then
 fi
 
 
-while getopts "hxc:r:p" arg
+while getopts "hxc:r:tpm:" arg
 do
     case $arg in
         h) usage
            ;;
         x) clear
+           START_ROW=1
+           REMROW=$START_ROW
+           echo $REMROW > .posirow
+
+           START_COL=2
+           REMCOL=$START_COL
+           echo $REMCOL > .posicol
+
+           printf "\033[${START_ROW};1H"
+           printf "\033[${START_COL}G"
+           exit 0
            ;;
         c) START_COL=$OPTARG
            REMCOL=$START_COL
+           ;;
+        t) START_ROW=1
+           REMROW=$START_ROW
+           echo $REMROW > .posirow
+           printf "\033[${START_ROW};1H"
+           exit 0
            ;;
         r) START_ROW=$OPTARG
            REMROW=$START_ROW
@@ -52,6 +93,13 @@ do
            START_COL=$(cat .posicol)
            REMROW=$START_ROW
            REMCOL=$START_COL
+           ;;
+        m) line=$OPTARG
+           printf "\033[${MSG_ROW};1H"
+           printf "\033[${MSG_COL}G\033[K%s" 
+           echo -e "$MAGENTA$line$RESET"
+
+           exit 0
            ;;
     esac
 done
@@ -78,14 +126,16 @@ if [[ "$INPUT_SOURCE" = "/dev/stdin" ]]; then
         # \033[K  -> Clear to end of line
         # %s      -> Print line content
         # \n      -> Move down
-        printf "\033[${START_COL}G\033[K%s\n"  "$line"
+        #printf "\033[${START_COL}G\033[K%s\n"  "$line"
+        printf "\033[${START_COL}G%s\n"  "$line"
         REMROW=$((REMROW + 1))
         echo $REMROW > .posirow
         echo $REMCOL > .posicol
     done
 else
     echo "$INPUT_SOURCE" | while IFS= read -r line || [ -n "$line" ]; do
-        printf "\033[${START_COL}G\033[K%s\n"  "$line"
+        #printf "\033[${START_COL}G\033[K%s\n"  "$line"
+        printf "\033[${START_COL}G%s\n"  "$line"
         REMROW=$((REMROW + 1))
         echo $REMROW > .posirow
         echo $REMCOL > .posicol
