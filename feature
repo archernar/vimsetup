@@ -9,6 +9,8 @@ trap 'rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"' EXIT
 rm -f "$Tmp" "$Tmp0" "$Tmp1" "$Tmp2" "$Tmp3"  >/dev/null 2>&1;
 #  >/dev/null 2>&1;
 
+rm -f $THISHOME/.is_online
+
 THISHOME="$HOME/.vim/vimsetup"
 # #####################################################
 # What is in .feature
@@ -123,13 +125,23 @@ check_dependency() {
 # -W 1: Wait max 1 second for a response (can use decimal 0.2 on some versions)
 # -q:   Quiet output
 function is_online() {
-    ping -c 1 -W 1 -q 8.8.8.8 &> /dev/null
-
-    if [ $? -eq 0 ]; then
-        return 0 # Online
+    local ret
+    if [ -f "$THISHOME/.is_online" ]; then
+        ret=$(cat $THISHOME/.is_online)
+        rm -f $THISHOME/.is_online
+        return $ret
     else
-        return 1 # Offline
+        ping -c 1 -W 1 -q 8.8.8.8 &> /dev/null
+        ret=$?
+        echo $ret > $THISHOME/.is_online
+        
+        if [ $ret -eq 0 ]; then
+            return 0 # Online
+        else
+            return 1 # Offline
+        fi
     fi
+
 #   ALTERNATIVE -  Timeout is set to 0.1 seconds for extreme speed
 #   if timeout 0.1 bash -c 'true &> /dev/tcp/8.8.8.8/53'; then
 #       return 0 # Online
@@ -225,8 +237,10 @@ function gitstatus() {
                echo -e "  ${EXICON} ${BOLDRED}Offline${RESET}"     | $THISHOME/posi    -c 102 -r 4
            fi
            ansiGreen
+           echo "LEFT"      | $THISHOME/posi
            echo "  Repository Name   " "$REPO_NAME"      | $THISHOME/posi    -c 102
            echo "  Remote Origin     " "$REMOTE_URL"     | $THISHOME/posi -p -c 102 
+           echo "RIGHT"      | $THISHOME/posi
            echo "  Remote Origin     " "$HTTPS_URL"      | $THISHOME/posi -p -c 102 
            echo "  Production Branch " "$MASTER_BRANCH"  | $THISHOME/posi -p -c 102 
            echo "  Current Branch    " "$CURRENT_BRANCH" | $THISHOME/posi -p -c 102 
@@ -700,6 +714,7 @@ do
            ;;
 
         s) gitcheck
+           $THISHOME/posi    -m "Hello World!"
            gitstatus
            exit 0
            ;;
