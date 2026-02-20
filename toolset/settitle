@@ -1,0 +1,34 @@
+#!/usr/bin/bash
+
+# Default to "false" (do not dry run)
+DRY_RUN=false
+
+# Check if the first argument passed to the script is -n or --dry-run
+if [[ "$1" == "-n" || "$1" == "--dry-run" ]]; then
+    DRY_RUN=true
+    echo "--- DRY RUN MODE: No files will be modified ---"
+fi
+
+for file in *.mp3; do
+    # Check if file exists (handles empty folders)
+    [ -e "$file" ] || continue
+
+    # 1. Clean the filename
+    clean_name="${file%.*}"      # Remove extension
+    clean_name="${clean_name//_/ }" # Replace underscores
+    clean_name="${clean_name//-/ }" # Replace hyphens
+
+    # Print the plan
+    echo "File: $file"
+    echo " -> New Title: '$clean_name'"
+
+    if [ "$DRY_RUN" = true ]; then
+        echo " [DRY RUN] Command skipped: id3v2 --song \"$clean_name\" \"$file\""
+    else
+        # Actually execute the command
+        id3v2 --song "$clean_name" "$file"
+        echo " [SUCCESS] Tag updated."
+    fi
+    
+    echo "--------------------------------"
+done
