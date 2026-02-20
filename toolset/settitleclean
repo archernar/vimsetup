@@ -1,0 +1,57 @@
+#!/usr/bin/bash
+
+
+# Initialize flags
+DRY_RUN=false
+REPLACE_UNDERSCORES=false
+
+# Parse arguments
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -n|--dry-run) DRY_RUN=true ;;
+        -r|--replace) REPLACE_UNDERSCORES=true ;;
+        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+done
+
+if [ "$DRY_RUN" = true ]; then
+    echo "--- DRY RUN MODE: No files will be modified ---"
+fi
+
+# Loop through media files
+for file in *.{mp4,mkv,mp3,webm,m4a}; do
+    [ -e "$file" ] || continue
+
+    extension="${file##*.}"
+    base_name="${file%.*}"
+
+    # 1. Remove the YouTube ID (standardized regex)
+    # Matches: Separator (_ or - or ' [') + 11 ID chars + optional ']' + End of line
+    new_base=$(echo "$base_name" | sed -E 's/(_|-| \[)[a-zA-Z0-9_-]{11}\]?$//')
+
+    # 2. If -r flag is set, handle underscores and spaces
+    if [ "$REPLACE_UNDERSCORES" = true ]; then
+        # Replace all underscores with spaces
+        new_base="${new_base//_/ }"
+
+        # Squeeze multiple spaces into one using 'tr -s'
+        new_base=$(echo "$new_base" | tr -s ' ')
+
+        # Trim any accidentally created leading/trailing whitespace
+        new_base=$(echo "$new_base" | sed -E 's/^ +| +$//g')
+    fi
+
+    new_file="${new_base}.${extension}"
+
+    # 3. Check if changes are needed
+    if [ "$file" != "$new_file" ]; then
+        if [ "$DRY_RUN" = true ]; then
+            echo "[DRY RUN] Rename: '$file'"
+            echo "            To: '$new_file'"
+        else
+            mv "$file" "$new_file"
+            echo "[RENAMED] '$file' -> '$new_file'"
+        fi
+    fi
+done
