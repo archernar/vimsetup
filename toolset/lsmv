@@ -1,0 +1,20 @@
+ls -a | gawk '
+BEGIN {
+    dq="\""
+    print "function moveit() {"
+    print "    mv --   " dq "$2" dq "    "  dq "$1" dq
+    print "}"
+    print ""
+    print ""
+    print ""
+    print ""
+
+
+}
+
+
+{
+    print "moveit " dq $0 dq "     " dq $0 dq
+}' | tee gogo
+chmod +x gogo
+
