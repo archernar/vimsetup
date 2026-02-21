@@ -1,4 +1,21 @@
+#!/usr/bin/bash
+Tmp=/tmp/$$
+
+
 ls -a | gawk '
+BEGINE {
+    m=-1
+}
+{
+    n = length($0)
+    if (n > m) m=n
+}
+END {
+    print m
+}' > $Tmp
+MAX=`cat $Tmp`
+
+ls -a | gawk -v max="$MAX" '
 BEGIN {
     dq="\""
     print "function moveit() {"
@@ -14,7 +31,8 @@ BEGIN {
 
 
 {
-    print "moveit " dq $0 dq "     " dq $0 dq
+    fmt="moveit      %-" max "s" "        %s\n"
+    printf fmt, dq $0 dq,dq $0 dq
 }' | tee gogo
 chmod +x gogo
 
